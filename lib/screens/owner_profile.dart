@@ -3,6 +3,7 @@ import 'owner_dashboard.dart';
 import 'properties.dart';
 import 'manage_bookings.dart';
 import 'property_analytics.dart';
+import '../resources/imagescreen.dart';
 
 class ownerprofile extends StatefulWidget {
   const ownerprofile({super.key});
@@ -194,13 +195,11 @@ class _ownerprofileState extends State<ownerprofile> {
                     ),
                     label: const Text('Chat Now'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          const Color(0xFF2563EB),
+                      backgroundColor: const Color(0xFF2563EB),
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),
@@ -226,14 +225,12 @@ class _ownerprofileState extends State<ownerprofile> {
                     ),
                     label: const Text('Call Owner'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor:
-                          const Color(0xFF2563EB),
+                      foregroundColor: const Color(0xFF2563EB),
                       side: const BorderSide(
                         color: Color(0xFF2563EB),
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),
@@ -338,8 +335,7 @@ class _ownerprofileState extends State<ownerprofile> {
         ),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'About Rajesh',
@@ -375,8 +371,7 @@ class _ownerprofileState extends State<ownerprofile> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             height: 38,
@@ -396,8 +391,7 @@ class _ownerprofileState extends State<ownerprofile> {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
@@ -436,8 +430,7 @@ class _ownerprofileState extends State<ownerprofile> {
         ),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'Contact Information',
@@ -512,8 +505,7 @@ class _ownerprofileState extends State<ownerprofile> {
         ),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
@@ -598,8 +590,7 @@ class _ownerprofileState extends State<ownerprofile> {
 
   Widget _buildProperties() {
     return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
@@ -616,8 +607,7 @@ class _ownerprofileState extends State<ownerprofile> {
 
             TextButton(
               onPressed: () {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text(
                       'Showing all properties',
@@ -648,7 +638,7 @@ class _ownerprofileState extends State<ownerprofile> {
                 'Rajkot',
                 '₹15,000/mo',
                 '4.8',
-                'lib/resources/images/property1.png',
+                property1,
               ),
 
               const SizedBox(width: 12),
@@ -658,7 +648,7 @@ class _ownerprofileState extends State<ownerprofile> {
                 'Rajkot East',
                 '₹22,000/mo',
                 '4.9',
-                'lib/resources/images/property2.png',
+                property2,
               ),
             ],
           ),
@@ -680,8 +670,7 @@ class _ownerprofileState extends State<ownerprofile> {
         ),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'Tenant Review',
@@ -709,8 +698,7 @@ class _ownerprofileState extends State<ownerprofile> {
 
               const Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Anish Sharma',
@@ -801,8 +789,7 @@ class _ownerprofileState extends State<ownerprofile> {
                 height: 48,
                 child: OutlinedButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
                           'Visit booking selected',
@@ -811,14 +798,12 @@ class _ownerprofileState extends State<ownerprofile> {
                     );
                   },
                   style: OutlinedButton.styleFrom(
-                    foregroundColor:
-                        const Color(0xFF2563EB),
+                    foregroundColor: const Color(0xFF2563EB),
                     side: const BorderSide(
                       color: Color(0xFF2563EB),
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: const Text(
@@ -838,8 +823,7 @@ class _ownerprofileState extends State<ownerprofile> {
                 height: 48,
                 child: ElevatedButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
                           'Rental request selected',
@@ -848,13 +832,11 @@ class _ownerprofileState extends State<ownerprofile> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFF2563EB),
+                    backgroundColor: const Color(0xFF2563EB),
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: const Text(
@@ -879,43 +861,37 @@ class _ownerprofileState extends State<ownerprofile> {
       currentIndex: _selectedIndex,
       type: BottomNavigationBarType.fixed,
 
-      selectedItemColor:
-          const Color(0xFF2563EB),
+      selectedItemColor: const Color(0xFF2563EB),
 
-      unselectedItemColor:
-          const Color(0xFF6B7280),
+      unselectedItemColor: const Color(0xFF6B7280),
 
       onTap: (index) {
         if (index == 0) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  const ownerdashboard(),
+              builder: (context) => const ownerdashboard(),
             ),
           );
         } else if (index == 1) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  const properties(),
+              builder: (context) => const properties(),
             ),
           );
         } else if (index == 2) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  const managebookings(),
+              builder: (context) => const managebookings(),
             ),
           );
         } else if (index == 3) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  const propertyanalytics(),
+              builder: (context) => const propertyanalytics(),
             ),
           );
         } else if (index == 4) {
@@ -973,8 +949,7 @@ class _ownerprofileState extends State<ownerprofile> {
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildHeader(),
 
@@ -1013,8 +988,7 @@ class _ownerprofileState extends State<ownerprofile> {
         ),
       ),
 
-      bottomNavigationBar:
-          _buildBottomNavigation(),
+      bottomNavigationBar: _buildBottomNavigation(),
     );
   }
 }

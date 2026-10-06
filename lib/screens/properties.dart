@@ -3,6 +3,7 @@ import 'owner_dashboard.dart';
 import 'manage_bookings.dart';
 import 'property_analytics.dart';
 import 'owner_profile.dart';
+import '../resources/imagescreen.dart';
 
 class properties extends StatefulWidget {
   const properties({super.key});
@@ -315,8 +316,7 @@ class _propertiesState extends State<properties> {
             // ================= PROPERTY 1 =================
 
             _propertyCard(
-              imagePath:
-                  'lib/resources/images/property1.png',
+              imagePath: property1,
 
               rating: '4.9',
 
@@ -349,8 +349,7 @@ class _propertiesState extends State<properties> {
             // ================= PROPERTY 2 =================
 
             _propertyCard(
-              imagePath:
-                  'lib/resources/images/property2.png',
+              imagePath: property2,
 
               rating: '',
 
@@ -631,7 +630,6 @@ class _propertiesState extends State<properties> {
 
                     height: 190,
 
-                    // CHANGED: image now fills the full box
                     fit: BoxFit.cover,
                   ),
                 ),

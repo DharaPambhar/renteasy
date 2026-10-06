@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'owner_register.dart';
 import 'owner_dashboard.dart';
+import '../resources/imagescreen.dart';
 
 class ownerlogin extends StatefulWidget {
   const ownerlogin({super.key});
@@ -32,7 +32,6 @@ class _ownerloginState extends State<ownerlogin> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Email Address
           const Text(
             'Email Address',
             style: TextStyle(
@@ -71,7 +70,6 @@ class _ownerloginState extends State<ownerlogin> {
 
           const SizedBox(height: 18),
 
-          // Password
           const Text(
             'Password',
             style: TextStyle(
@@ -91,7 +89,8 @@ class _ownerloginState extends State<ownerlogin> {
               suffixIcon: IconButton(
                 onPressed: () {
                   setState(() {
-                    _isPasswordVisible = !_isPasswordVisible;
+                    _isPasswordVisible =
+                        !_isPasswordVisible;
                   });
                 },
                 icon: Icon(
@@ -119,7 +118,6 @@ class _ownerloginState extends State<ownerlogin> {
 
           const SizedBox(height: 8),
 
-          // Remember Me + Forgot Password
           Row(
             children: [
               Checkbox(
@@ -162,7 +160,6 @@ class _ownerloginState extends State<ownerlogin> {
 
           const SizedBox(height: 12),
 
-          // Login Button
           SizedBox(
             width: double.infinity,
             height: 52,
@@ -172,7 +169,8 @@ class _ownerloginState extends State<ownerlogin> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const ownerdashboard(),
+                      builder: (context) =>
+                          const ownerdashboard(),
                     ),
                   );
                 }
@@ -300,7 +298,6 @@ class _ownerloginState extends State<ownerlogin> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // RentEasy Logo
                     const Center(
                       child: Text(
                         'RentEasy',
@@ -321,12 +318,14 @@ class _ownerloginState extends State<ownerlogin> {
                         width: 220,
                         decoration: BoxDecoration(
                           color: const Color(0xFFEFF6FF),
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius:
+                              BorderRadius.circular(24),
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius:
+                              BorderRadius.circular(24),
                           child: Image.asset(
-                            'lib/resources/images/owner_login.png',
+                            ownerLogin,
                             width: 220,
                             height: 160,
                             fit: BoxFit.contain,
@@ -337,7 +336,6 @@ class _ownerloginState extends State<ownerlogin> {
 
                     const SizedBox(height: 25),
 
-                    // Title
                     const Center(
                       child: Text(
                         'Welcome, Property Owner',
@@ -352,7 +350,6 @@ class _ownerloginState extends State<ownerlogin> {
 
                     const SizedBox(height: 10),
 
-                    // Subtitle
                     const Center(
                       child: Text(
                         'Manage your properties, tenants, and rental income effortlessly.',
@@ -367,17 +364,16 @@ class _ownerloginState extends State<ownerlogin> {
 
                     const SizedBox(height: 25),
 
-                    // Login / Register Tabs
                     Container(
                       height: 50,
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius:
+                            BorderRadius.circular(12),
                       ),
                       child: Row(
                         children: [
-                          // Login Tab
                           Expanded(
                             child: Container(
                               decoration: BoxDecoration(
@@ -389,22 +385,24 @@ class _ownerloginState extends State<ownerlogin> {
                                 child: Text(
                                   'Login',
                                   style: TextStyle(
-                                    color: Color(0xFF2563EB),
-                                    fontWeight: FontWeight.w600,
+                                    color:
+                                        Color(0xFF2563EB),
+                                    fontWeight:
+                                        FontWeight.w600,
                                   ),
                                 ),
                               ),
                             ),
                           ),
 
-                          // Register Tab
                           Expanded(
                             child: TextButton(
                               onPressed: _openRegisterPage,
                               child: const Text(
                                 'Register',
                                 style: TextStyle(
-                                  color: Color(0xFF6B7280),
+                                  color:
+                                      Color(0xFF6B7280),
                                 ),
                               ),
                             ),
@@ -421,7 +419,6 @@ class _ownerloginState extends State<ownerlogin> {
 
                     const SizedBox(height: 25),
 
-                    // Register Footer
                     Center(
                       child: RichText(
                         text: TextSpan(
@@ -441,8 +438,10 @@ class _ownerloginState extends State<ownerlogin> {
                                 child: const Text(
                                   'Register',
                                   style: TextStyle(
-                                    color: Color(0xFF2563EB),
-                                    fontWeight: FontWeight.w600,
+                                    color:
+                                        Color(0xFF2563EB),
+                                    fontWeight:
+                                        FontWeight.w600,
                                   ),
                                 ),
                               ),

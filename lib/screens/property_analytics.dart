@@ -1,9 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'owner_dashboard.dart';
 import 'properties.dart';
 import 'manage_bookings.dart';
 import 'owner_profile.dart';
+import '../resources/imagescreen.dart';
 
 class propertyanalytics extends StatefulWidget {
   const propertyanalytics({super.key});
@@ -64,6 +64,8 @@ class _propertyanalyticsState
     }
   }
 
+  // ================= BOTTOM NAVIGATION WIDGET =================
+
   Widget _buildBottomNavigation() {
     return BottomNavigationBar(
       currentIndex: _selectedIndex,
@@ -101,6 +103,8 @@ class _propertyanalyticsState
     );
   }
 
+  // ================= BUILD =================
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,6 +115,7 @@ class _propertyanalyticsState
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back,
@@ -120,6 +125,7 @@ class _propertyanalyticsState
             Navigator.pop(context);
           },
         ),
+
         title: const Text(
           'Property Analytics',
           style: TextStyle(
@@ -128,6 +134,7 @@ class _propertyanalyticsState
             fontWeight: FontWeight.bold,
           ),
         ),
+
         actions: [
           Stack(
             children: [
@@ -139,6 +146,7 @@ class _propertyanalyticsState
                 ),
                 onPressed: () {},
               ),
+
               Positioned(
                 right: 9,
                 top: 8,
@@ -153,6 +161,7 @@ class _propertyanalyticsState
               ),
             ],
           ),
+
           const SizedBox(width: 8),
         ],
       ),
@@ -161,6 +170,7 @@ class _propertyanalyticsState
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -169,6 +179,7 @@ class _propertyanalyticsState
 
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
+
               child: Row(
                 children: List.generate(
                   timeFilters.length,
@@ -182,33 +193,41 @@ class _propertyanalyticsState
                           _selectedTime = index;
                         });
                       },
+
                       child: Container(
                         margin: const EdgeInsets.only(
                           right: 8,
                         ),
+
                         padding:
                             const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 10,
                         ),
+
                         decoration: BoxDecoration(
                           color: selected
                               ? const Color(0xff2563EB)
                               : Colors.white,
+
                           borderRadius:
                               BorderRadius.circular(8),
+
                           border: Border.all(
                             color: selected
                                 ? const Color(0xff2563EB)
                                 : const Color(0xffE2E8F0),
                           ),
                         ),
+
                         child: Text(
                           timeFilters[index],
+
                           style: TextStyle(
                             color: selected
                                 ? Colors.white
                                 : const Color(0xff475569),
+
                             fontWeight: selected
                                 ? FontWeight.w600
                                 : FontWeight.normal,
@@ -235,7 +254,9 @@ class _propertyanalyticsState
                     Icons.visibility_outlined,
                   ),
                 ),
+
                 const SizedBox(width: 12),
+
                 Expanded(
                   child: _metricCard(
                     'Active Listings',
@@ -259,7 +280,9 @@ class _propertyanalyticsState
                     Icons.calendar_month_outlined,
                   ),
                 ),
+
                 const SizedBox(width: 12),
+
                 Expanded(
                   child: _metricCard(
                     'Occupancy Rate',
@@ -283,7 +306,9 @@ class _propertyanalyticsState
                     Icons.attach_money,
                   ),
                 ),
+
                 const SizedBox(width: 12),
+
                 Expanded(
                   child: _metricCard(
                     'Avg Rating',
@@ -308,22 +333,29 @@ class _propertyanalyticsState
 
             Container(
               width: double.infinity,
+
               padding: const EdgeInsets.all(16),
+
               decoration: BoxDecoration(
                 color: Colors.white,
+
                 borderRadius:
                     BorderRadius.circular(14),
+
                 border: Border.all(
                   color: const Color(0xffE2E8F0),
                 ),
               ),
+
               child: Column(
                 children: [
                   SizedBox(
                     height: 210,
+
                     child: Row(
                       crossAxisAlignment:
                           CrossAxisAlignment.end,
+
                       children: [
                         _chartBar(90),
                         _chartBar(120),
@@ -340,10 +372,13 @@ class _propertyanalyticsState
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 12),
+
                   Row(
                     mainAxisAlignment:
                         MainAxisAlignment.spaceAround,
+
                     children: const [
                       Text('1'),
                       Text('5'),
@@ -371,40 +406,51 @@ class _propertyanalyticsState
 
             Container(
               width: double.infinity,
+
               padding: const EdgeInsets.all(18),
+
               decoration: BoxDecoration(
                 color: Colors.white,
+
                 borderRadius:
                     BorderRadius.circular(14),
+
                 border: Border.all(
                   color: const Color(0xffE2E8F0),
                 ),
               ),
+
               child: Column(
                 children: [
                   SizedBox(
                     height: 180,
+
                     child: Row(
                       crossAxisAlignment:
                           CrossAxisAlignment.end,
+
                       mainAxisAlignment:
                           MainAxisAlignment.spaceAround,
+
                       children: [
                         _incomeBar(
                           'Jun',
                           110,
                           false,
                         ),
+
                         _incomeBar(
                           'Jul',
                           140,
                           false,
                         ),
+
                         _incomeBar(
                           'Aug',
                           165,
                           true,
                         ),
+
                         _incomeBar(
                           'Sep',
                           125,
@@ -413,10 +459,13 @@ class _propertyanalyticsState
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 15),
+
                   const Row(
                     mainAxisAlignment:
                         MainAxisAlignment.spaceAround,
+
                     children: [
                       Text('Jun'),
                       Text('Jul'),
@@ -435,19 +484,24 @@ class _propertyanalyticsState
             Row(
               mainAxisAlignment:
                   MainAxisAlignment.spaceBetween,
+
               children: [
                 const Text(
                   'Top Performing Properties',
+
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Color(0xff0F172A),
                   ),
                 ),
+
                 TextButton(
                   onPressed: () {},
+
                   child: const Text(
                     'View All',
+
                     style: TextStyle(
                       color: Color(0xff2563EB),
                       fontWeight: FontWeight.w600,
@@ -459,7 +513,7 @@ class _propertyanalyticsState
 
             const SizedBox(height: 10),
 
-            // AURA PROPERTY IMAGE
+            // ================= AURA PROPERTY =================
 
             _propertyCard(
               'Skyline Penthouse',
@@ -467,12 +521,12 @@ class _propertyanalyticsState
               '2.4k',
               '18',
               '\$8.2k',
-              'lib/resources/images/aura_property.png',
+              skyline,
             ),
 
             const SizedBox(height: 12),
 
-            // PROPERTY 1 IMAGE
+            // ================= PROPERTY 1 =================
 
             _propertyCard(
               'Brick Hearth Villa',
@@ -480,7 +534,7 @@ class _propertyanalyticsState
               '1.8k',
               '12',
               '\$5.4k',
-              'lib/resources/images/property1.png',
+              property1,
             ),
 
             const SizedBox(height: 28),
@@ -489,6 +543,7 @@ class _propertyanalyticsState
 
             const Text(
               'Operations & Performance Metrics',
+
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -529,6 +584,7 @@ class _propertyanalyticsState
 
             const Text(
               'Export Options',
+
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -541,24 +597,30 @@ class _propertyanalyticsState
             SizedBox(
               width: double.infinity,
               height: 52,
+
               child: ElevatedButton.icon(
                 onPressed: () {},
+
                 icon: const Icon(
                   Icons.file_download_outlined,
                   color: Colors.white,
                 ),
+
                 label: const Text(
                   'Export Full Report',
+
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+
                 style:
                     ElevatedButton.styleFrom(
                   backgroundColor:
                       const Color(0xff2563EB),
+
                   shape:
                       RoundedRectangleBorder(
                     borderRadius:
@@ -573,25 +635,31 @@ class _propertyanalyticsState
             SizedBox(
               width: double.infinity,
               height: 52,
+
               child: OutlinedButton.icon(
                 onPressed: () {},
+
                 icon: const Icon(
                   Icons.picture_as_pdf_outlined,
                   color: Color(0xff2563EB),
                 ),
+
                 label: const Text(
                   'Download Monthly PDF',
+
                   style: TextStyle(
                     color: Color(0xff2563EB),
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+
                 style:
                     OutlinedButton.styleFrom(
                   side: const BorderSide(
                     color: Color(0xff2563EB),
                   ),
+
                   shape:
                       RoundedRectangleBorder(
                     borderRadius:
@@ -623,31 +691,39 @@ class _propertyanalyticsState
   ) {
     return Container(
       padding: const EdgeInsets.all(15),
+
       decoration: BoxDecoration(
         color: Colors.white,
+
         borderRadius:
             BorderRadius.circular(14),
+
         border: Border.all(
           color: const Color(0xffE2E8F0),
         ),
       ),
+
       child: Column(
         crossAxisAlignment:
             CrossAxisAlignment.start,
+
         children: [
           Row(
             mainAxisAlignment:
                 MainAxisAlignment.spaceBetween,
+
             children: [
               Expanded(
                 child: Text(
                   title,
+
                   style: const TextStyle(
                     color: Color(0xff64748B),
                     fontSize: 12,
                   ),
                 ),
               ),
+
               Icon(
                 icon,
                 color: const Color(0xff2563EB),
@@ -655,18 +731,24 @@ class _propertyanalyticsState
               ),
             ],
           ),
+
           const SizedBox(height: 8),
+
           Text(
             value,
+
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
               color: Color(0xff0F172A),
             ),
           ),
+
           const SizedBox(height: 4),
+
           Text(
             subtitle,
+
             style: const TextStyle(
               fontSize: 11,
               color: Color(0xff16A34A),
@@ -686,17 +768,21 @@ class _propertyanalyticsState
     return Row(
       mainAxisAlignment:
           MainAxisAlignment.spaceBetween,
+
       children: [
         Text(
           title,
+
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Color(0xff0F172A),
           ),
         ),
+
         Text(
           rightText,
+
           style: const TextStyle(
             color: Color(0xff2563EB),
             fontWeight: FontWeight.w600,
@@ -713,12 +799,15 @@ class _propertyanalyticsState
     return Expanded(
       child: Container(
         height: height,
+
         margin:
             const EdgeInsets.symmetric(
           horizontal: 3,
         ),
+
         decoration: BoxDecoration(
           color: const Color(0xff2563EB),
+
           borderRadius:
               BorderRadius.circular(5),
         ),
@@ -736,14 +825,17 @@ class _propertyanalyticsState
     return Column(
       mainAxisAlignment:
           MainAxisAlignment.end,
+
       children: [
         Container(
           width: 42,
           height: height,
+
           decoration: BoxDecoration(
             color: selected
                 ? const Color(0xff2563EB)
                 : const Color(0xffBFDBFE),
+
             borderRadius:
                 BorderRadius.circular(6),
           ),
@@ -764,27 +856,35 @@ class _propertyanalyticsState
   ) {
     return Container(
       padding: const EdgeInsets.all(16),
+
       decoration: BoxDecoration(
         color: Colors.white,
+
         borderRadius:
             BorderRadius.circular(14),
+
         border: Border.all(
           color: const Color(0xffE2E8F0),
         ),
       ),
+
       child: Column(
         crossAxisAlignment:
             CrossAxisAlignment.start,
+
         children: [
           Row(
             children: [
               ClipRRect(
                 borderRadius:
                     BorderRadius.circular(10),
+
                 child: Image.asset(
                   imagePath,
+
                   width: 55,
                   height: 55,
+
                   fit: BoxFit.cover,
                 ),
               ),
@@ -795,9 +895,11 @@ class _propertyanalyticsState
                 child: Column(
                   crossAxisAlignment:
                       CrossAxisAlignment.start,
+
                   children: [
                     Text(
                       name,
+
                       style:
                           const TextStyle(
                         fontSize: 16,
@@ -807,9 +909,12 @@ class _propertyanalyticsState
                             Color(0xff0F172A),
                       ),
                     ),
+
                     const SizedBox(height: 4),
+
                     Text(
                       location,
+
                       style:
                           const TextStyle(
                         fontSize: 13,
@@ -828,17 +933,20 @@ class _propertyanalyticsState
           Row(
             mainAxisAlignment:
                 MainAxisAlignment.spaceBetween,
+
             children: [
               _propertyInfo(
                 Icons.visibility_outlined,
                 'Views',
                 views,
               ),
+
               _propertyInfo(
                 Icons.calendar_month_outlined,
                 'Bookings',
                 bookings,
               ),
+
               _propertyInfo(
                 Icons.attach_money,
                 'Income',
@@ -851,6 +959,8 @@ class _propertyanalyticsState
     );
   }
 
+  // ================= PROPERTY INFO =================
+
   Widget _propertyInfo(
     IconData icon,
     String title,
@@ -859,17 +969,24 @@ class _propertyanalyticsState
     return Column(
       crossAxisAlignment:
           CrossAxisAlignment.start,
+
       children: [
         Row(
           children: [
             Icon(
               icon,
+
               size: 16,
-              color: const Color(0xff64748B),
+
+              color:
+                  const Color(0xff64748B),
             ),
+
             const SizedBox(width: 4),
+
             Text(
               title,
+
               style: const TextStyle(
                 fontSize: 11,
                 color: Color(0xff64748B),
@@ -877,9 +994,12 @@ class _propertyanalyticsState
             ),
           ],
         ),
+
         const SizedBox(height: 4),
+
         Text(
           value,
+
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -900,28 +1020,38 @@ class _propertyanalyticsState
   ) {
     return Container(
       width: double.infinity,
+
       padding: const EdgeInsets.all(16),
+
       decoration: BoxDecoration(
         color: Colors.white,
+
         borderRadius:
             BorderRadius.circular(14),
+
         border: Border.all(
           color: const Color(0xffE2E8F0),
         ),
       ),
+
       child: Row(
         children: [
           Container(
             width: 48,
             height: 48,
+
             decoration: BoxDecoration(
               color: const Color(0xffDBEAFE),
+
               borderRadius:
                   BorderRadius.circular(10),
             ),
+
             child: Icon(
               icon,
-              color: const Color(0xff2563EB),
+
+              color:
+                  const Color(0xff2563EB),
             ),
           ),
 
@@ -931,9 +1061,11 @@ class _propertyanalyticsState
             child: Column(
               crossAxisAlignment:
                   CrossAxisAlignment.start,
+
               children: [
                 Text(
                   title,
+
                   style:
                       const TextStyle(
                     fontSize: 14,
@@ -941,9 +1073,12 @@ class _propertyanalyticsState
                         Color(0xff64748B),
                   ),
                 ),
+
                 const SizedBox(height: 4),
+
                 Text(
                   value,
+
                   style:
                       const TextStyle(
                     fontSize: 20,
@@ -963,13 +1098,17 @@ class _propertyanalyticsState
               horizontal: 10,
               vertical: 6,
             ),
+
             decoration: BoxDecoration(
               color: const Color(0xffDCFCE7),
+
               borderRadius:
                   BorderRadius.circular(20),
             ),
+
             child: Text(
               status,
+
               style:
                   const TextStyle(
                 color: Color(0xff15803D),

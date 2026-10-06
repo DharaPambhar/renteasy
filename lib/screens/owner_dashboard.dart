@@ -4,6 +4,7 @@ import 'property_analytics.dart';
 import 'properties.dart';
 import 'rental_requests.dart';
 import 'owner_profile.dart';
+import '../resources/imagescreen.dart';
 
 class ownerdashboard extends StatefulWidget {
   const ownerdashboard({super.key});
@@ -22,7 +23,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
       children: [
         ClipOval(
           child: Image.asset(
-            'lib/resources/images/owner.png',
+            owner,
             width: 50,
             height: 50,
             fit: BoxFit.cover,
@@ -274,7 +275,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.asset(
-                  'lib/resources/images/aura_property.png',
+                  skyline,
                   height: 75,
                   width: 75,
                   fit: BoxFit.cover,
@@ -396,7 +397,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
             children: [
               ClipOval(
                 child: Image.asset(
-                  'lib/resources/images/Rental_profile1.png',
+                  rentalProfile,
                   width: 46,
                   height: 46,
                   fit: BoxFit.cover,

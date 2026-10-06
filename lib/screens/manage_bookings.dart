@@ -3,6 +3,7 @@ import 'owner_dashboard.dart';
 import 'properties.dart';
 import 'property_analytics.dart';
 import 'owner_profile.dart';
+import '../resources/imagescreen.dart';
 
 class managebookings extends StatefulWidget {
   const managebookings({super.key});
@@ -504,36 +505,26 @@ class _managebookingsState extends State<managebookings> {
             ),
           );
         },
-
         icon: Icon(
           icon,
           size: 16,
         ),
-
         label: Text(
           title,
           style: const TextStyle(
             fontSize: 11,
           ),
         ),
-
         style: OutlinedButton.styleFrom(
-          foregroundColor:
-              const Color(0xFF2563EB),
-
+          foregroundColor: const Color(0xFF2563EB),
           side: const BorderSide(
             color: Color(0xFFE5E7EB),
           ),
-
-          padding:
-              const EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             vertical: 10,
           ),
-
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(9),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(9),
           ),
         ),
       ),
@@ -545,20 +536,15 @@ class _managebookingsState extends State<managebookings> {
   Widget _buildPendingBooking() {
     return Container(
       padding: const EdgeInsets.all(16),
-
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: const Color(0xFFE5E7EB),
         ),
       ),
-
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildUserHeader(
             'Alex Rivera',
@@ -566,7 +552,7 @@ class _managebookingsState extends State<managebookings> {
             'Pending',
             Colors.orange,
             const Color(0xFFFEF3C7),
-            'lib/resources/images/Rental_g',
+            rentalProfile1,
           ),
 
           const SizedBox(height: 14),
@@ -575,7 +561,7 @@ class _managebookingsState extends State<managebookings> {
             'Skyline Vista Penthouse',
             'Downtown Core',
             '₹3,200',
-            'lib/resources/images/aura.png',
+            aura,
           ),
 
           const SizedBox(height: 15),
@@ -647,38 +633,25 @@ class _managebookingsState extends State<managebookings> {
           SizedBox(
             width: double.infinity,
             height: 44,
-
             child: ElevatedButton(
               onPressed: () {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content:
-                        Text('Booking confirmed'),
+                    content: Text('Booking confirmed'),
                   ),
                 );
               },
-
-              style:
-                  ElevatedButton.styleFrom(
-                backgroundColor:
-                    const Color(0xFF2563EB),
-
-                foregroundColor:
-                    Colors.white,
-
-                shape:
-                    RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(10),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2563EB),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
-
               child: const Text(
                 'Confirm Booking',
                 style: TextStyle(
-                  fontWeight:
-                      FontWeight.w600,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -711,28 +684,23 @@ class _managebookingsState extends State<managebookings> {
   Widget _buildConfirmedBooking() {
     return Container(
       padding: const EdgeInsets.all(16),
-
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: const Color(0xFFE5E7EB),
         ),
       ),
-
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildUserHeader(
             'Sarah Jenkins',
             '+1 (555) 9876',
             'Confirmed',
-            const Color(0xFF2563EB), 
+            const Color(0xFF2563EB),
             const Color(0xFFEFF6FF),
-            'lib/resources/images/Rental_profile.png',
+            rentalProfile,
           ),
 
           const SizedBox(height: 14),
@@ -741,7 +709,7 @@ class _managebookingsState extends State<managebookings> {
             'The Loft at 5th Ave',
             'Midtown East',
             '₹2,850',
-            'lib/resources/images/aura1.png',
+            loft,
           ),
 
           const SizedBox(height: 15),
@@ -767,11 +735,9 @@ class _managebookingsState extends State<managebookings> {
           SizedBox(
             width: double.infinity,
             height: 42,
-
             child: OutlinedButton.icon(
               onPressed: () {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text(
                       'Lease Agreement selected',
@@ -779,29 +745,20 @@ class _managebookingsState extends State<managebookings> {
                   ),
                 );
               },
-
               icon: const Icon(
                 Icons.description_outlined,
                 size: 18,
               ),
-
               label: const Text(
                 'View Lease Agreement',
               ),
-
-              style:
-                  OutlinedButton.styleFrom(
-                foregroundColor:
-                    const Color(0xFF2563EB),
-
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF2563EB),
                 side: const BorderSide(
                   color: Color(0xFF2563EB),
                 ),
-
-                shape:
-                    RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ),
@@ -834,11 +791,8 @@ class _managebookingsState extends State<managebookings> {
   Widget _buildBookingsContent() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
-
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
 
@@ -846,7 +800,6 @@ class _managebookingsState extends State<managebookings> {
 
           const Text(
             'Overview',
-
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -906,7 +859,6 @@ class _managebookingsState extends State<managebookings> {
 
           const Text(
             'Pending Booking',
-
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -922,7 +874,6 @@ class _managebookingsState extends State<managebookings> {
 
           const Text(
             'Confirmed Booking',
-
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -945,17 +896,10 @@ class _managebookingsState extends State<managebookings> {
   Widget _buildBottomNavigation() {
     return BottomNavigationBar(
       currentIndex: _selectedIndex,
-
       type: BottomNavigationBarType.fixed,
-
-      selectedItemColor:
-          const Color(0xFF2563EB),
-
-      unselectedItemColor:
-          const Color(0xFF6B7280),
-
+      selectedItemColor: const Color(0xFF2563EB),
+      unselectedItemColor: const Color(0xFF6B7280),
       onTap: _navigateBottom,
-
       items: const [
         BottomNavigationBarItem(
           icon: Icon(
@@ -1015,15 +959,11 @@ class _managebookingsState extends State<managebookings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          const Color(0xFFF8FAFC),
-
+      backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
         child: _buildBookingsContent(),
       ),
-
-      bottomNavigationBar:
-          _buildBottomNavigation(),
+      bottomNavigationBar: _buildBottomNavigation(),
     );
   }
 }

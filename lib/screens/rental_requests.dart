@@ -4,6 +4,7 @@ import 'properties.dart';
 import 'manage_bookings.dart';
 import 'property_analytics.dart';
 import 'owner_profile.dart';
+import '../resources/imagescreen.dart';
 
 class rentalrequests extends StatefulWidget {
   const rentalrequests({super.key});
@@ -578,16 +579,14 @@ class _rentalrequestsState extends State<rentalrequests> {
             name: 'Sarah Jenkins',
             profession: 'UX Designer',
             phone: '(555) 012-3456',
-            imagePath:
-                'lib/resources/images/Rental_profile.png',
+            imagePath: rentalProfile,
           ),
 
           _buildPropertyInfo(
             propertyName: 'The Aura - Luxury Loft',
             location: 'Downtown, NYC',
             price: '₹4,250/mo',
-            imagePath:
-                'lib/resources/images/aura_property.png',
+            imagePath: skyline,
           ),
 
           _buildStayDetails(
@@ -651,16 +650,14 @@ class _rentalrequestsState extends State<rentalrequests> {
             name: 'Mark Thompson',
             profession: 'Data Scientist',
             phone: '(555) 098-7654',
-            imagePath:
-                'lib/resources/images/Rental_profile1.png',
+            imagePath: rentalProfile1,
           ),
 
           _buildPropertyInfo(
             propertyName: 'The Aura - Penthouse B',
             location: 'Downtown, NYC',
             price: '₹6,100/mo',
-            imagePath:
-                'lib/resources/images/aura1.png',
+            imagePath: loft,
           ),
 
           const SizedBox(height: 18),
