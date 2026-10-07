@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'owner_dashboard.dart';
 import 'manage_bookings.dart';
 import 'property_analytics.dart';
@@ -22,6 +25,11 @@ class _propertiesState extends State<properties> {
     'Pending',
     'Rented',
   ];
+
+  final TextEditingController _searchController =
+      TextEditingController();
+
+  String _searchText = '';
 
   // ================= BOTTOM NAVIGATION =================
 
@@ -60,6 +68,97 @@ class _propertiesState extends State<properties> {
       );
     }
   }
+
+  // ================= FIRESTORE =================
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> _propertiesStream() {
+    final User? user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return const Stream.empty();
+    }
+
+    return FirebaseFirestore.instance
+        .collection('properties')
+        .where('ownerId', isEqualTo: user.uid)
+        .snapshots();
+  }
+
+  // ================= IMAGE =================
+
+  String _getPropertyImage(String imageName) {
+    if (imageName == 'property1') {
+      return property1;
+    }
+
+    if (imageName == 'property2') {
+      return property2;
+    }
+
+    return property1;
+  }
+
+  // ================= FILTER =================
+
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> _filterProperties(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> result = docs;
+
+    // Status filter
+    if (_selectedFilter != 0) {
+      final String selectedStatus = filters[_selectedFilter];
+
+      result = result.where((doc) {
+        final data = doc.data();
+
+        return (data['status'] ?? '')
+                .toString()
+                .toLowerCase() ==
+            selectedStatus.toLowerCase();
+      }).toList();
+    }
+
+    // Search filter
+    if (_searchText.isNotEmpty) {
+      result = result.where((doc) {
+        final data = doc.data();
+
+        final String name =
+            (data['propertyName'] ?? '').toString().toLowerCase();
+
+        final String location =
+            (data['location'] ?? '').toString().toLowerCase();
+
+        return name.contains(_searchText.toLowerCase()) ||
+            location.contains(_searchText.toLowerCase());
+      }).toList();
+    }
+
+    return result;
+  }
+
+  // ================= STATUS COLOR =================
+
+  Color _getStatusColor(String status) {
+    if (status.toLowerCase() == 'rented') {
+      return const Color(0xffF97316);
+    }
+
+    if (status.toLowerCase() == 'pending') {
+      return const Color(0xffF59E0B);
+    }
+
+    return const Color(0xff2563EB);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  // ================= BUILD =================
 
   @override
   Widget build(BuildContext context) {
@@ -124,269 +223,425 @@ class _propertiesState extends State<properties> {
 
       // ================= BODY =================
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: _propertiesStream(),
 
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ================= OVERVIEW =================
+        builder: (context, snapshot) {
+          // Loading
+          if (snapshot.connectionState ==
+              ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
 
-            Row(
+          // Error
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  'Something went wrong:\n${snapshot.error}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+            );
+          }
+
+          final docs = snapshot.data?.docs ?? [];
+
+          // Counts
+          final int totalCount = docs.length;
+
+          final int activeCount = docs.where((doc) {
+            return (doc.data()['status'] ?? '')
+                    .toString()
+                    .toLowerCase() ==
+                'active';
+          }).length;
+
+          final int rentedCount = docs.where((doc) {
+            return (doc.data()['status'] ?? '')
+                    .toString()
+                    .toLowerCase() ==
+                'rented';
+          }).length;
+
+          final int pendingCount = docs.where((doc) {
+            return (doc.data()['status'] ?? '')
+                    .toString()
+                    .toLowerCase() ==
+                'pending';
+          }).length;
+
+          final filteredDocs = _filterProperties(docs);
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: _overviewCard(
-                    'Total',
-                    '24',
-                    Icons.home_work_outlined,
+
+                // ================= OVERVIEW =================
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: _overviewCard(
+                        'Total',
+                        totalCount.toString(),
+                        Icons.home_work_outlined,
+                      ),
+                    ),
+
+                    const SizedBox(width: 10),
+
+                    Expanded(
+                      child: _overviewCard(
+                        'Active',
+                        activeCount.toString(),
+                        Icons.check_circle_outline,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: _overviewCard(
+                        'Rented',
+                        rentedCount.toString(),
+                        Icons.key_outlined,
+                      ),
+                    ),
+
+                    const SizedBox(width: 10),
+
+                    Expanded(
+                      child: _overviewCard(
+                        'Pending',
+                        pendingCount.toString(),
+                        Icons.pending_actions,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 22),
+
+                // ================= SEARCH =================
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 48,
+
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius:
+                              BorderRadius.circular(10),
+
+                          border: Border.all(
+                            color:
+                                const Color(0xffE2E8F0),
+                          ),
+                        ),
+
+                        child: TextField(
+                          controller: _searchController,
+
+                          onChanged: (value) {
+                            setState(() {
+                              _searchText = value;
+                            });
+                          },
+
+                          decoration:
+                              const InputDecoration(
+                            hintText:
+                                'Search properties...',
+
+                            hintStyle: TextStyle(
+                              color:
+                                  Color(0xff94A3B8),
+                            ),
+
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color:
+                                  Color(0xff64748B),
+                            ),
+
+                            border:
+                                InputBorder.none,
+
+                            contentPadding:
+                                EdgeInsets.symmetric(
+                              vertical: 13,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 10),
+
+                    Container(
+                      height: 48,
+                      width: 48,
+
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                            BorderRadius.circular(10),
+
+                        border: Border.all(
+                          color:
+                              const Color(0xffE2E8F0),
+                        ),
+                      ),
+
+                      child: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.filter_list,
+                          color:
+                              Color(0xff475569),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 18),
+
+                // ================= FILTER TABS =================
+
+                SingleChildScrollView(
+                  scrollDirection:
+                      Axis.horizontal,
+
+                  child: Row(
+                    children: List.generate(
+                      filters.length,
+                      (index) {
+                        bool selected =
+                            _selectedFilter == index;
+
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedFilter =
+                                  index;
+                            });
+                          },
+
+                          child: Container(
+                            margin:
+                                const EdgeInsets.only(
+                              right: 8,
+                            ),
+
+                            padding:
+                                const EdgeInsets
+                                    .symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+
+                            decoration:
+                                BoxDecoration(
+                              color: selected
+                                  ? const Color(
+                                      0xff2563EB)
+                                  : Colors.white,
+
+                              borderRadius:
+                                  BorderRadius
+                                      .circular(8),
+
+                              border: Border.all(
+                                color: selected
+                                    ? const Color(
+                                        0xff2563EB)
+                                    : const Color(
+                                        0xffE2E8F0),
+                              ),
+                            ),
+
+                            child: Text(
+                              filters[index],
+
+                              style: TextStyle(
+                                color: selected
+                                    ? Colors.white
+                                    : const Color(
+                                        0xff475569),
+
+                                fontWeight: selected
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
 
-                const SizedBox(width: 10),
+                const SizedBox(height: 20),
 
-                Expanded(
-                  child: _overviewCard(
-                    'Active',
-                    '18',
-                    Icons.check_circle_outline,
-                  ),
-                ),
-              ],
-            ),
+                // ================= PROPERTY LIST =================
 
-            const SizedBox(height: 10),
-
-            Row(
-              children: [
-                Expanded(
-                  child: _overviewCard(
-                    'Rented',
-                    '12',
-                    Icons.key_outlined,
-                  ),
-                ),
-
-                const SizedBox(width: 10),
-
-                Expanded(
-                  child: _overviewCard(
-                    'Pending',
-                    '06',
-                    Icons.pending_actions,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 22),
-
-            // ================= SEARCH =================
-
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 48,
+                if (filteredDocs.isEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(30),
 
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius:
+                          BorderRadius.circular(16),
 
                       border: Border.all(
-                        color: const Color(0xffE2E8F0),
+                        color:
+                            const Color(0xffE2E8F0),
                       ),
                     ),
 
-                    child: const TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Search properties...',
-
-                        hintStyle: TextStyle(
-                          color: Color(0xff94A3B8),
+                    child: const Column(
+                      children: [
+                        Icon(
+                          Icons.home_work_outlined,
+                          size: 45,
+                          color:
+                              Color(0xff94A3B8),
                         ),
 
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: Color(0xff64748B),
+                        SizedBox(height: 10),
+
+                        Text(
+                          'No properties found',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight:
+                                FontWeight.w600,
+                            color:
+                                Color(0xff475569),
+                          ),
                         ),
-
-                        border: InputBorder.none,
-
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 13,
-                        ),
-                      ),
+                      ],
                     ),
+                  )
+                else
+                  ...List.generate(
+                    filteredDocs.length,
+                    (index) {
+                      final data =
+                          filteredDocs[index].data();
+
+                      final String imageName =
+                          (data['image'] ?? '')
+                              .toString();
+
+                      final String status =
+                          (data['status'] ?? '')
+                              .toString();
+
+                      final String rating =
+                          data['rating'] != null
+                              ? data['rating']
+                                  .toString()
+                              : '';
+
+                      final bool furnished =
+                          data['furnished'] == true;
+
+                      final bool rented =
+                          status.toLowerCase() ==
+                              'rented';
+
+                      return Column(
+                        children: [
+                          _propertyCard(
+                            imagePath:
+                                _getPropertyImage(
+                              imageName,
+                            ),
+
+                            rating: rating,
+
+                            status: status,
+
+                            statusColor:
+                                _getStatusColor(
+                              status,
+                            ),
+
+                            propertyName:
+                                (data['propertyName'] ??
+                                        '')
+                                    .toString(),
+
+                            rent:
+                                (data['rent'] ?? '')
+                                    .toString(),
+
+                            location:
+                                (data['location'] ??
+                                        '')
+                                    .toString(),
+
+                            specs:
+                                (data['specs'] ?? '')
+                                    .toString(),
+
+                            details:
+                                (data['details'] ??
+                                        '')
+                                    .toString(),
+
+                            furnished:
+                                furnished,
+
+                            rented:
+                                rented,
+                          ),
+
+                          if (index !=
+                              filteredDocs.length - 1)
+                            const SizedBox(
+                              height: 16,
+                            ),
+                        ],
+                      );
+                    },
                   ),
-                ),
 
-                const SizedBox(width: 10),
-
-                Container(
-                  height: 48,
-                  width: 48,
-
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-
-                    border: Border.all(
-                      color: const Color(0xffE2E8F0),
-                    ),
-                  ),
-
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.filter_list,
-                      color: Color(0xff475569),
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 20),
               ],
             ),
-
-            const SizedBox(height: 18),
-
-            // ================= FILTER TABS =================
-
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-
-              child: Row(
-                children: List.generate(
-                  filters.length,
-                  (index) {
-                    bool selected = _selectedFilter == index;
-
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedFilter = index;
-                        });
-                      },
-
-                      child: Container(
-                        margin: const EdgeInsets.only(
-                          right: 8,
-                        ),
-
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-
-                        decoration: BoxDecoration(
-                          color: selected
-                              ? const Color(0xff2563EB)
-                              : Colors.white,
-
-                          borderRadius:
-                              BorderRadius.circular(8),
-
-                          border: Border.all(
-                            color: selected
-                                ? const Color(0xff2563EB)
-                                : const Color(0xffE2E8F0),
-                          ),
-                        ),
-
-                        child: Text(
-                          filters[index],
-
-                          style: TextStyle(
-                            color: selected
-                                ? Colors.white
-                                : const Color(0xff475569),
-
-                            fontWeight: selected
-                                ? FontWeight.w600
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // ================= PROPERTY 1 =================
-
-            _propertyCard(
-              imagePath: property1,
-
-              rating: '4.9',
-
-              status: 'Active',
-
-              statusColor:
-                  const Color(0xff2563EB),
-
-              propertyName:
-                  'The Aura - Luxury Loft',
-
-              rent: '₹4,250',
-
-              location:
-                  'Grand Avenue, Downtown, NYC',
-
-              specs:
-                  '3 Bed  •  2 Bath  •  1,450 sq.ft.',
-
-              details:
-                  'ID: #RE-40592  •  Posted Oct 12',
-
-              furnished: true,
-
-              rented: false,
-            ),
-
-            const SizedBox(height: 16),
-
-            // ================= PROPERTY 2 =================
-
-            _propertyCard(
-              imagePath: property2,
-
-              rating: '',
-
-              status: 'Rented',
-
-              statusColor:
-                  const Color(0xffF97316),
-
-              propertyName:
-                  'Harbor View Penthouse',
-
-              rent: '₹5,800',
-
-              location:
-                  'Seaport District, Boston',
-
-              specs:
-                  '4 Bed  •  3 Bath  •  2,100 sq.ft.',
-
-              details: '',
-
-              furnished: false,
-
-              rented: true,
-            ),
-
-            const SizedBox(height: 20),
-          ],
-        ),
+          );
+        },
       ),
 
       // ================= BOTTOM NAVIGATION =================
 
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar:
+          BottomNavigationBar(
         currentIndex: _selectedIndex,
 
-        type: BottomNavigationBarType.fixed,
+        type:
+            BottomNavigationBarType.fixed,
 
         selectedItemColor:
             const Color(0xff2563EB),
@@ -517,7 +772,6 @@ class _propertiesState extends State<properties> {
 
                 style: const TextStyle(
                   fontSize: 12,
-
                   color:
                       Color(0xff64748B),
                 ),
@@ -530,10 +784,8 @@ class _propertiesState extends State<properties> {
 
                 style: const TextStyle(
                   fontSize: 21,
-
                   fontWeight:
                       FontWeight.bold,
-
                   color:
                       Color(0xff0F172A),
                 ),
@@ -549,25 +801,15 @@ class _propertiesState extends State<properties> {
 
   Widget _propertyCard({
     required String imagePath,
-
     required String rating,
-
     required String status,
-
     required Color statusColor,
-
     required String propertyName,
-
     required String rent,
-
     required String location,
-
     required String specs,
-
     required String details,
-
     required bool furnished,
-
     required bool rented,
   }) {
     return Container(

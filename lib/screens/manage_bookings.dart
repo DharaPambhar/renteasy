@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'owner_dashboard.dart';
 import 'properties.dart';
 import 'property_analytics.dart';
@@ -22,6 +25,30 @@ class _managebookingsState extends State<managebookings> {
     'Confirmed',
     'Upcoming',
   ];
+
+  String _searchText = '';
+
+  // ================= FIREBASE =================
+
+  CollectionReference<Map<String, dynamic>> get _bookingsCollection {
+    return FirebaseFirestore.instance.collection('bookings');
+  }
+
+  String? get _currentOwnerId {
+    return FirebaseAuth.instance.currentUser?.uid;
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> _bookingsStream() {
+    final ownerId = _currentOwnerId;
+
+    if (ownerId == null) {
+      return const Stream.empty();
+    }
+
+    return _bookingsCollection
+        .where('ownerId', isEqualTo: ownerId)
+        .snapshots();
+  }
 
   // ================= BOTTOM NAVIGATION =================
 
@@ -75,7 +102,6 @@ class _managebookingsState extends State<managebookings> {
             color: Color(0xFF111827),
           ),
         ),
-
         const Expanded(
           child: Text(
             'Manage Bookings',
@@ -86,7 +112,6 @@ class _managebookingsState extends State<managebookings> {
             ),
           ),
         ),
-
         Stack(
           children: [
             Container(
@@ -104,7 +129,6 @@ class _managebookingsState extends State<managebookings> {
                 color: Color(0xFF374151),
               ),
             ),
-
             Positioned(
               right: 7,
               top: 6,
@@ -156,9 +180,7 @@ class _managebookingsState extends State<managebookings> {
                 size: 20,
               ),
             ),
-
             const SizedBox(height: 10),
-
             Text(
               value,
               style: const TextStyle(
@@ -167,9 +189,7 @@ class _managebookingsState extends State<managebookings> {
                 color: Color(0xFF111827),
               ),
             ),
-
             const SizedBox(height: 3),
-
             Text(
               title,
               style: const TextStyle(
@@ -198,8 +218,13 @@ class _managebookingsState extends State<managebookings> {
                 color: const Color(0xFFE5E7EB),
               ),
             ),
-            child: const TextField(
-              decoration: InputDecoration(
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  _searchText = value.toLowerCase();
+                });
+              },
+              decoration: const InputDecoration(
                 hintText: 'Search bookings',
                 hintStyle: TextStyle(
                   color: Color(0xFF9CA3AF),
@@ -217,9 +242,7 @@ class _managebookingsState extends State<managebookings> {
             ),
           ),
         ),
-
         const SizedBox(width: 10),
-
         Container(
           height: 48,
           width: 48,
@@ -302,32 +325,30 @@ class _managebookingsState extends State<managebookings> {
   ) {
     return Row(
       children: [
-        // PROFILE IMAGE
         CircleAvatar(
           radius: 23,
           backgroundColor: const Color(0xFFEFF6FF),
           backgroundImage: AssetImage(imagePath),
         ),
-
         const SizedBox(width: 12),
-
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF111827),
+                  Flexible(
+                    child: Text(
+                      name,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF111827),
+                      ),
                     ),
                   ),
-
                   const SizedBox(width: 5),
-
                   const Icon(
                     Icons.verified,
                     size: 16,
@@ -335,9 +356,7 @@ class _managebookingsState extends State<managebookings> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 4),
-
               Text(
                 phone,
                 style: const TextStyle(
@@ -348,7 +367,6 @@ class _managebookingsState extends State<managebookings> {
             ],
           ),
         ),
-
         Container(
           padding: const EdgeInsets.symmetric(
             horizontal: 9,
@@ -387,7 +405,6 @@ class _managebookingsState extends State<managebookings> {
       ),
       child: Row(
         children: [
-          // PROPERTY IMAGE
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.asset(
@@ -397,34 +414,30 @@ class _managebookingsState extends State<managebookings> {
               fit: BoxFit.cover,
             ),
           ),
-
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   property,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF111827),
                   ),
                 ),
-
                 const SizedBox(height: 4),
-
                 Text(
                   location,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 11,
                     color: Color(0xFF6B7280),
                   ),
                 ),
-
                 const SizedBox(height: 5),
-
                 Text(
                   '$price / month',
                   style: const TextStyle(
@@ -456,13 +469,10 @@ class _managebookingsState extends State<managebookings> {
             size: 17,
             color: const Color(0xFF6B7280),
           ),
-
           const SizedBox(width: 6),
-
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
@@ -471,11 +481,10 @@ class _managebookingsState extends State<managebookings> {
                     color: Color(0xFF9CA3AF),
                   ),
                 ),
-
                 const SizedBox(height: 3),
-
                 Text(
                   value,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -495,16 +504,18 @@ class _managebookingsState extends State<managebookings> {
   Widget _buildSmallAction(
     String title,
     IconData icon,
+    VoidCallback? onPressed,
   ) {
     return Expanded(
       child: OutlinedButton.icon(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('$title selected'),
-            ),
-          );
-        },
+        onPressed: onPressed ??
+            () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('$title selected'),
+                ),
+              );
+            },
         icon: Icon(
           icon,
           size: 16,
@@ -531,9 +542,192 @@ class _managebookingsState extends State<managebookings> {
     );
   }
 
-  // ================= PENDING BOOKING =================
+  // ================= IMAGE =================
 
-  Widget _buildPendingBooking() {
+  String _getPropertyImage(String imageName) {
+    if (imageName == 'property1') {
+      return property1;
+    }
+
+    if (imageName == 'property2') {
+      return property2;
+    }
+
+    return property1;
+  }
+
+  // ================= STATUS COLORS =================
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'confirmed':
+        return const Color(0xFF2563EB);
+
+      case 'pending':
+        return Colors.orange;
+
+      case 'upcoming':
+        return const Color(0xFF7C3AED);
+
+      case 'completed':
+        return Colors.green;
+
+      case 'cancelled':
+        return Colors.red;
+
+      default:
+        return const Color(0xFF6B7280);
+    }
+  }
+
+  Color _getStatusBackground(String status) {
+    switch (status.toLowerCase()) {
+      case 'confirmed':
+        return const Color(0xFFEFF6FF);
+
+      case 'pending':
+        return const Color(0xFFFEF3C7);
+
+      case 'upcoming':
+        return const Color(0xFFF3E8FF);
+
+      case 'completed':
+        return const Color(0xFFDCFCE7);
+
+      case 'cancelled':
+        return const Color(0xFFFEE2E2);
+
+      default:
+        return const Color(0xFFF3F4F6);
+    }
+  }
+
+  // ================= FILTER LOGIC =================
+
+  bool _matchesSelectedTab(Map<String, dynamic> data) {
+    final status =
+        (data['status'] ?? '').toString().toLowerCase();
+
+    if (_selectedTab == 0) {
+      return true;
+    }
+
+    if (_selectedTab == 1) {
+      return status == 'pending';
+    }
+
+    if (_selectedTab == 2) {
+      return status == 'confirmed';
+    }
+
+    if (_selectedTab == 3) {
+      return status == 'upcoming';
+    }
+
+    return true;
+  }
+
+  bool _matchesSearch(Map<String, dynamic> data) {
+    if (_searchText.isEmpty) {
+      return true;
+    }
+
+    final tenantName =
+        (data['tenantName'] ?? '').toString().toLowerCase();
+
+    final propertyName =
+        (data['propertyName'] ?? '').toString().toLowerCase();
+
+    final bookingId =
+        (data['bookingId'] ?? '').toString().toLowerCase();
+
+    final propertyLocation =
+        (data['propertyLocation'] ?? '').toString().toLowerCase();
+
+    return tenantName.contains(_searchText) ||
+        propertyName.contains(_searchText) ||
+        bookingId.contains(_searchText) ||
+        propertyLocation.contains(_searchText);
+  }
+
+  // ================= UPDATE BOOKING STATUS =================
+
+  Future<void> _updateBookingStatus(
+    String documentId,
+    String status,
+  ) async {
+    try {
+      await _bookingsCollection.doc(documentId).update({
+        'status': status,
+      });
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Booking $status'),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to update booking: $e'),
+        ),
+      );
+    }
+  }
+
+  // ================= BOOKING CARD =================
+
+  Widget _buildBookingCard(
+    QueryDocumentSnapshot<Map<String, dynamic>> document,
+  ) {
+    final data = document.data();
+
+    final tenantName =
+        (data['tenantName'] ?? 'Unknown Tenant').toString();
+
+    final tenantPhone =
+        (data['tenantPhone'] ?? 'No phone number').toString();
+
+    final status =
+        (data['status'] ?? 'Pending').toString();
+
+    final propertyName =
+        (data['propertyName'] ?? 'Property').toString();
+
+    final propertyLocation =
+        (data['propertyLocation'] ?? '').toString();
+
+    final rent =
+        (data['rent'] ?? '₹0').toString();
+
+    final bookingId =
+        (data['bookingId'] ?? document.id).toString();
+
+    final visitDate =
+        (data['visitDate'] ??
+                data['bookingDate'] ??
+                'Not available')
+            .toString();
+
+    final leaseDuration =
+        (data['leaseDuration'] ?? 'Not available').toString();
+
+    final occupants =
+        (data['occupants'] ?? 'Not available').toString();
+
+    final imageName =
+        (data['image'] ?? 'property1').toString();
+
+    final imagePath = _getPropertyImage(imageName);
+
+    final statusColor = _getStatusColor(status);
+    final statusBackground =
+        _getStatusBackground(status);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -547,40 +741,41 @@ class _managebookingsState extends State<managebookings> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildUserHeader(
-            'Alex Rivera',
-            '+1 (555) 0123',
-            'Pending',
-            Colors.orange,
-            const Color(0xFFFEF3C7),
-            rentalProfile1,
+            tenantName,
+            tenantPhone,
+            status,
+            statusColor,
+            statusBackground,
+            rentalProfile,
           ),
 
           const SizedBox(height: 14),
 
           _buildPropertyInfo(
-            'Skyline Vista Penthouse',
-            'Downtown Core',
-            '₹3,200',
-            aura,
+            propertyName,
+            propertyLocation,
+            rent,
+            imagePath,
           ),
 
           const SizedBox(height: 15),
 
-          const Row(
+          Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.confirmation_number_outlined,
                 size: 17,
                 color: Color(0xFF6B7280),
               ),
-
-              SizedBox(width: 7),
-
-              Text(
-                'Booking ID #RE-92841',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF4B5563),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  'Booking ID #$bookingId',
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF4B5563),
+                  ),
                 ),
               ),
             ],
@@ -592,19 +787,17 @@ class _managebookingsState extends State<managebookings> {
             children: [
               _buildBookingDetail(
                 'Visit Date',
-                'Oct 24, 2023',
+                visitDate,
                 Icons.calendar_today_outlined,
               ),
-
               _buildBookingDetail(
                 'Lease Duration',
-                '12 Months',
+                leaseDuration,
                 Icons.access_time,
               ),
-
               _buildBookingDetail(
                 'Occupants',
-                '2 Adults',
+                occupants,
                 Icons.people_outline,
               ),
             ],
@@ -617,277 +810,301 @@ class _managebookingsState extends State<managebookings> {
               _buildSmallAction(
                 'Chat',
                 Icons.chat_bubble_outline,
+                null,
               ),
-
               const SizedBox(width: 8),
-
               _buildSmallAction(
                 'Call',
                 Icons.call_outlined,
+                null,
               ),
             ],
           ),
 
-          const SizedBox(height: 12),
+          if (status.toLowerCase() == 'pending') ...[
+            const SizedBox(height: 12),
 
-          SizedBox(
-            width: double.infinity,
-            height: 44,
-            child: ElevatedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Booking confirmed'),
+            SizedBox(
+              width: double.infinity,
+              height: 44,
+              child: ElevatedButton(
+                onPressed: () {
+                  _updateBookingStatus(
+                    document.id,
+                    'Confirmed',
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2563EB),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
                 ),
-              ),
-              child: const Text(
-                'Confirm Booking',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
+                child: const Text(
+                  'Confirm Booking',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
-          ),
 
-          const SizedBox(height: 8),
+            const SizedBox(height: 8),
 
-          Row(
-            children: [
-              _buildSmallAction(
-                'Reschedule',
-                Icons.edit_calendar_outlined,
-              ),
+            Row(
+              children: [
+                _buildSmallAction(
+                  'Reschedule',
+                  Icons.edit_calendar_outlined,
+                  null,
+                ),
+                const SizedBox(width: 8),
+                _buildSmallAction(
+                  'Cancel',
+                  Icons.close,
+                  () {
+                    _updateBookingStatus(
+                      document.id,
+                      'Cancelled',
+                    );
+                  },
+                ),
+              ],
+            ),
+          ] else ...[
+            const SizedBox(height: 10),
 
-              const SizedBox(width: 8),
-
-              _buildSmallAction(
-                'Cancel',
-                Icons.close,
-              ),
-            ],
-          ),
+            Row(
+              children: [
+                _buildSmallAction(
+                  'Chat',
+                  Icons.chat_bubble_outline,
+                  null,
+                ),
+                const SizedBox(width: 8),
+                _buildSmallAction(
+                  'Details',
+                  Icons.info_outline,
+                  null,
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
 
-  // ================= CONFIRMED BOOKING =================
+  // ================= BOOKINGS LIST =================
 
-  Widget _buildConfirmedBooking() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
+  Widget _buildBookingsList(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> documents,
+  ) {
+    final filteredDocuments = documents.where((document) {
+      final data = document.data();
+
+      return _matchesSelectedTab(data) &&
+          _matchesSearch(data);
+    }).toList();
+
+    if (filteredDocuments.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(30),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0xFFE5E7EB),
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildUserHeader(
-            'Sarah Jenkins',
-            '+1 (555) 9876',
-            'Confirmed',
-            const Color(0xFF2563EB),
-            const Color(0xFFEFF6FF),
-            rentalProfile,
-          ),
-
-          const SizedBox(height: 14),
-
-          _buildPropertyInfo(
-            'The Loft at 5th Ave',
-            'Midtown East',
-            '₹2,850',
-            loft,
-          ),
-
-          const SizedBox(height: 15),
-
-          Row(
-            children: [
-              _buildBookingDetail(
-                'Move-In Date',
-                'Nov 01, 2023',
-                Icons.calendar_today_outlined,
-              ),
-
-              _buildBookingDetail(
-                'Status',
-                'Deposit Paid',
-                Icons.check_circle_outline,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 15),
-
-          SizedBox(
-            width: double.infinity,
-            height: 42,
-            child: OutlinedButton.icon(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Lease Agreement selected',
-                    ),
-                  ),
-                );
-              },
-              icon: const Icon(
-                Icons.description_outlined,
-                size: 18,
-              ),
-              label: const Text(
-                'View Lease Agreement',
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF2563EB),
-                side: const BorderSide(
-                  color: Color(0xFF2563EB),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+        child: const Column(
+          children: [
+            Icon(
+              Icons.calendar_month_outlined,
+              size: 45,
+              color: Color(0xFF9CA3AF),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'No bookings found',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF374151),
               ),
             ),
-          ),
+          ],
+        ),
+      );
+    }
 
-          const SizedBox(height: 10),
-
-          Row(
-            children: [
-              _buildSmallAction(
-                'Chat',
-                Icons.chat_bubble_outline,
-              ),
-
-              const SizedBox(width: 8),
-
-              _buildSmallAction(
-                'Details',
-                Icons.info_outline,
-              ),
-            ],
-          ),
-        ],
-      ),
+    return Column(
+      children: filteredDocuments.map((document) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 15),
+          child: _buildBookingCard(document),
+        );
+      }).toList(),
     );
   }
 
   // ================= BOOKINGS CONTENT =================
 
   Widget _buildBookingsContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(),
-
-          const SizedBox(height: 22),
-
-          const Text(
-            'Overview',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF111827),
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: _bookingsStream(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState ==
+            ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFF2563EB),
             ),
-          ),
+          );
+        }
 
-          const SizedBox(height: 12),
+        if (snapshot.hasError) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                'Error loading bookings:\n${snapshot.error}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          );
+        }
 
-          Row(
+        if (_currentOwnerId == null) {
+          return const Center(
+            child: Text(
+              'Please login as owner to view bookings.',
+              style: TextStyle(
+                color: Color(0xFF374151),
+              ),
+            ),
+          );
+        }
+
+        final documents = snapshot.data?.docs ?? [];
+
+        int totalBookings = documents.length;
+
+        int pendingBookings = documents.where((doc) {
+          return (doc.data()['status'] ?? '')
+                  .toString()
+                  .toLowerCase() ==
+              'pending';
+        }).length;
+
+        int confirmedBookings = documents.where((doc) {
+          return (doc.data()['status'] ?? '')
+                  .toString()
+                  .toLowerCase() ==
+              'confirmed';
+        }).length;
+
+        int upcomingBookings = documents.where((doc) {
+          return (doc.data()['status'] ?? '')
+                  .toString()
+                  .toLowerCase() ==
+              'upcoming';
+        }).length;
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildOverviewCard(
-                'Total Bookings',
-                '128',
-                Icons.calendar_month_outlined,
+              _buildHeader(),
+
+              const SizedBox(height: 22),
+
+              const Text(
+                'Overview',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF111827),
+                ),
               ),
 
-              const SizedBox(width: 8),
+              const SizedBox(height: 12),
 
-              _buildOverviewCard(
-                'Upcoming Visits',
-                '12',
-                Icons.event_outlined,
+              Row(
+                children: [
+                  _buildOverviewCard(
+                    'Total Bookings',
+                    totalBookings.toString(),
+                    Icons.calendar_month_outlined,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildOverviewCard(
+                    'Upcoming Visits',
+                    upcomingBookings.toString(),
+                    Icons.event_outlined,
+                  ),
+                ],
               ),
+
+              const SizedBox(height: 8),
+
+              Row(
+                children: [
+                  _buildOverviewCard(
+                    'Active Rentals',
+                    confirmedBookings.toString(),
+                    Icons.home_work_outlined,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildOverviewCard(
+                    'Completed',
+                    documents.where((doc) {
+                      return (doc.data()['status'] ?? '')
+                              .toString()
+                              .toLowerCase() ==
+                          'completed';
+                    }).length.toString(),
+                    Icons.check_circle_outline,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 22),
+
+              _buildSearchBar(),
+
+              const SizedBox(height: 14),
+
+              _buildFilterTabs(),
+
+              const SizedBox(height: 22),
+
+              Text(
+                _selectedTab == 0
+                    ? 'Bookings'
+                    : '${_tabs[_selectedTab]} Booking',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF111827),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              _buildBookingsList(documents),
+
+              const SizedBox(height: 20),
             ],
           ),
-
-          const SizedBox(height: 8),
-
-          Row(
-            children: [
-              _buildOverviewCard(
-                'Active Rentals',
-                '42',
-                Icons.home_work_outlined,
-              ),
-
-              const SizedBox(width: 8),
-
-              _buildOverviewCard(
-                'Completed',
-                '74',
-                Icons.check_circle_outline,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 22),
-
-          _buildSearchBar(),
-
-          const SizedBox(height: 14),
-
-          _buildFilterTabs(),
-
-          const SizedBox(height: 22),
-
-          const Text(
-            'Pending Booking',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF111827),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          _buildPendingBooking(),
-
-          const SizedBox(height: 25),
-
-          const Text(
-            'Confirmed Booking',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF111827),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          _buildConfirmedBooking(),
-
-          const SizedBox(height: 20),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -910,7 +1127,6 @@ class _managebookingsState extends State<managebookings> {
           ),
           label: 'Dashboard',
         ),
-
         BottomNavigationBarItem(
           icon: Icon(
             Icons.home_work_outlined,
@@ -920,7 +1136,6 @@ class _managebookingsState extends State<managebookings> {
           ),
           label: 'Properties',
         ),
-
         BottomNavigationBarItem(
           icon: Icon(
             Icons.calendar_month_outlined,
@@ -930,7 +1145,6 @@ class _managebookingsState extends State<managebookings> {
           ),
           label: 'Bookings',
         ),
-
         BottomNavigationBarItem(
           icon: Icon(
             Icons.analytics_outlined,
@@ -940,7 +1154,6 @@ class _managebookingsState extends State<managebookings> {
           ),
           label: 'Analytics',
         ),
-
         BottomNavigationBarItem(
           icon: Icon(
             Icons.person_outline,

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'owner_dashboard.dart';
 import 'properties.dart';
 import 'manage_bookings.dart';
@@ -9,12 +12,10 @@ class propertyanalytics extends StatefulWidget {
   const propertyanalytics({super.key});
 
   @override
-  State<propertyanalytics> createState() =>
-      _propertyanalyticsState();
+  State<propertyanalytics> createState() => _propertyanalyticsState();
 }
 
-class _propertyanalyticsState
-    extends State<propertyanalytics> {
+class _propertyanalyticsState extends State<propertyanalytics> {
   int _selectedIndex = 3;
   int _selectedTime = 2;
 
@@ -25,6 +26,38 @@ class _propertyanalyticsState
     'This Year',
     'Range',
   ];
+
+  // ================= FIREBASE =================
+
+  String? get _ownerId {
+    return FirebaseAuth.instance.currentUser?.uid;
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> _propertiesStream() {
+    final ownerId = _ownerId;
+
+    if (ownerId == null) {
+      return const Stream.empty();
+    }
+
+    return FirebaseFirestore.instance
+        .collection('properties')
+        .where('ownerId', isEqualTo: ownerId)
+        .snapshots();
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> _bookingsStream() {
+    final ownerId = _ownerId;
+
+    if (ownerId == null) {
+      return const Stream.empty();
+    }
+
+    return FirebaseFirestore.instance
+        .collection('bookings')
+        .where('ownerId', isEqualTo: ownerId)
+        .snapshots();
+  }
 
   // ================= BOTTOM NAVIGATION =================
 
@@ -40,7 +73,7 @@ class _propertyanalyticsState
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const properties(),
+          builder: (context) => properties(),
         ),
       );
     } else if (index == 2) {
@@ -115,7 +148,6 @@ class _propertyanalyticsState
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back,
@@ -125,7 +157,6 @@ class _propertyanalyticsState
             Navigator.pop(context);
           },
         ),
-
         title: const Text(
           'Property Analytics',
           style: TextStyle(
@@ -134,7 +165,6 @@ class _propertyanalyticsState
             fontWeight: FontWeight.bold,
           ),
         ),
-
         actions: [
           Stack(
             children: [
@@ -146,7 +176,6 @@ class _propertyanalyticsState
                 ),
                 onPressed: () {},
               ),
-
               Positioned(
                 right: 9,
                 top: 8,
@@ -161,517 +190,578 @@ class _propertyanalyticsState
               ),
             ],
           ),
-
           const SizedBox(width: 8),
         ],
       ),
 
       // ================= BODY =================
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: _propertiesStream(),
+        builder: (context, propertySnapshot) {
+          return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            stream: _bookingsStream(),
+            builder: (context, bookingSnapshot) {
+              if (propertySnapshot.connectionState ==
+                      ConnectionState.waiting ||
+                  bookingSnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: Color(0xff2563EB),
+                  ),
+                );
+              }
 
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+              if (propertySnapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Error loading properties:\n${propertySnapshot.error}',
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
 
-            // ================= TIME FILTER =================
+              if (bookingSnapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Error loading bookings:\n${bookingSnapshot.error}',
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
 
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
+              final propertyDocs =
+                  propertySnapshot.data?.docs ?? [];
 
-              child: Row(
-                children: List.generate(
-                  timeFilters.length,
-                  (index) {
-                    bool selected =
-                        _selectedTime == index;
+              final bookingDocs =
+                  bookingSnapshot.data?.docs ?? [];
 
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedTime = index;
-                        });
-                      },
+              // ================= ACTIVE LISTINGS =================
 
-                      child: Container(
-                        margin: const EdgeInsets.only(
-                          right: 8,
+              final activeListings = propertyDocs.where((doc) {
+                return (doc.data()['status'] ?? '')
+                        .toString()
+                        .toLowerCase() ==
+                    'active';
+              }).toList().length;
+
+              // ================= AVERAGE RATING =================
+
+              double totalRating = 0;
+              int ratingCount = 0;
+
+              for (final doc in propertyDocs) {
+                final rating = doc.data()['rating'];
+
+                if (rating is num && rating > 0) {
+                  totalRating += rating.toDouble();
+                  ratingCount++;
+                }
+              }
+
+              final double averageRating =
+                  ratingCount > 0
+                      ? totalRating / ratingCount
+                      : 0;
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                  children: [
+                    // ================= TIME FILTER =================
+
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: List.generate(
+                          timeFilters.length,
+                          (index) {
+                            bool selected =
+                                _selectedTime == index;
+
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedTime = index;
+                                });
+                              },
+                              child: Container(
+                                margin:
+                                    const EdgeInsets.only(
+                                  right: 8,
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: selected
+                                      ? const Color(
+                                          0xff2563EB)
+                                      : Colors.white,
+                                  borderRadius:
+                                      BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: selected
+                                        ? const Color(
+                                            0xff2563EB)
+                                        : const Color(
+                                            0xffE2E8F0),
+                                  ),
+                                ),
+                                child: Text(
+                                  timeFilters[index],
+                                  style: TextStyle(
+                                    color: selected
+                                        ? Colors.white
+                                        : const Color(
+                                            0xff475569),
+                                    fontWeight: selected
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
+                      ),
+                    ),
 
-                        padding:
-                            const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
+                    const SizedBox(height: 20),
 
-                        decoration: BoxDecoration(
-                          color: selected
-                              ? const Color(0xff2563EB)
-                              : Colors.white,
+                    // ================= METRICS =================
 
-                          borderRadius:
-                              BorderRadius.circular(8),
-
-                          border: Border.all(
-                            color: selected
-                                ? const Color(0xff2563EB)
-                                : const Color(0xffE2E8F0),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _metricCard(
+                            'Total Views',
+                            '12,482',
+                            '+12.5%',
+                            Icons.visibility_outlined,
                           ),
                         ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _metricCard(
+                            'Active Listings',
+                            activeListings.toString(),
+                            'Same as last month',
+                            Icons.home_work_outlined,
+                          ),
+                        ),
+                      ],
+                    ),
 
-                        child: Text(
-                          timeFilters[index],
+                    const SizedBox(height: 12),
 
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _metricCard(
+                            'Total Bookings',
+                            bookingDocs.length.toString(),
+                            '+8.2%',
+                            Icons.calendar_month_outlined,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _metricCard(
+                            'Occupancy Rate',
+                            '94.2%',
+                            'High Demand',
+                            Icons.pie_chart_outline,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _metricCard(
+                            'Monthly Revenue',
+                            '\$42,850',
+                            '+\$4.2k',
+                            Icons.attach_money,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _metricCard(
+                            'Avg Rating',
+                            averageRating > 0
+                                ? averageRating
+                                    .toStringAsFixed(1)
+                                : '0.0',
+                            'Top Tier',
+                            Icons.star_border,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    // ================= VIEWS TREND =================
+
+                    _sectionTitle(
+                      'Views Trend',
+                      'Last 30 Days',
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                            BorderRadius.circular(14),
+                        border: Border.all(
+                          color:
+                              const Color(0xffE2E8F0),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 210,
+                            child: Row(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.end,
+                              children: [
+                                _chartBar(90),
+                                _chartBar(120),
+                                _chartBar(75),
+                                _chartBar(145),
+                                _chartBar(110),
+                                _chartBar(165),
+                                _chartBar(135),
+                                _chartBar(180),
+                                _chartBar(125),
+                                _chartBar(155),
+                                _chartBar(190),
+                                _chartBar(145),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceAround,
+                            children: const [
+                              Text('1'),
+                              Text('5'),
+                              Text('10'),
+                              Text('15'),
+                              Text('20'),
+                              Text('25'),
+                              Text('30'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    // ================= RENTAL INCOME =================
+
+                    _sectionTitle(
+                      'Rental Income',
+                      '\$42k Peak',
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                            BorderRadius.circular(14),
+                        border: Border.all(
+                          color:
+                              const Color(0xffE2E8F0),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 180,
+                            child: Row(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.end,
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceAround,
+                              children: [
+                                _incomeBar(
+                                  'Jun',
+                                  110,
+                                  false,
+                                ),
+                                _incomeBar(
+                                  'Jul',
+                                  140,
+                                  false,
+                                ),
+                                _incomeBar(
+                                  'Aug',
+                                  165,
+                                  true,
+                                ),
+                                _incomeBar(
+                                  'Sep',
+                                  125,
+                                  false,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 15),
+                          const Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceAround,
+                            children: [
+                              Text('Jun'),
+                              Text('Jul'),
+                              Text('Aug'),
+                              Text('Sep'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    // ================= TOP PERFORMING PROPERTIES =================
+
+                    Row(
+                      mainAxisAlignment:
+                          MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Top Performing Properties',
                           style: TextStyle(
-                            color: selected
-                                ? Colors.white
-                                : const Color(0xff475569),
+                            fontSize: 18,
+                            fontWeight:
+                                FontWeight.bold,
+                            color: Color(0xff0F172A),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    properties(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'View All',
+                            style: TextStyle(
+                              color: Color(0xff2563EB),
+                              fontWeight:
+                                  FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
 
-                            fontWeight: selected
-                                ? FontWeight.w600
-                                : FontWeight.normal,
+                    const SizedBox(height: 10),
+
+                    // ================= TOP PROPERTIES =================
+
+                    if (propertyDocs.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding:
+                            const EdgeInsets.all(25),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius:
+                              BorderRadius.circular(14),
+                          border: Border.all(
+                            color: const Color(
+                                0xffE2E8F0),
+                          ),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'No properties found',
+                            style: TextStyle(
+                              color:
+                                  Color(0xff64748B),
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      ..._buildTopProperties(
+                        propertyDocs,
+                        bookingDocs,
+                      ),
+
+                    const SizedBox(height: 28),
+
+                    // ================= OPERATIONS =================
+
+                    const Text(
+                      'Operations & Performance Metrics',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xff0F172A),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    _performanceCard(
+                      'Response Rate',
+                      '98%',
+                      'Excellent',
+                      Icons.speed,
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    _performanceCard(
+                      'Booking Conversion',
+                      '12.4%',
+                      'Above Avg',
+                      Icons.trending_up,
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    _performanceCard(
+                      'Tenant Satisfaction',
+                      '4.9/5',
+                      'Top Rated',
+                      Icons.sentiment_satisfied_alt_outlined,
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    // ================= EXPORT OPTIONS =================
+
+                    const Text(
+                      'Export Options',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xff0F172A),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Full report export selected',
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.file_download_outlined,
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          'Export Full Report',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight:
+                                FontWeight.w600,
+                          ),
+                        ),
+                        style:
+                            ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color(0xff2563EB),
+                          shape:
+                              RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(10),
                           ),
                         ),
                       ),
-                    );
-                  },
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // ================= METRICS =================
-
-            Row(
-              children: [
-                Expanded(
-                  child: _metricCard(
-                    'Total Views',
-                    '12,482',
-                    '+12.5%',
-                    Icons.visibility_outlined,
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: _metricCard(
-                    'Active Listings',
-                    '24',
-                    'Same as last month',
-                    Icons.home_work_outlined,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            Row(
-              children: [
-                Expanded(
-                  child: _metricCard(
-                    'Total Bookings',
-                    '158',
-                    '+8.2%',
-                    Icons.calendar_month_outlined,
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: _metricCard(
-                    'Occupancy Rate',
-                    '94.2%',
-                    'High Demand',
-                    Icons.pie_chart_outline,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            Row(
-              children: [
-                Expanded(
-                  child: _metricCard(
-                    'Monthly Revenue',
-                    '\$42,850',
-                    '+\$4.2k',
-                    Icons.attach_money,
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: _metricCard(
-                    'Avg Rating',
-                    '4.8',
-                    'Top Tier',
-                    Icons.star_border,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 25),
-
-            // ================= VIEWS TREND =================
-
-            _sectionTitle(
-              'Views Trend',
-              'Last 30 Days',
-            ),
-
-            const SizedBox(height: 12),
-
-            Container(
-              width: double.infinity,
-
-              padding: const EdgeInsets.all(16),
-
-              decoration: BoxDecoration(
-                color: Colors.white,
-
-                borderRadius:
-                    BorderRadius.circular(14),
-
-                border: Border.all(
-                  color: const Color(0xffE2E8F0),
-                ),
-              ),
-
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 210,
-
-                    child: Row(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.end,
-
-                      children: [
-                        _chartBar(90),
-                        _chartBar(120),
-                        _chartBar(75),
-                        _chartBar(145),
-                        _chartBar(110),
-                        _chartBar(165),
-                        _chartBar(135),
-                        _chartBar(180),
-                        _chartBar(125),
-                        _chartBar(155),
-                        _chartBar(190),
-                        _chartBar(145),
-                      ],
                     ),
-                  ),
 
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 12),
 
-                  Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceAround,
-
-                    children: const [
-                      Text('1'),
-                      Text('5'),
-                      Text('10'),
-                      Text('15'),
-                      Text('20'),
-                      Text('25'),
-                      Text('30'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 28),
-
-            // ================= RENTAL INCOME =================
-
-            _sectionTitle(
-              'Rental Income',
-              '\$42k Peak',
-            ),
-
-            const SizedBox(height: 12),
-
-            Container(
-              width: double.infinity,
-
-              padding: const EdgeInsets.all(18),
-
-              decoration: BoxDecoration(
-                color: Colors.white,
-
-                borderRadius:
-                    BorderRadius.circular(14),
-
-                border: Border.all(
-                  color: const Color(0xffE2E8F0),
-                ),
-              ),
-
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 180,
-
-                    child: Row(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.end,
-
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceAround,
-
-                      children: [
-                        _incomeBar(
-                          'Jun',
-                          110,
-                          false,
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Monthly PDF selected',
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.picture_as_pdf_outlined,
+                          color: Color(0xff2563EB),
                         ),
-
-                        _incomeBar(
-                          'Jul',
-                          140,
-                          false,
+                        label: const Text(
+                          'Download Monthly PDF',
+                          style: TextStyle(
+                            color: Color(0xff2563EB),
+                            fontSize: 15,
+                            fontWeight:
+                                FontWeight.w600,
+                          ),
                         ),
-
-                        _incomeBar(
-                          'Aug',
-                          165,
-                          true,
+                        style:
+                            OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                            color: Color(0xff2563EB),
+                          ),
+                          shape:
+                              RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(10),
+                          ),
                         ),
-
-                        _incomeBar(
-                          'Sep',
-                          125,
-                          false,
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 15),
-
-                  const Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceAround,
-
-                    children: [
-                      Text('Jun'),
-                      Text('Jul'),
-                      Text('Aug'),
-                      Text('Sep'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 28),
-
-            // ================= TOP PERFORMING PROPERTIES =================
-
-            Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.spaceBetween,
-
-              children: [
-                const Text(
-                  'Top Performing Properties',
-
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff0F172A),
-                  ),
+                    const SizedBox(height: 25),
+                  ],
                 ),
-
-                TextButton(
-                  onPressed: () {},
-
-                  child: const Text(
-                    'View All',
-
-                    style: TextStyle(
-                      color: Color(0xff2563EB),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 10),
-
-            // ================= AURA PROPERTY =================
-
-            _propertyCard(
-              'Skyline Penthouse',
-              'Downtown, Manhattan',
-              '2.4k',
-              '18',
-              '\$8.2k',
-              skyline,
-            ),
-
-            const SizedBox(height: 12),
-
-            // ================= PROPERTY 1 =================
-
-            _propertyCard(
-              'Brick Hearth Villa',
-              'Brooklyn, NY',
-              '1.8k',
-              '12',
-              '\$5.4k',
-              property1,
-            ),
-
-            const SizedBox(height: 28),
-
-            // ================= OPERATIONS =================
-
-            const Text(
-              'Operations & Performance Metrics',
-
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff0F172A),
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            _performanceCard(
-              'Response Rate',
-              '98%',
-              'Excellent',
-              Icons.speed,
-            ),
-
-            const SizedBox(height: 12),
-
-            _performanceCard(
-              'Booking Conversion',
-              '12.4%',
-              'Above Avg',
-              Icons.trending_up,
-            ),
-
-            const SizedBox(height: 12),
-
-            _performanceCard(
-              'Tenant Satisfaction',
-              '4.9/5',
-              'Top Rated',
-              Icons.sentiment_satisfied_alt_outlined,
-            ),
-
-            const SizedBox(height: 28),
-
-            // ================= EXPORT OPTIONS =================
-
-            const Text(
-              'Export Options',
-
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff0F172A),
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-
-              child: ElevatedButton.icon(
-                onPressed: () {},
-
-                icon: const Icon(
-                  Icons.file_download_outlined,
-                  color: Colors.white,
-                ),
-
-                label: const Text(
-                  'Export Full Report',
-
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-
-                style:
-                    ElevatedButton.styleFrom(
-                  backgroundColor:
-                      const Color(0xff2563EB),
-
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-
-              child: OutlinedButton.icon(
-                onPressed: () {},
-
-                icon: const Icon(
-                  Icons.picture_as_pdf_outlined,
-                  color: Color(0xff2563EB),
-                ),
-
-                label: const Text(
-                  'Download Monthly PDF',
-
-                  style: TextStyle(
-                    color: Color(0xff2563EB),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-
-                style:
-                    OutlinedButton.styleFrom(
-                  side: const BorderSide(
-                    color: Color(0xff2563EB),
-                  ),
-
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 25),
-          ],
-        ),
+              );
+            },
+          );
+        },
       ),
 
       // ================= BOTTOM NAVIGATION =================
@@ -679,6 +769,83 @@ class _propertyanalyticsState
       bottomNavigationBar:
           _buildBottomNavigation(),
     );
+  }
+
+  // ================= TOP PROPERTY LIST =================
+
+  List<Widget> _buildTopProperties(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>>
+        propertyDocs,
+    List<QueryDocumentSnapshot<Map<String, dynamic>>>
+        bookingDocs,
+  ) {
+    final sortedProperties =
+        List<QueryDocumentSnapshot<Map<String, dynamic>>>.from(
+      propertyDocs,
+    );
+
+    sortedProperties.sort((a, b) {
+      final ratingA = a.data()['rating'] is num
+          ? (a.data()['rating'] as num).toDouble()
+          : 0;
+
+      final ratingB = b.data()['rating'] is num
+          ? (b.data()['rating'] as num).toDouble()
+          : 0;
+
+      return ratingB.compareTo(ratingA);
+    });
+
+    final topProperties =
+        sortedProperties.take(2).toList();
+
+    return topProperties.map((doc) {
+      final data = doc.data();
+
+      final name =
+          (data['propertyName'] ?? 'Property')
+              .toString();
+
+      final location =
+          (data['location'] ?? 'Location')
+              .toString();
+
+      final imageName =
+          (data['image'] ?? 'property1')
+              .toString();
+
+      final imagePath =
+          imageName == 'property2'
+              ? property2
+              : property1;
+
+      final propertyId = doc.id;
+
+      // ================= PROPERTY BOOKINGS =================
+
+      final propertyBookings =
+          bookingDocs.where((booking) {
+        return (booking.data()['propertyId'] ?? '')
+                .toString() ==
+            propertyId;
+      }).toList().length;
+
+      final rent =
+          (data['rent'] ?? '₹0').toString();
+
+      return Padding(
+        padding:
+            const EdgeInsets.only(bottom: 12),
+        child: _propertyCard(
+          name,
+          location,
+          '—',
+          propertyBookings.toString(),
+          rent,
+          imagePath,
+        ),
+      );
+    }).toList();
   }
 
   // ================= METRIC CARD =================
@@ -691,39 +858,31 @@ class _propertyanalyticsState
   ) {
     return Container(
       padding: const EdgeInsets.all(15),
-
       decoration: BoxDecoration(
         color: Colors.white,
-
         borderRadius:
             BorderRadius.circular(14),
-
         border: Border.all(
           color: const Color(0xffE2E8F0),
         ),
       ),
-
       child: Column(
         crossAxisAlignment:
             CrossAxisAlignment.start,
-
         children: [
           Row(
             mainAxisAlignment:
                 MainAxisAlignment.spaceBetween,
-
             children: [
               Expanded(
                 child: Text(
                   title,
-
                   style: const TextStyle(
                     color: Color(0xff64748B),
                     fontSize: 12,
                   ),
                 ),
               ),
-
               Icon(
                 icon,
                 color: const Color(0xff2563EB),
@@ -731,24 +890,18 @@ class _propertyanalyticsState
               ),
             ],
           ),
-
           const SizedBox(height: 8),
-
           Text(
             value,
-
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
               color: Color(0xff0F172A),
             ),
           ),
-
           const SizedBox(height: 4),
-
           Text(
             subtitle,
-
             style: const TextStyle(
               fontSize: 11,
               color: Color(0xff16A34A),
@@ -768,21 +921,17 @@ class _propertyanalyticsState
     return Row(
       mainAxisAlignment:
           MainAxisAlignment.spaceBetween,
-
       children: [
         Text(
           title,
-
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Color(0xff0F172A),
           ),
         ),
-
         Text(
           rightText,
-
           style: const TextStyle(
             color: Color(0xff2563EB),
             fontWeight: FontWeight.w600,
@@ -799,15 +948,10 @@ class _propertyanalyticsState
     return Expanded(
       child: Container(
         height: height,
-
         margin:
-            const EdgeInsets.symmetric(
-          horizontal: 3,
-        ),
-
+            const EdgeInsets.symmetric(horizontal: 3),
         decoration: BoxDecoration(
           color: const Color(0xff2563EB),
-
           borderRadius:
               BorderRadius.circular(5),
         ),
@@ -825,17 +969,14 @@ class _propertyanalyticsState
     return Column(
       mainAxisAlignment:
           MainAxisAlignment.end,
-
       children: [
         Container(
           width: 42,
           height: height,
-
           decoration: BoxDecoration(
             color: selected
                 ? const Color(0xff2563EB)
                 : const Color(0xffBFDBFE),
-
             borderRadius:
                 BorderRadius.circular(6),
           ),
@@ -856,52 +997,41 @@ class _propertyanalyticsState
   ) {
     return Container(
       padding: const EdgeInsets.all(16),
-
       decoration: BoxDecoration(
         color: Colors.white,
-
         borderRadius:
             BorderRadius.circular(14),
-
         border: Border.all(
           color: const Color(0xffE2E8F0),
         ),
       ),
-
       child: Column(
         crossAxisAlignment:
             CrossAxisAlignment.start,
-
         children: [
           Row(
             children: [
               ClipRRect(
                 borderRadius:
                     BorderRadius.circular(10),
-
                 child: Image.asset(
                   imagePath,
-
                   width: 55,
                   height: 55,
-
                   fit: BoxFit.cover,
                 ),
               ),
-
               const SizedBox(width: 12),
-
               Expanded(
                 child: Column(
                   crossAxisAlignment:
                       CrossAxisAlignment.start,
-
                   children: [
                     Text(
                       name,
-
-                      style:
-                          const TextStyle(
+                      overflow:
+                          TextOverflow.ellipsis,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight:
                             FontWeight.bold,
@@ -909,14 +1039,12 @@ class _propertyanalyticsState
                             Color(0xff0F172A),
                       ),
                     ),
-
                     const SizedBox(height: 4),
-
                     Text(
                       location,
-
-                      style:
-                          const TextStyle(
+                      overflow:
+                          TextOverflow.ellipsis,
+                      style: const TextStyle(
                         fontSize: 13,
                         color:
                             Color(0xff64748B),
@@ -927,26 +1055,21 @@ class _propertyanalyticsState
               ),
             ],
           ),
-
           const SizedBox(height: 16),
-
           Row(
             mainAxisAlignment:
                 MainAxisAlignment.spaceBetween,
-
             children: [
               _propertyInfo(
                 Icons.visibility_outlined,
                 'Views',
                 views,
               ),
-
               _propertyInfo(
                 Icons.calendar_month_outlined,
                 'Bookings',
                 bookings,
               ),
-
               _propertyInfo(
                 Icons.attach_money,
                 'Income',
@@ -969,41 +1092,35 @@ class _propertyanalyticsState
     return Column(
       crossAxisAlignment:
           CrossAxisAlignment.start,
-
       children: [
         Row(
           children: [
             Icon(
               icon,
-
               size: 16,
-
               color:
                   const Color(0xff64748B),
             ),
-
             const SizedBox(width: 4),
-
             Text(
               title,
-
               style: const TextStyle(
                 fontSize: 11,
-                color: Color(0xff64748B),
+                color:
+                    Color(0xff64748B),
               ),
             ),
           ],
         ),
-
         const SizedBox(height: 4),
-
         Text(
           value,
-
           style: const TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Color(0xff0F172A),
+            fontWeight:
+                FontWeight.bold,
+            color:
+                Color(0xff0F172A),
           ),
         ),
       ],
@@ -1020,67 +1137,50 @@ class _propertyanalyticsState
   ) {
     return Container(
       width: double.infinity,
-
       padding: const EdgeInsets.all(16),
-
       decoration: BoxDecoration(
         color: Colors.white,
-
         borderRadius:
             BorderRadius.circular(14),
-
         border: Border.all(
           color: const Color(0xffE2E8F0),
         ),
       ),
-
       child: Row(
         children: [
           Container(
             width: 48,
             height: 48,
-
             decoration: BoxDecoration(
-              color: const Color(0xffDBEAFE),
-
+              color:
+                  const Color(0xffDBEAFE),
               borderRadius:
                   BorderRadius.circular(10),
             ),
-
             child: Icon(
               icon,
-
               color:
                   const Color(0xff2563EB),
             ),
           ),
-
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment:
                   CrossAxisAlignment.start,
-
               children: [
                 Text(
                   title,
-
-                  style:
-                      const TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     color:
                         Color(0xff64748B),
                   ),
                 ),
-
                 const SizedBox(height: 4),
-
                 Text(
                   value,
-
-                  style:
-                      const TextStyle(
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight:
                         FontWeight.bold,
@@ -1091,27 +1191,23 @@ class _propertyanalyticsState
               ],
             ),
           ),
-
           Container(
             padding:
                 const EdgeInsets.symmetric(
               horizontal: 10,
               vertical: 6,
             ),
-
             decoration: BoxDecoration(
-              color: const Color(0xffDCFCE7),
-
+              color:
+                  const Color(0xffDCFCE7),
               borderRadius:
                   BorderRadius.circular(20),
             ),
-
             child: Text(
               status,
-
-              style:
-                  const TextStyle(
-                color: Color(0xff15803D),
+              style: const TextStyle(
+                color:
+                    Color(0xff15803D),
                 fontSize: 11,
                 fontWeight:
                     FontWeight.w600,

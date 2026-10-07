@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'owner_register.dart';
 import 'owner_dashboard.dart';
 import '../resources/imagescreen.dart';
+import 'forgot_password.dart';
 
 class ownerlogin extends StatefulWidget {
   const ownerlogin({super.key});
@@ -16,14 +19,100 @@ class _ownerloginState extends State<ownerlogin> {
 
   final _formKey = GlobalKey<FormState>();
 
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   bool _isPasswordVisible = false;
   bool _rememberMe = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  // Firebase Owner Login
+  Future<void> _loginOwner() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ownerdashboard(),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      String message = 'Login failed';
+
+      switch (e.code) {
+        case 'invalid-email':
+          message = 'Please enter a valid email address';
+          break;
+
+        case 'user-not-found':
+          message = 'No owner account found with this email';
+          break;
+
+        case 'wrong-password':
+        case 'invalid-credential':
+          message = 'Incorrect email or password';
+          break;
+
+        case 'user-disabled':
+          message = 'This owner account has been disabled';
+          break;
+
+        case 'too-many-requests':
+          message = 'Too many attempts. Please try again later';
+          break;
+
+        case 'network-request-failed':
+          message = 'Please check your internet connection';
+          break;
+
+        default:
+          message = 'Login failed: ${e.message ?? e.code}';
+      }
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Something went wrong: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   Widget _buildLoginForm() {
@@ -140,11 +229,11 @@ class _ownerloginState extends State<ownerlogin> {
 
               TextButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Forgot Password selected',
-                      ),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          const ForgotPassword(),
                     ),
                   );
                 },
@@ -164,32 +253,42 @@ class _ownerloginState extends State<ownerlogin> {
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const ownerdashboard(),
-                    ),
-                  );
-                }
-              },
+              onPressed:
+                  _isLoading ? null : _loginOwner,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
+                backgroundColor:
+                    const Color(0xFF2563EB),
                 foregroundColor: Colors.white,
+                disabledBackgroundColor:
+                    const Color(0xFF93B4F4),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius:
+                      BorderRadius.circular(10),
                 ),
               ),
-              child: const Text(
-                'Login as Owner',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              child: _isLoading
+                  ? const SizedBox(
+                      height: 22,
+                      width: 22,
+                      child:
+                          CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor:
+                            AlwaysStoppedAnimation<
+                                Color>(
+                          Colors.white,
+                        ),
+                      ),
+                    )
+                  : const Text(
+                      'Login as Owner',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight:
+                            FontWeight.w600,
+                      ),
+                    ),
             ),
           ),
         ],
@@ -209,7 +308,8 @@ class _ownerloginState extends State<ownerlogin> {
             ),
 
             Padding(
-              padding: const EdgeInsets.symmetric(
+              padding:
+                  const EdgeInsets.symmetric(
                 horizontal: 12,
               ),
               child: Text(
@@ -234,7 +334,8 @@ class _ownerloginState extends State<ownerlogin> {
           height: 50,
           child: OutlinedButton.icon(
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(
                 const SnackBar(
                   content: Text(
                     'Google login selected',
@@ -257,8 +358,10 @@ class _ownerloginState extends State<ownerlogin> {
               side: const BorderSide(
                 color: Color(0xFFD1D5DB),
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+              shape:
+                  RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(10),
               ),
             ),
           ),
@@ -271,7 +374,8 @@ class _ownerloginState extends State<ownerlogin> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ownerregister(),
+        builder: (context) =>
+            const ownerregister(),
       ),
     );
   }
@@ -285,26 +389,31 @@ class _ownerloginState extends State<ownerlogin> {
         child: SingleChildScrollView(
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(
+              constraints:
+                  const BoxConstraints(
                 maxWidth: 450,
               ),
 
               child: Padding(
-                padding: const EdgeInsets.symmetric(
+                padding:
+                    const EdgeInsets.symmetric(
                   horizontal: 28,
                   vertical: 24,
                 ),
 
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     const Center(
                       child: Text(
                         'RentEasy',
                         style: TextStyle(
                           fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF2563EB),
+                          fontWeight:
+                              FontWeight.bold,
+                          color:
+                              Color(0xFF2563EB),
                         ),
                       ),
                     ),
@@ -316,14 +425,19 @@ class _ownerloginState extends State<ownerlogin> {
                       child: Container(
                         height: 160,
                         width: 220,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEFF6FF),
+                        decoration:
+                            BoxDecoration(
+                          color:
+                              const Color(
+                                  0xFFEFF6FF),
                           borderRadius:
-                              BorderRadius.circular(24),
+                              BorderRadius
+                                  .circular(24),
                         ),
                         child: ClipRRect(
                           borderRadius:
-                              BorderRadius.circular(24),
+                              BorderRadius
+                                  .circular(24),
                           child: Image.asset(
                             ownerLogin,
                             width: 220,
@@ -339,11 +453,14 @@ class _ownerloginState extends State<ownerlogin> {
                     const Center(
                       child: Text(
                         'Welcome, Property Owner',
-                        textAlign: TextAlign.center,
+                        textAlign:
+                            TextAlign.center,
                         style: TextStyle(
                           fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF111827),
+                          fontWeight:
+                              FontWeight.bold,
+                          color:
+                              Color(0xFF111827),
                         ),
                       ),
                     ),
@@ -353,11 +470,13 @@ class _ownerloginState extends State<ownerlogin> {
                     const Center(
                       child: Text(
                         'Manage your properties, tenants, and rental income effortlessly.',
-                        textAlign: TextAlign.center,
+                        textAlign:
+                            TextAlign.center,
                         style: TextStyle(
                           fontSize: 15,
                           height: 1.5,
-                          color: Color(0xFF6B7280),
+                          color:
+                              Color(0xFF6B7280),
                         ),
                       ),
                     ),
@@ -366,29 +485,41 @@ class _ownerloginState extends State<ownerlogin> {
 
                     Container(
                       height: 50,
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
+                      padding:
+                          const EdgeInsets.all(4),
+                      decoration:
+                          BoxDecoration(
+                        color:
+                            const Color(
+                                0xFFF3F4F6),
                         borderRadius:
-                            BorderRadius.circular(12),
+                            BorderRadius.circular(
+                                12),
                       ),
                       child: Row(
                         children: [
                           Expanded(
                             child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
+                              decoration:
+                                  BoxDecoration(
+                                color:
+                                    Colors.white,
                                 borderRadius:
-                                    BorderRadius.circular(9),
+                                    BorderRadius
+                                        .circular(
+                                            9),
                               ),
-                              child: const Center(
+                              child:
+                                  const Center(
                                 child: Text(
                                   'Login',
-                                  style: TextStyle(
-                                    color:
-                                        Color(0xFF2563EB),
+                                  style:
+                                      TextStyle(
+                                    color: Color(
+                                        0xFF2563EB),
                                     fontWeight:
-                                        FontWeight.w600,
+                                        FontWeight
+                                            .w600,
                                   ),
                                 ),
                               ),
@@ -396,13 +527,17 @@ class _ownerloginState extends State<ownerlogin> {
                           ),
 
                           Expanded(
-                            child: TextButton(
-                              onPressed: _openRegisterPage,
-                              child: const Text(
+                            child:
+                                TextButton(
+                              onPressed:
+                                  _openRegisterPage,
+                              child:
+                                  const Text(
                                 'Register',
-                                style: TextStyle(
-                                  color:
-                                      Color(0xFF6B7280),
+                                style:
+                                    TextStyle(
+                                  color: Color(
+                                      0xFF6B7280),
                                 ),
                               ),
                             ),
@@ -422,8 +557,10 @@ class _ownerloginState extends State<ownerlogin> {
                     Center(
                       child: RichText(
                         text: TextSpan(
-                          style: const TextStyle(
-                            color: Color(0xFF6B7280),
+                          style:
+                              const TextStyle(
+                            color:
+                                Color(0xFF6B7280),
                             fontSize: 14,
                           ),
                           children: [
@@ -433,15 +570,20 @@ class _ownerloginState extends State<ownerlogin> {
                             ),
 
                             WidgetSpan(
-                              child: GestureDetector(
-                                onTap: _openRegisterPage,
-                                child: const Text(
+                              child:
+                                  GestureDetector(
+                                onTap:
+                                    _openRegisterPage,
+                                child:
+                                    const Text(
                                   'Register',
-                                  style: TextStyle(
-                                    color:
-                                        Color(0xFF2563EB),
+                                  style:
+                                      TextStyle(
+                                    color: Color(
+                                        0xFF2563EB),
                                     fontWeight:
-                                        FontWeight.w600,
+                                        FontWeight
+                                            .w600,
                                   ),
                                 ),
                               ),

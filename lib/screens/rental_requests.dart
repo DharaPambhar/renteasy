@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'owner_dashboard.dart';
 import 'properties.dart';
 import 'manage_bookings.dart';
@@ -26,6 +29,9 @@ class _rentalrequestsState extends State<rentalrequests> {
     'Rejected',
   ];
 
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -33,6 +39,8 @@ class _rentalrequestsState extends State<rentalrequests> {
   }
 
   void _showMessage(String message) {
+    if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -41,7 +49,106 @@ class _rentalrequestsState extends State<rentalrequests> {
     );
   }
 
-  // ---------------- HEADER ----------------
+  // ============================================================
+  // HELPER METHODS
+  // ============================================================
+
+  String _getString(dynamic value, [String fallback = '']) {
+    if (value == null) return fallback;
+
+    final String result = value.toString().trim();
+
+    if (result.isEmpty) return fallback;
+
+    return result;
+  }
+
+  String _getStatus(Map<String, dynamic> data) {
+    return _getString(data['status'], 'Pending');
+  }
+
+  String _getPropertyImage(String imageName) {
+    switch (imageName) {
+      case 'property1':
+        return property1;
+
+      case 'property2':
+        return property2;
+
+      default:
+        return property1;
+    }
+  }
+
+  // ============================================================
+  // REQUEST FILTER
+  // ============================================================
+
+  bool _matchesSearch(Map<String, dynamic> data) {
+    final String search = _searchController.text.trim().toLowerCase();
+
+    if (search.isEmpty) {
+      return true;
+    }
+
+    final String tenantName =
+        _getString(data['tenantName']).toLowerCase();
+
+    final String propertyName =
+        _getString(data['propertyName']).toLowerCase();
+
+    final String requestId =
+        _getString(data['requestId']).toLowerCase();
+
+    final String status =
+        _getString(data['status']).toLowerCase();
+
+    return tenantName.contains(search) ||
+        propertyName.contains(search) ||
+        requestId.contains(search) ||
+        status.contains(search);
+  }
+
+  bool _matchesTab(Map<String, dynamic> data) {
+    final String status = _getStatus(data).toLowerCase();
+
+    if (_selectedTab == 0) {
+      return true;
+    }
+
+    return status == _tabs[_selectedTab].toLowerCase();
+  }
+
+  // ============================================================
+  // UPDATE REQUEST STATUS
+  // ============================================================
+
+  Future<void> _updateRequestStatus(
+    String requestId,
+    String newStatus,
+  ) async {
+    try {
+      await _firestore
+          .collection('rental_requests')
+          .doc(requestId)
+          .update({
+        'status': newStatus,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      _showMessage(
+        newStatus == 'Approved'
+            ? 'Request approved successfully'
+            : 'Request rejected successfully',
+      );
+    } catch (e) {
+      _showMessage('Something went wrong. Please try again.');
+    }
+  }
+
+  // ============================================================
+  // HEADER
+  // ============================================================
 
   Widget _buildHeader() {
     return Row(
@@ -90,7 +197,9 @@ class _rentalrequestsState extends State<rentalrequests> {
     );
   }
 
-  // ---------------- SEARCH ----------------
+  // ============================================================
+  // SEARCH
+  // ============================================================
 
   Widget _buildSearchBar() {
     return Row(
@@ -104,11 +213,16 @@ class _rentalrequestsState extends State<rentalrequests> {
             ),
             child: TextField(
               controller: _searchController,
+              onChanged: (value) {
+                setState(() {});
+              },
               decoration: const InputDecoration(
                 hintText: 'Search applicants',
                 prefixIcon: Icon(Icons.search),
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(vertical: 13),
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 13,
+                ),
               ),
             ),
           ),
@@ -132,7 +246,9 @@ class _rentalrequestsState extends State<rentalrequests> {
     );
   }
 
-  // ---------------- TABS ----------------
+  // ============================================================
+  // TABS
+  // ============================================================
 
   Widget _buildTabs() {
     return Container(
@@ -193,13 +309,60 @@ class _rentalrequestsState extends State<rentalrequests> {
     );
   }
 
-  // ---------------- APPLICANT HEADER ----------------
+  // ============================================================
+  // STATUS BADGE
+  // ============================================================
+
+  Widget _buildStatusBadge(String status) {
+    Color backgroundColor;
+    Color textColor;
+
+    switch (status.toLowerCase()) {
+      case 'approved':
+        backgroundColor = Colors.green.shade50;
+        textColor = Colors.green.shade700;
+        break;
+
+      case 'rejected':
+        backgroundColor = Colors.red.shade50;
+        textColor = Colors.red.shade700;
+        break;
+
+      default:
+        backgroundColor = Colors.orange.shade50;
+        textColor = Colors.orange.shade800;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 5,
+      ),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+          color: textColor,
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // APPLICANT HEADER
+  // ============================================================
 
   Widget _buildApplicantHeader({
     required String name,
     required String profession,
     required String phone,
     required String imagePath,
+    required String status,
   }) {
     return Row(
       children: [
@@ -243,29 +406,14 @@ class _rentalrequestsState extends State<rentalrequests> {
             ],
           ),
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 5,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.orange.shade50,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            'Pending',
-            style: TextStyle(
-              color: Colors.orange.shade800,
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+        _buildStatusBadge(status),
       ],
     );
   }
 
-  // ---------------- PROPERTY INFO ----------------
+  // ============================================================
+  // PROPERTY INFO
+  // ============================================================
 
   Widget _buildPropertyInfo({
     required String propertyName,
@@ -342,7 +490,9 @@ class _rentalrequestsState extends State<rentalrequests> {
     );
   }
 
-  // ---------------- STAY DETAILS ----------------
+  // ============================================================
+  // STAY DETAILS
+  // ============================================================
 
   Widget _buildStayDetails({
     required String moveIn,
@@ -435,9 +585,13 @@ class _rentalrequestsState extends State<rentalrequests> {
     );
   }
 
-  // ---------------- ACTION ICONS ----------------
+  // ============================================================
+  // ACTION ICONS
+  // ============================================================
 
-  Widget _buildActionIcons() {
+  Widget _buildActionIcons({
+    required String phone,
+  }) {
     return Row(
       children: [
         _actionIcon(
@@ -464,7 +618,11 @@ class _rentalrequestsState extends State<rentalrequests> {
         _actionIcon(
           Icons.call_outlined,
           () {
-            _showMessage('Calling applicant');
+            if (phone.isEmpty) {
+              _showMessage('Phone number not available');
+            } else {
+              _showMessage('Calling $phone');
+            }
           },
         ),
       ],
@@ -494,16 +652,28 @@ class _rentalrequestsState extends State<rentalrequests> {
     );
   }
 
-  // ---------------- DECISION BUTTONS ----------------
+  // ============================================================
+  // DECISION BUTTONS
+  // ============================================================
 
-  Widget _buildDecisionButtons() {
+  Widget _buildDecisionButtons({
+    required String requestId,
+    required String status,
+  }) {
+    final bool isPending = status.toLowerCase() == 'pending';
+
     return Row(
       children: [
         Expanded(
           child: OutlinedButton(
-            onPressed: () {
-              _showMessage('Request rejected');
-            },
+            onPressed: isPending
+                ? () {
+                    _updateRequestStatus(
+                      requestId,
+                      'Rejected',
+                    );
+                  }
+                : null,
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.red,
               side: const BorderSide(
@@ -527,12 +697,19 @@ class _rentalrequestsState extends State<rentalrequests> {
         const SizedBox(width: 10),
         Expanded(
           child: ElevatedButton(
-            onPressed: () {
-              _showMessage('Request approved');
-            },
+            onPressed: isPending
+                ? () {
+                    _updateRequestStatus(
+                      requestId,
+                      'Approved',
+                    );
+                  }
+                : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
               foregroundColor: Colors.white,
+              disabledBackgroundColor: Colors.grey.shade300,
+              disabledForegroundColor: Colors.grey.shade600,
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -553,138 +730,336 @@ class _rentalrequestsState extends State<rentalrequests> {
     );
   }
 
-  // ---------------- REQUEST CARD 1 ----------------
+  // ============================================================
+  // REQUEST CARD
+  // ============================================================
 
-  Widget _buildRequestCard1() {
+  Widget _buildRequestCard(
+    DocumentSnapshot requestDocument,
+  ) {
+    final Map<String, dynamic> data =
+        requestDocument.data() as Map<String, dynamic>;
+
+    final String requestId =
+        requestDocument.id;
+
+    final String tenantName =
+        _getString(data['tenantName'], 'Applicant');
+
+    final String profession =
+        _getString(
+          data['profession'],
+          'Tenant',
+        );
+
+    final String phone =
+        _getString(
+          data['tenantPhone'] ?? data['phone'],
+          '(Phone not available)',
+        );
+
+    final String status =
+        _getStatus(data);
+
+    final String propertyId =
+        _getString(data['propertyId']);
+
+    final String requestDate =
+        _getString(
+          data['requestDate'],
+          'Not specified',
+        );
+
+    final String duration =
+        _getString(
+          data['duration'],
+          '12 months',
+        );
+
+    final String occupants =
+        _getString(
+          data['occupants'],
+          '2 Adults',
+        );
+
+    final String budget =
+        _getString(
+          data['budget'],
+          '₹4,500',
+        );
+
+    return FutureBuilder<DocumentSnapshot>(
+      future: propertyId.isEmpty
+          ? null
+          : _firestore
+              .collection('properties')
+              .doc(propertyId)
+              .get(),
+      builder: (context, propertySnapshot) {
+        String propertyName = _getString(
+          data['propertyName'],
+          'Property',
+        );
+
+        String location = _getString(
+          data['propertyLocation'] ??
+              data['location'],
+          'Location not available',
+        );
+
+        String price = _getString(
+          data['rent'],
+          '₹0/mo',
+        );
+
+        String imageName = _getString(
+          data['image'],
+          'property1',
+        );
+
+        if (propertySnapshot.hasData &&
+            propertySnapshot.data!.exists) {
+          final propertyData =
+              propertySnapshot.data!.data()
+                  as Map<String, dynamic>;
+
+          propertyName = _getString(
+            propertyData['propertyName'],
+            propertyName,
+          );
+
+          location = _getString(
+            propertyData['location'],
+            location,
+          );
+
+          price = _getString(
+            propertyData['rent'],
+            price,
+          );
+
+          imageName = _getString(
+            propertyData['image'],
+            imageName,
+          );
+        }
+
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: Colors.grey.shade200,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildApplicantHeader(
+                name: tenantName,
+                profession: profession,
+                phone: phone,
+                imagePath: rentalProfile,
+                status: status,
+              ),
+
+              _buildPropertyInfo(
+                propertyName: propertyName,
+                location: location,
+                price: price,
+                imagePath: _getPropertyImage(imageName),
+              ),
+
+              _buildStayDetails(
+                moveIn: requestDate,
+                duration: duration,
+                occupants: occupants,
+                budget: budget,
+              ),
+
+              const SizedBox(height: 18),
+
+              const Divider(),
+
+              const SizedBox(height: 8),
+
+              Row(
+                children: [
+                  const Text(
+                    'Applicant Actions',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Spacer(),
+                  _buildActionIcons(
+                    phone: phone,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              _buildDecisionButtons(
+                requestId: requestId,
+                status: status,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // EMPTY STATE
+  // ============================================================
+
+  Widget _buildEmptyState() {
+    String message;
+
+    if (_searchController.text.trim().isNotEmpty) {
+      message = 'No requests found for your search.';
+    } else if (_selectedTab == 1) {
+      message = 'No pending rental requests.';
+    } else if (_selectedTab == 2) {
+      message = 'No approved rental requests.';
+    } else if (_selectedTab == 3) {
+      message = 'No rejected rental requests.';
+    } else {
+      message = 'No rental requests available.';
+    }
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        vertical: 45,
+        horizontal: 20,
+      ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildApplicantHeader(
-            name: 'Sarah Jenkins',
-            profession: 'UX Designer',
-            phone: '(555) 012-3456',
-            imagePath: rentalProfile,
+          Icon(
+            Icons.inbox_outlined,
+            size: 50,
+            color: Colors.grey.shade400,
           ),
-
-          _buildPropertyInfo(
-            propertyName: 'The Aura - Luxury Loft',
-            location: 'Downtown, NYC',
-            price: '₹4,250/mo',
-            imagePath: skyline,
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade600,
+            ),
           ),
-
-          _buildStayDetails(
-            moveIn: 'Nov 1, 2023',
-            duration: '12 months',
-            occupants: '2 Adults',
-            budget: '₹4,500',
-          ),
-
-          const SizedBox(height: 18),
-
-          const Divider(),
-
-          const SizedBox(height: 8),
-
-          Row(
-            children: [
-              const Text(
-                'Applicant Actions',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const Spacer(),
-              _buildActionIcons(),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          _buildDecisionButtons(),
         ],
       ),
     );
   }
 
-  // ---------------- REQUEST CARD 2 ----------------
+  // ============================================================
+  // REQUEST LIST
+  // ============================================================
 
-  Widget _buildRequestCard2() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: Colors.grey.shade200,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildApplicantHeader(
-            name: 'Mark Thompson',
-            profession: 'Data Scientist',
-            phone: '(555) 098-7654',
-            imagePath: rentalProfile1,
-          ),
+  Widget _buildRequestList() {
+    final User? user = _auth.currentUser;
 
-          _buildPropertyInfo(
-            propertyName: 'The Aura - Penthouse B',
-            location: 'Downtown, NYC',
-            price: '₹6,100/mo',
-            imagePath: loft,
-          ),
+    if (user == null) {
+      return _buildEmptyState();
+    }
 
-          const SizedBox(height: 18),
-
-          Row(
-            children: [
-              const Text(
-                'Applicant Actions',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore
+          .collection('rental_requests')
+          .where(
+            'ownerId',
+            isEqualTo: user.uid,
+          )
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState ==
+            ConnectionState.waiting) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(35),
+              child: CircularProgressIndicator(
+                color: Color(0xFF2563EB),
               ),
-              const Spacer(),
-              _buildActionIcons(),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(25),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: const Text(
+              'Unable to load rental requests.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          );
+        }
+
+        if (!snapshot.hasData ||
+            snapshot.data!.docs.isEmpty) {
+          return _buildEmptyState();
+        }
+
+        final List<DocumentSnapshot> filteredRequests =
+            snapshot.data!.docs.where((document) {
+          final Map<String, dynamic> data =
+              document.data() as Map<String, dynamic>;
+
+          return _matchesTab(data) &&
+              _matchesSearch(data);
+        }).toList();
+
+        if (filteredRequests.isEmpty) {
+          return _buildEmptyState();
+        }
+
+        return Column(
+          children: [
+            for (int i = 0; i < filteredRequests.length; i++) ...[
+              _buildRequestCard(
+                filteredRequests[i],
+              ),
+              if (i != filteredRequests.length - 1)
+                const SizedBox(height: 16),
             ],
-          ),
-
-          const SizedBox(height: 16),
-
-          _buildDecisionButtons(),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 
-  // ---------------- BOTTOM NAVIGATION ----------------
+  // ============================================================
+  // BOTTOM NAVIGATION
+  // ============================================================
 
   void _onBottomNavTap(int index) {
     setState(() {
@@ -766,7 +1141,9 @@ class _rentalrequestsState extends State<rentalrequests> {
     );
   }
 
-  // ---------------- BUILD ----------------
+  // ============================================================
+  // BUILD
+  // ============================================================
 
   @override
   Widget build(BuildContext context) {
@@ -806,11 +1183,7 @@ class _rentalrequestsState extends State<rentalrequests> {
 
               const SizedBox(height: 14),
 
-              _buildRequestCard1(),
-
-              const SizedBox(height: 16),
-
-              _buildRequestCard2(),
+              _buildRequestList(),
 
               const SizedBox(height: 20),
             ],
