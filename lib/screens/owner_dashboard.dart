@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import 'manage_bookings.dart';
@@ -22,8 +21,6 @@ class _ownerdashboardState extends State<ownerdashboard> {
   // ================= HEADER =================
 
   Widget _buildHeader() {
-    const String ownerName = 'Owner';
-
     return Row(
       children: [
         ClipOval(
@@ -40,8 +37,8 @@ class _ownerdashboardState extends State<ownerdashboard> {
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
+            children: const [
+              Text(
                 'Hello, Owner',
                 style: TextStyle(
                   fontSize: 24,
@@ -49,10 +46,8 @@ class _ownerdashboardState extends State<ownerdashboard> {
                   color: Color(0xFF111827),
                 ),
               ),
-
-              const SizedBox(height: 5),
-
-              const Text(
+              SizedBox(height: 5),
+              Text(
                 'Manage your properties easily',
                 style: TextStyle(
                   fontSize: 14,
@@ -192,35 +187,37 @@ class _ownerdashboardState extends State<ownerdashboard> {
                 builder: (context) => const addproperty(),
               ),
             );
+          }
 
           // ================= MANAGE =================
 
-          } else if (title == 'Manage') {
+          else if (title == 'Manage') {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const properties(),
               ),
             );
+          }
 
           // ================= REQUESTS =================
 
-          } else if (title == 'Requests') {
+          else if (title == 'Requests') {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const rentalrequests(),
               ),
             );
+          }
 
           // ================= ANALYTICS =================
 
-          } else if (title == 'Analytics') {
+          else if (title == 'Analytics') {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    const propertyanalytics(),
+                builder: (context) => const propertyanalytics(),
               ),
             );
           }
@@ -241,14 +238,14 @@ class _ownerdashboardState extends State<ownerdashboard> {
           child: Column(
             children: [
               Stack(
+                clipBehavior: Clip.none,
                 children: [
                   Container(
                     height: 45,
                     width: 45,
                     decoration: BoxDecoration(
                       color: const Color(0xFFEFF6FF),
-                      borderRadius:
-                          BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       icon,
@@ -258,18 +255,16 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
                   if (badge > 0)
                     Positioned(
-                      right: -2,
-                      top: -5,
+                      right: -5,
+                      top: -6,
                       child: Container(
-                        padding:
-                            const EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 5,
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.red,
-                          borderRadius:
-                              BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           '$badge',
@@ -307,7 +302,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
   Widget _buildPropertyCard() {
     return _propertyCardData(
       'The Aura - Luxury Loft',
-      'Downtown NYC',
+      'Downtown, NYC',
       '₹4,250',
       'Occupied',
       4.9,
@@ -330,10 +325,6 @@ class _ownerdashboardState extends State<ownerdashboard> {
                 ? AssetImage(property2)
                 : AssetImage(skyline);
 
-    final bool occupied =
-        status.toLowerCase() == 'rented' ||
-        status.toLowerCase() == 'occupied';
-
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -344,18 +335,17 @@ class _ownerdashboardState extends State<ownerdashboard> {
         ),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12),
                 child: Image(
                   image: propertyImage,
-                  height: 75,
-                  width: 75,
+                  height: 85,
+                  width: 85,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -364,8 +354,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       propertyName,
@@ -389,7 +378,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                     const SizedBox(height: 6),
 
                     Text(
-                      '$rent / month',
+                      '$rent / mo',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -400,22 +389,21 @@ class _ownerdashboardState extends State<ownerdashboard> {
                 ),
               ),
 
+              // PURPLE OCCUPIED BADGE
               Container(
-                padding:
-                    const EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 8,
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFDCFCE7),
-                  borderRadius:
-                      BorderRadius.circular(8),
+                  color: const Color(0xFFF3E8FF),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  occupied ? 'Occupied' : status,
+                  status,
                   style: const TextStyle(
                     fontSize: 10,
-                    color: Colors.green,
+                    color: Color(0xFF7C3AED),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -424,29 +412,13 @@ class _ownerdashboardState extends State<ownerdashboard> {
           ),
 
           const SizedBox(height: 15),
+
           const Divider(),
+
           const SizedBox(height: 8),
 
           Row(
             children: [
-              const Icon(
-                Icons.star,
-                size: 18,
-                color: Colors.amber,
-              ),
-
-              const SizedBox(width: 5),
-
-              Text(
-                '${rating.toStringAsFixed(1)} Rating',
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF374151),
-                ),
-              ),
-
-              const Spacer(),
-
               const Icon(
                 Icons.visibility_outlined,
                 size: 18,
@@ -456,10 +428,28 @@ class _ownerdashboardState extends State<ownerdashboard> {
               const SizedBox(width: 5),
 
               const Text(
-                '1.2k Views',
+                '1.2k views',
                 style: TextStyle(
                   fontSize: 13,
                   color: Color(0xFF6B7280),
+                ),
+              ),
+
+              const Spacer(),
+
+              const Icon(
+                Icons.star,
+                size: 18,
+                color: Colors.amber,
+              ),
+
+              const SizedBox(width: 5),
+
+              Text(
+                '${rating.toStringAsFixed(1)} rating',
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF374151),
                 ),
               ),
             ],
@@ -474,7 +464,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
   Widget _buildPendingRequest() {
     return _pendingRequestData(
       'Sarah Jenkins',
-      'October 24, 2026',
+      'Oct 24, 2023',
       'Interested in The Aura - Luxury Loft for a 12-month lease.',
     );
   }
@@ -494,10 +484,10 @@ class _ownerdashboardState extends State<ownerdashboard> {
         ),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipOval(
                 child: Image.asset(
@@ -512,15 +502,29 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      tenantName,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            tenantName,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 5),
+
+                        const Icon(
+                          Icons.verified,
+                          size: 17,
+                          color: Color(0xFF2563EB),
+                        ),
+                      ],
                     ),
 
                     const SizedBox(height: 4),
@@ -537,22 +541,20 @@ class _ownerdashboardState extends State<ownerdashboard> {
               ),
 
               Container(
-                padding:
-                    const EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 8,
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFEF3C7),
-                  borderRadius:
-                      BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
-                  'Pending',
+                  'PENDING',
                   style: TextStyle(
                     fontSize: 10,
-                    color: Colors.orange,
-                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFD97706),
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -577,8 +579,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
             height: 42,
             child: OutlinedButton(
               onPressed: () {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text(
                       'Request details selected',
@@ -590,10 +591,8 @@ class _ownerdashboardState extends State<ownerdashboard> {
                 side: const BorderSide(
                   color: Color(0xFF2563EB),
                 ),
-                shape:
-                    RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
               child: const Text(
@@ -614,40 +613,36 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
   Widget _buildRevenueCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
+        color: const Color(0xFF172554),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               const Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Revenue Growth',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 17,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
 
                     SizedBox(height: 5),
 
                     Text(
-                      'Revenue increased 12% since last month',
+                      'Monthly revenue performance',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF6B7280),
+                        color: Color(0xFFBFDBFE),
                       ),
                     ),
                   ],
@@ -655,21 +650,19 @@ class _ownerdashboardState extends State<ownerdashboard> {
               ),
 
               Container(
-                padding:
-                    const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 5,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 9,
+                  vertical: 6,
                 ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFDCFCE7),
-                  borderRadius:
-                      BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
                   '+12%',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.green,
+                    color: Color(0xFF15803D),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -677,15 +670,13 @@ class _ownerdashboardState extends State<ownerdashboard> {
             ],
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
 
           SizedBox(
-            height: 130,
+            height: 145,
             child: Row(
-              crossAxisAlignment:
-                  CrossAxisAlignment.end,
-              mainAxisAlignment:
-                  MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildChartBar('Jan', 45),
                 _buildChartBar('Feb', 60),
@@ -697,15 +688,13 @@ class _ownerdashboardState extends State<ownerdashboard> {
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
 
-          const Center(
-            child: Text(
-              'Your revenue has increased by 12% since last month.',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xFF6B7280),
-              ),
+          const Text(
+            'Your revenue has increased by 12% since last month.',
+            style: TextStyle(
+              fontSize: 12,
+              color: Color(0xFFBFDBFE),
             ),
           ),
         ],
@@ -718,16 +707,14 @@ class _ownerdashboardState extends State<ownerdashboard> {
     double height,
   ) {
     return Column(
-      mainAxisAlignment:
-          MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Container(
           height: height,
           width: 25,
           decoration: BoxDecoration(
-            color: const Color(0xFF2563EB),
-            borderRadius:
-                BorderRadius.circular(6),
+            color: const Color(0xFF60A5FA),
+            borderRadius: BorderRadius.circular(6),
           ),
         ),
 
@@ -737,7 +724,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
           month,
           style: const TextStyle(
             fontSize: 10,
-            color: Color(0xFF6B7280),
+            color: Color(0xFFBFDBFE),
           ),
         ),
       ],
@@ -753,16 +740,14 @@ class _ownerdashboardState extends State<ownerdashboard> {
     String property,
   ) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         vertical: 13,
       ),
       child: Row(
         children: [
           const CircleAvatar(
             radius: 22,
-            backgroundColor:
-                Color(0xFFEFF6FF),
+            backgroundColor: Color(0xFFEFF6FF),
             child: Icon(
               Icons.person_outline,
               color: Color(0xFF2563EB),
@@ -773,14 +758,12 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   name,
                   style: const TextStyle(
-                    fontWeight:
-                        FontWeight.w600,
+                    fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),
                 ),
@@ -791,8 +774,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                   property,
                   style: const TextStyle(
                     fontSize: 11,
-                    color:
-                        Color(0xFF6B7280),
+                    color: Color(0xFF6B7280),
                   ),
                 ),
 
@@ -828,8 +810,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
 
@@ -845,8 +826,6 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
           const SizedBox(height: 12),
 
-          // TOTAL PROPERTIES
-
           _buildStatCard(
             'Total Properties',
             '12',
@@ -855,8 +834,6 @@ class _ownerdashboardState extends State<ownerdashboard> {
           ),
 
           const SizedBox(height: 10),
-
-          // ACTIVE LISTINGS
 
           _buildStatCard(
             'Active Listings',
@@ -867,8 +844,6 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
           const SizedBox(height: 10),
 
-          // MONTHLY EARNINGS
-
           _buildStatCard(
             'Monthly Earnings',
             '₹12,450',
@@ -878,8 +853,6 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
           const SizedBox(height: 10),
 
-          // BOOKINGS
-
           _buildStatCard(
             'Bookings',
             '45',
@@ -888,8 +861,6 @@ class _ownerdashboardState extends State<ownerdashboard> {
           ),
 
           const SizedBox(height: 10),
-
-          // VIEWS
 
           _buildStatCard(
             'Views',
@@ -960,12 +931,38 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
           const SizedBox(height: 25),
 
-          const Text(
-            'Pending Requests',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Pending Requests',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          const rentalrequests(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  'View All',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF2563EB),
+                  ),
+                ),
+              ),
+            ],
           ),
 
           const SizedBox(height: 12),
@@ -999,17 +996,14 @@ class _ownerdashboardState extends State<ownerdashboard> {
           const SizedBox(height: 10),
 
           Container(
-            padding:
-                const EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: 16,
             ),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius:
-                  BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color:
-                    const Color(0xFFE5E7EB),
+                color: const Color(0xFFE5E7EB),
               ),
             ),
             child: Column(
@@ -1045,62 +1039,40 @@ class _ownerdashboardState extends State<ownerdashboard> {
     return BottomNavigationBar(
       currentIndex: _selectedIndex,
       type: BottomNavigationBarType.fixed,
-      selectedItemColor:
-          const Color(0xFF2563EB),
-      unselectedItemColor:
-          const Color(0xFF6B7280),
+      selectedItemColor: const Color(0xFF2563EB),
+      unselectedItemColor: const Color(0xFF6B7280),
 
       onTap: (index) {
         if (index == 0) {
           setState(() {
             _selectedIndex = 0;
           });
-        }
-
-        // ================= PROPERTIES =================
-
-        else if (index == 1) {
+        } else if (index == 1) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  const properties(),
+              builder: (context) => const properties(),
             ),
           );
-        }
-
-        // ================= BOOKINGS =================
-
-        else if (index == 2) {
+        } else if (index == 2) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  const managebookings(),
+              builder: (context) => const managebookings(),
             ),
           );
-        }
-
-        // ================= ANALYTICS =================
-
-        else if (index == 3) {
+        } else if (index == 3) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  const propertyanalytics(),
+              builder: (context) => const propertyanalytics(),
             ),
           );
-        }
-
-        // ================= PROFILE =================
-
-        else if (index == 4) {
+        } else if (index == 4) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  const ownerprofile(),
+              builder: (context) => const ownerprofile(),
             ),
           );
         }
@@ -1108,52 +1080,32 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
       items: const [
         BottomNavigationBarItem(
-          icon: Icon(
-            Icons.dashboard_outlined,
-          ),
-          activeIcon: Icon(
-            Icons.dashboard,
-          ),
+          icon: Icon(Icons.dashboard_outlined),
+          activeIcon: Icon(Icons.dashboard),
           label: 'Dashboard',
         ),
 
         BottomNavigationBarItem(
-          icon: Icon(
-            Icons.home_work_outlined,
-          ),
-          activeIcon: Icon(
-            Icons.home_work,
-          ),
+          icon: Icon(Icons.home_work_outlined),
+          activeIcon: Icon(Icons.home_work),
           label: 'Properties',
         ),
 
         BottomNavigationBarItem(
-          icon: Icon(
-            Icons.calendar_month_outlined,
-          ),
-          activeIcon: Icon(
-            Icons.calendar_month,
-          ),
+          icon: Icon(Icons.calendar_month_outlined),
+          activeIcon: Icon(Icons.calendar_month),
           label: 'Bookings',
         ),
 
         BottomNavigationBarItem(
-          icon: Icon(
-            Icons.analytics_outlined,
-          ),
-          activeIcon: Icon(
-            Icons.analytics,
-          ),
+          icon: Icon(Icons.analytics_outlined),
+          activeIcon: Icon(Icons.analytics),
           label: 'Analytics',
         ),
 
         BottomNavigationBarItem(
-          icon: Icon(
-            Icons.person_outline,
-          ),
-          activeIcon: Icon(
-            Icons.person,
-          ),
+          icon: Icon(Icons.person_outline),
+          activeIcon: Icon(Icons.person),
           label: 'Profile',
         ),
       ],
@@ -1165,15 +1117,13 @@ class _ownerdashboardState extends State<ownerdashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF8FAFC),
 
       body: SafeArea(
         child: _buildDashboard(),
       ),
 
-      bottomNavigationBar:
-          _buildBottomNavigation(),
+      bottomNavigationBar: _buildBottomNavigation(),
     );
   }
 }
