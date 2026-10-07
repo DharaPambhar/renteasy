@@ -1,5 +1,5 @@
+
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'owner_register.dart';
 import 'owner_dashboard.dart';
@@ -19,8 +19,6 @@ class _ownerloginState extends State<ownerlogin> {
 
   final _formKey = GlobalKey<FormState>();
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
   bool _isPasswordVisible = false;
   bool _rememberMe = false;
   bool _isLoading = false;
@@ -32,7 +30,7 @@ class _ownerloginState extends State<ownerlogin> {
     super.dispose();
   }
 
-  // Firebase Owner Login
+  // Static Owner Login
   Future<void> _loginOwner() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -42,77 +40,21 @@ class _ownerloginState extends State<ownerlogin> {
       _isLoading = true;
     });
 
-    try {
-      await _auth.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+    // Static loading effect
+    await Future.delayed(const Duration(milliseconds: 700));
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const ownerdashboard(),
-        ),
-      );
-    } on FirebaseAuthException catch (e) {
-      String message = 'Login failed';
+    setState(() {
+      _isLoading = false;
+    });
 
-      switch (e.code) {
-        case 'invalid-email':
-          message = 'Please enter a valid email address';
-          break;
-
-        case 'user-not-found':
-          message = 'No owner account found with this email';
-          break;
-
-        case 'wrong-password':
-        case 'invalid-credential':
-          message = 'Incorrect email or password';
-          break;
-
-        case 'user-disabled':
-          message = 'This owner account has been disabled';
-          break;
-
-        case 'too-many-requests':
-          message = 'Too many attempts. Please try again later';
-          break;
-
-        case 'network-request-failed':
-          message = 'Please check your internet connection';
-          break;
-
-        default:
-          message = 'Login failed: ${e.message ?? e.code}';
-      }
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Something went wrong: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ownerdashboard(),
+      ),
+    );
   }
 
   Widget _buildLoginForm() {

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'owner_dashboard.dart';
 import 'manage_bookings.dart';
@@ -30,6 +28,47 @@ class _propertiesState extends State<properties> {
       TextEditingController();
 
   String _searchText = '';
+
+  // ================= STATIC PROPERTY DATA =================
+
+  final List<Map<String, dynamic>> _properties = [
+    {
+      'propertyName': 'The Aura - Luxury Loft',
+      'rent': '₹4,250',
+      'location': 'Grand Avenue, Downtown, NYC',
+      'specs': '2 Beds • 2 Baths • 1,250 sq ft',
+      'details':
+          'Modern luxury loft with premium interiors and city view.',
+      'status': 'Active',
+      'rating': '4.9',
+      'image': 'property1',
+      'furnished': true,
+    },
+    {
+      'propertyName': 'Sunset Studio',
+      'rent': '₹2,850',
+      'location': 'Downtown, NYC',
+      'specs': '1 Bed • 1 Bath • 650 sq ft',
+      'details':
+          'Cozy furnished studio apartment in a prime location.',
+      'status': 'Rented',
+      'rating': '4.7',
+      'image': 'property2',
+      'furnished': true,
+    },
+    {
+      'propertyName': 'Modern City Apartment',
+      'rent': '₹3,600',
+      'location': 'Central Avenue, NYC',
+      'specs': '2 Beds • 1 Bath • 900 sq ft',
+      'details':
+          'Bright and comfortable apartment with modern amenities.',
+      'status': 'Pending',
+      'rating': '4.8',
+      'image': 'property1',
+      'furnished': false,
+    },
+  ];
 
   // ================= BOTTOM NAVIGATION =================
 
@@ -69,21 +108,6 @@ class _propertiesState extends State<properties> {
     }
   }
 
-  // ================= FIRESTORE =================
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> _propertiesStream() {
-    final User? user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      return const Stream.empty();
-    }
-
-    return FirebaseFirestore.instance
-        .collection('properties')
-        .where('ownerId', isEqualTo: user.uid)
-        .snapshots();
-  }
-
   // ================= IMAGE =================
 
   String _getPropertyImage(String imageName) {
@@ -100,19 +124,16 @@ class _propertiesState extends State<properties> {
 
   // ================= FILTER =================
 
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> _filterProperties(
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
-  ) {
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> result = docs;
+  List<Map<String, dynamic>> _filterProperties() {
+    List<Map<String, dynamic>> result =
+        List<Map<String, dynamic>>.from(_properties);
 
     // Status filter
     if (_selectedFilter != 0) {
       final String selectedStatus = filters[_selectedFilter];
 
-      result = result.where((doc) {
-        final data = doc.data();
-
-        return (data['status'] ?? '')
+      result = result.where((property) {
+        return (property['status'] ?? '')
                 .toString()
                 .toLowerCase() ==
             selectedStatus.toLowerCase();
@@ -121,14 +142,16 @@ class _propertiesState extends State<properties> {
 
     // Search filter
     if (_searchText.isNotEmpty) {
-      result = result.where((doc) {
-        final data = doc.data();
-
+      result = result.where((property) {
         final String name =
-            (data['propertyName'] ?? '').toString().toLowerCase();
+            (property['propertyName'] ?? '')
+                .toString()
+                .toLowerCase();
 
         final String location =
-            (data['location'] ?? '').toString().toLowerCase();
+            (property['location'] ?? '')
+                .toString()
+                .toLowerCase();
 
         return name.contains(_searchText.toLowerCase()) ||
             location.contains(_searchText.toLowerCase());
@@ -162,6 +185,33 @@ class _propertiesState extends State<properties> {
 
   @override
   Widget build(BuildContext context) {
+    // Static counts
+    final int totalCount = _properties.length;
+
+    final int activeCount = _properties.where((property) {
+      return (property['status'] ?? '')
+              .toString()
+              .toLowerCase() ==
+          'active';
+    }).length;
+
+    final int rentedCount = _properties.where((property) {
+      return (property['status'] ?? '')
+              .toString()
+              .toLowerCase() ==
+          'rented';
+    }).length;
+
+    final int pendingCount = _properties.where((property) {
+      return (property['status'] ?? '')
+              .toString()
+              .toLowerCase() ==
+          'pending';
+    }).length;
+
+    final List<Map<String, dynamic>> filteredProperties =
+        _filterProperties();
+
     return Scaffold(
       backgroundColor: const Color(0xffF8FAFC),
 
@@ -223,294 +273,75 @@ class _propertiesState extends State<properties> {
 
       // ================= BODY =================
 
-      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: _propertiesStream(),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
 
-        builder: (context, snapshot) {
-          // Loading
-          if (snapshot.connectionState ==
-              ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
 
-          // Error
-          if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Text(
-                  'Something went wrong:\n${snapshot.error}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.red,
-                  ),
-                ),
-              ),
-            );
-          }
+            // ================= OVERVIEW =================
 
-          final docs = snapshot.data?.docs ?? [];
-
-          // Counts
-          final int totalCount = docs.length;
-
-          final int activeCount = docs.where((doc) {
-            return (doc.data()['status'] ?? '')
-                    .toString()
-                    .toLowerCase() ==
-                'active';
-          }).length;
-
-          final int rentedCount = docs.where((doc) {
-            return (doc.data()['status'] ?? '')
-                    .toString()
-                    .toLowerCase() ==
-                'rented';
-          }).length;
-
-          final int pendingCount = docs.where((doc) {
-            return (doc.data()['status'] ?? '')
-                    .toString()
-                    .toLowerCase() ==
-                'pending';
-          }).length;
-
-          final filteredDocs = _filterProperties(docs);
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
               children: [
-
-                // ================= OVERVIEW =================
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: _overviewCard(
-                        'Total',
-                        totalCount.toString(),
-                        Icons.home_work_outlined,
-                      ),
-                    ),
-
-                    const SizedBox(width: 10),
-
-                    Expanded(
-                      child: _overviewCard(
-                        'Active',
-                        activeCount.toString(),
-                        Icons.check_circle_outline,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 10),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: _overviewCard(
-                        'Rented',
-                        rentedCount.toString(),
-                        Icons.key_outlined,
-                      ),
-                    ),
-
-                    const SizedBox(width: 10),
-
-                    Expanded(
-                      child: _overviewCard(
-                        'Pending',
-                        pendingCount.toString(),
-                        Icons.pending_actions,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 22),
-
-                // ================= SEARCH =================
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 48,
-
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius:
-                              BorderRadius.circular(10),
-
-                          border: Border.all(
-                            color:
-                                const Color(0xffE2E8F0),
-                          ),
-                        ),
-
-                        child: TextField(
-                          controller: _searchController,
-
-                          onChanged: (value) {
-                            setState(() {
-                              _searchText = value;
-                            });
-                          },
-
-                          decoration:
-                              const InputDecoration(
-                            hintText:
-                                'Search properties...',
-
-                            hintStyle: TextStyle(
-                              color:
-                                  Color(0xff94A3B8),
-                            ),
-
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color:
-                                  Color(0xff64748B),
-                            ),
-
-                            border:
-                                InputBorder.none,
-
-                            contentPadding:
-                                EdgeInsets.symmetric(
-                              vertical: 13,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 10),
-
-                    Container(
-                      height: 48,
-                      width: 48,
-
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                            BorderRadius.circular(10),
-
-                        border: Border.all(
-                          color:
-                              const Color(0xffE2E8F0),
-                        ),
-                      ),
-
-                      child: IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.filter_list,
-                          color:
-                              Color(0xff475569),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 18),
-
-                // ================= FILTER TABS =================
-
-                SingleChildScrollView(
-                  scrollDirection:
-                      Axis.horizontal,
-
-                  child: Row(
-                    children: List.generate(
-                      filters.length,
-                      (index) {
-                        bool selected =
-                            _selectedFilter == index;
-
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedFilter =
-                                  index;
-                            });
-                          },
-
-                          child: Container(
-                            margin:
-                                const EdgeInsets.only(
-                              right: 8,
-                            ),
-
-                            padding:
-                                const EdgeInsets
-                                    .symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-
-                            decoration:
-                                BoxDecoration(
-                              color: selected
-                                  ? const Color(
-                                      0xff2563EB)
-                                  : Colors.white,
-
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(8),
-
-                              border: Border.all(
-                                color: selected
-                                    ? const Color(
-                                        0xff2563EB)
-                                    : const Color(
-                                        0xffE2E8F0),
-                              ),
-                            ),
-
-                            child: Text(
-                              filters[index],
-
-                              style: TextStyle(
-                                color: selected
-                                    ? Colors.white
-                                    : const Color(
-                                        0xff475569),
-
-                                fontWeight: selected
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                Expanded(
+                  child: _overviewCard(
+                    'Total',
+                    totalCount.toString(),
+                    Icons.home_work_outlined,
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(width: 10),
 
-                // ================= PROPERTY LIST =================
+                Expanded(
+                  child: _overviewCard(
+                    'Active',
+                    activeCount.toString(),
+                    Icons.check_circle_outline,
+                  ),
+                ),
+              ],
+            ),
 
-                if (filteredDocs.isEmpty)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(30),
+            const SizedBox(height: 10),
+
+            Row(
+              children: [
+                Expanded(
+                  child: _overviewCard(
+                    'Rented',
+                    rentedCount.toString(),
+                    Icons.key_outlined,
+                  ),
+                ),
+
+                const SizedBox(width: 10),
+
+                Expanded(
+                  child: _overviewCard(
+                    'Pending',
+                    pendingCount.toString(),
+                    Icons.pending_actions,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 22),
+
+            // ================= SEARCH =================
+
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 48,
 
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius:
-                          BorderRadius.circular(16),
+                          BorderRadius.circular(10),
 
                       border: Border.all(
                         color:
@@ -518,120 +349,282 @@ class _propertiesState extends State<properties> {
                       ),
                     ),
 
-                    child: const Column(
-                      children: [
-                        Icon(
-                          Icons.home_work_outlined,
-                          size: 45,
+                    child: TextField(
+                      controller: _searchController,
+
+                      onChanged: (value) {
+                        setState(() {
+                          _searchText = value;
+                        });
+                      },
+
+                      decoration:
+                          const InputDecoration(
+                        hintText:
+                            'Search properties...',
+
+                        hintStyle: TextStyle(
                           color:
                               Color(0xff94A3B8),
                         ),
 
-                        SizedBox(height: 10),
-
-                        Text(
-                          'No properties found',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight:
-                                FontWeight.w600,
-                            color:
-                                Color(0xff475569),
-                          ),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color:
+                              Color(0xff64748B),
                         ),
-                      ],
+
+                        border:
+                            InputBorder.none,
+
+                        contentPadding:
+                            EdgeInsets.symmetric(
+                          vertical: 13,
+                        ),
+                      ),
                     ),
-                  )
-                else
-                  ...List.generate(
-                    filteredDocs.length,
-                    (index) {
-                      final data =
-                          filteredDocs[index].data();
+                  ),
+                ),
 
-                      final String imageName =
-                          (data['image'] ?? '')
-                              .toString();
+                const SizedBox(width: 10),
 
-                      final String status =
-                          (data['status'] ?? '')
-                              .toString();
+                Container(
+                  height: 48,
+                  width: 48,
 
-                      final String rating =
-                          data['rating'] != null
-                              ? data['rating']
-                                  .toString()
-                              : '';
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                        BorderRadius.circular(10),
 
-                      final bool furnished =
-                          data['furnished'] == true;
-
-                      final bool rented =
-                          status.toLowerCase() ==
-                              'rented';
-
-                      return Column(
-                        children: [
-                          _propertyCard(
-                            imagePath:
-                                _getPropertyImage(
-                              imageName,
-                            ),
-
-                            rating: rating,
-
-                            status: status,
-
-                            statusColor:
-                                _getStatusColor(
-                              status,
-                            ),
-
-                            propertyName:
-                                (data['propertyName'] ??
-                                        '')
-                                    .toString(),
-
-                            rent:
-                                (data['rent'] ?? '')
-                                    .toString(),
-
-                            location:
-                                (data['location'] ??
-                                        '')
-                                    .toString(),
-
-                            specs:
-                                (data['specs'] ?? '')
-                                    .toString(),
-
-                            details:
-                                (data['details'] ??
-                                        '')
-                                    .toString(),
-
-                            furnished:
-                                furnished,
-
-                            rented:
-                                rented,
-                          ),
-
-                          if (index !=
-                              filteredDocs.length - 1)
-                            const SizedBox(
-                              height: 16,
-                            ),
-                        ],
-                      );
-                    },
+                    border: Border.all(
+                      color:
+                          const Color(0xffE2E8F0),
+                    ),
                   ),
 
-                const SizedBox(height: 20),
+                  child: IconButton(
+                    onPressed: () {},
+
+                    icon: const Icon(
+                      Icons.filter_list,
+                      color:
+                          Color(0xff475569),
+                    ),
+                  ),
+                ),
               ],
             ),
-          );
-        },
+
+            const SizedBox(height: 18),
+
+            // ================= FILTER TABS =================
+
+            SingleChildScrollView(
+              scrollDirection:
+                  Axis.horizontal,
+
+              child: Row(
+                children: List.generate(
+                  filters.length,
+                  (index) {
+                    bool selected =
+                        _selectedFilter == index;
+
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedFilter =
+                              index;
+                        });
+                      },
+
+                      child: Container(
+                        margin:
+                            const EdgeInsets.only(
+                          right: 8,
+                        ),
+
+                        padding:
+                            const EdgeInsets
+                                .symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
+
+                        decoration:
+                            BoxDecoration(
+                          color: selected
+                              ? const Color(
+                                  0xff2563EB)
+                              : Colors.white,
+
+                          borderRadius:
+                              BorderRadius
+                                  .circular(8),
+
+                          border: Border.all(
+                            color: selected
+                                ? const Color(
+                                    0xff2563EB)
+                                : const Color(
+                                    0xffE2E8F0),
+                          ),
+                        ),
+
+                        child: Text(
+                          filters[index],
+
+                          style: TextStyle(
+                            color: selected
+                                ? Colors.white
+                                : const Color(
+                                    0xff475569),
+
+                            fontWeight: selected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // ================= PROPERTY LIST =================
+
+            if (filteredProperties.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(30),
+
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                      BorderRadius.circular(16),
+
+                  border: Border.all(
+                    color:
+                        const Color(0xffE2E8F0),
+                  ),
+                ),
+
+                child: const Column(
+                  children: [
+                    Icon(
+                      Icons.home_work_outlined,
+                      size: 45,
+                      color:
+                          Color(0xff94A3B8),
+                    ),
+
+                    SizedBox(height: 10),
+
+                    Text(
+                      'No properties found',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight:
+                            FontWeight.w600,
+                        color:
+                            Color(0xff475569),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              ...List.generate(
+                filteredProperties.length,
+                (index) {
+                  final data =
+                      filteredProperties[index];
+
+                  final String imageName =
+                      (data['image'] ?? '')
+                          .toString();
+
+                  final String status =
+                      (data['status'] ?? '')
+                          .toString();
+
+                  final String rating =
+                      data['rating'] != null
+                          ? data['rating']
+                              .toString()
+                          : '';
+
+                  final bool furnished =
+                      data['furnished'] == true;
+
+                  final bool rented =
+                      status.toLowerCase() ==
+                          'rented';
+
+                  return Column(
+                    children: [
+                      _propertyCard(
+                        imagePath:
+                            _getPropertyImage(
+                          imageName,
+                        ),
+
+                        rating: rating,
+
+                        status: status,
+
+                        statusColor:
+                            _getStatusColor(
+                          status,
+                        ),
+
+                        propertyName:
+                            (data['propertyName'] ??
+                                    '')
+                                .toString(),
+
+                        rent:
+                            (data['rent'] ?? '')
+                                .toString(),
+
+                        location:
+                            (data['location'] ??
+                                    '')
+                                .toString(),
+
+                        specs:
+                            (data['specs'] ?? '')
+                                .toString(),
+
+                        details:
+                            (data['details'] ??
+                                    '')
+                                .toString(),
+
+                        furnished:
+                            furnished,
+
+                        rented:
+                            rented,
+                      ),
+
+                      if (index !=
+                          filteredProperties.length - 1)
+                        const SizedBox(
+                          height: 16,
+                        ),
+                    ],
+                  );
+                },
+              ),
+
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
 
       // ================= BOTTOM NAVIGATION =================
@@ -830,6 +823,7 @@ class _propertiesState extends State<properties> {
             CrossAxisAlignment.start,
 
         children: [
+
           // ================= IMAGE =================
 
           Stack(

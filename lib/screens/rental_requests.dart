@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'owner_dashboard.dart';
 import 'properties.dart';
@@ -20,7 +18,8 @@ class _rentalrequestsState extends State<rentalrequests> {
   int _selectedIndex = 2;
   int _selectedTab = 0;
 
-  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController =
+      TextEditingController();
 
   final List<String> _tabs = [
     'All',
@@ -29,14 +28,67 @@ class _rentalrequestsState extends State<rentalrequests> {
     'Rejected',
   ];
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // ============================================================
+  // STATIC RENTAL REQUESTS
+  // ============================================================
+
+  final List<Map<String, dynamic>> _requests = [
+    {
+      'requestId': 'request1',
+      'tenantName': 'Sarah Jenkins',
+      'profession': 'Software Engineer',
+      'phone': '+1 555 234 5678',
+      'status': 'Pending',
+      'propertyName': 'The Aura - Luxury Loft',
+      'location': 'Grand Avenue, Downtown, NYC',
+      'rent': '₹4,250/month',
+      'image': 'property1',
+      'requestDate': 'October 24, 2026',
+      'duration': '12 months',
+      'occupants': '2 Adults',
+      'budget': '₹4,500',
+    },
+    {
+      'requestId': 'request2',
+      'tenantName': 'Mark Thompson',
+      'profession': 'Business Consultant',
+      'phone': '+1 555 678 1234',
+      'status': 'Approved',
+      'propertyName': 'Sunset Studio',
+      'location': 'Downtown, NYC',
+      'rent': '₹2,850/month',
+      'image': 'property2',
+      'requestDate': 'October 22, 2026',
+      'duration': '6 months',
+      'occupants': '1 Adult',
+      'budget': '₹3,000',
+    },
+    {
+      'requestId': 'request3',
+      'tenantName': 'Elena Rodriguez',
+      'profession': 'Marketing Manager',
+      'phone': '+1 555 987 6543',
+      'status': 'Rejected',
+      'propertyName': 'Modern City Apartment',
+      'location': 'Central Avenue, NYC',
+      'rent': '₹3,600/month',
+      'image': 'property1',
+      'requestDate': 'October 20, 2026',
+      'duration': '12 months',
+      'occupants': '2 Adults',
+      'budget': '₹3,500',
+    },
+  ];
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
+
+  // ============================================================
+  // SHOW MESSAGE
+  // ============================================================
 
   void _showMessage(String message) {
     if (!mounted) return;
@@ -53,7 +105,10 @@ class _rentalrequestsState extends State<rentalrequests> {
   // HELPER METHODS
   // ============================================================
 
-  String _getString(dynamic value, [String fallback = '']) {
+  String _getString(
+    dynamic value, [
+    String fallback = '',
+  ]) {
     if (value == null) return fallback;
 
     final String result = value.toString().trim();
@@ -64,7 +119,10 @@ class _rentalrequestsState extends State<rentalrequests> {
   }
 
   String _getStatus(Map<String, dynamic> data) {
-    return _getString(data['status'], 'Pending');
+    return _getString(
+      data['status'],
+      'Pending',
+    );
   }
 
   String _getPropertyImage(String imageName) {
@@ -81,27 +139,38 @@ class _rentalrequestsState extends State<rentalrequests> {
   }
 
   // ============================================================
-  // REQUEST FILTER
+  // REQUEST SEARCH
   // ============================================================
 
-  bool _matchesSearch(Map<String, dynamic> data) {
-    final String search = _searchController.text.trim().toLowerCase();
+  bool _matchesSearch(
+    Map<String, dynamic> data,
+  ) {
+    final String search =
+        _searchController.text.trim().toLowerCase();
 
     if (search.isEmpty) {
       return true;
     }
 
     final String tenantName =
-        _getString(data['tenantName']).toLowerCase();
+        _getString(
+      data['tenantName'],
+    ).toLowerCase();
 
     final String propertyName =
-        _getString(data['propertyName']).toLowerCase();
+        _getString(
+      data['propertyName'],
+    ).toLowerCase();
 
     final String requestId =
-        _getString(data['requestId']).toLowerCase();
+        _getString(
+      data['requestId'],
+    ).toLowerCase();
 
     final String status =
-        _getString(data['status']).toLowerCase();
+        _getString(
+      data['status'],
+    ).toLowerCase();
 
     return tenantName.contains(search) ||
         propertyName.contains(search) ||
@@ -109,41 +178,50 @@ class _rentalrequestsState extends State<rentalrequests> {
         status.contains(search);
   }
 
-  bool _matchesTab(Map<String, dynamic> data) {
-    final String status = _getStatus(data).toLowerCase();
+  // ============================================================
+  // TAB FILTER
+  // ============================================================
+
+  bool _matchesTab(
+    Map<String, dynamic> data,
+  ) {
+    final String status =
+        _getStatus(data).toLowerCase();
 
     if (_selectedTab == 0) {
       return true;
     }
 
-    return status == _tabs[_selectedTab].toLowerCase();
+    return status ==
+        _tabs[_selectedTab].toLowerCase();
   }
 
   // ============================================================
-  // UPDATE REQUEST STATUS
+  // UPDATE REQUEST STATUS - STATIC
   // ============================================================
 
-  Future<void> _updateRequestStatus(
+  void _updateRequestStatus(
     String requestId,
     String newStatus,
-  ) async {
-    try {
-      await _firestore
-          .collection('rental_requests')
-          .doc(requestId)
-          .update({
-        'status': newStatus,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+  ) {
+    final int index = _requests.indexWhere(
+      (request) =>
+          request['requestId'] == requestId,
+    );
 
-      _showMessage(
-        newStatus == 'Approved'
-            ? 'Request approved successfully'
-            : 'Request rejected successfully',
-      );
-    } catch (e) {
-      _showMessage('Something went wrong. Please try again.');
+    if (index == -1) {
+      return;
     }
+
+    setState(() {
+      _requests[index]['status'] = newStatus;
+    });
+
+    _showMessage(
+      newStatus == 'Approved'
+          ? 'Request approved successfully'
+          : 'Request rejected successfully',
+    );
   }
 
   // ============================================================
@@ -157,8 +235,11 @@ class _rentalrequestsState extends State<rentalrequests> {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(
+            Icons.arrow_back,
+          ),
         ),
+
         const Expanded(
           child: Text(
             'Rental Requests',
@@ -168,24 +249,29 @@ class _rentalrequestsState extends State<rentalrequests> {
             ),
           ),
         ),
+
         Stack(
           children: [
             IconButton(
               onPressed: () {
-                _showMessage('No new notifications');
+                _showMessage(
+                  'No new notifications',
+                );
               },
               icon: const Icon(
                 Icons.notifications_none,
                 size: 28,
               ),
             ),
+
             Positioned(
               right: 10,
               top: 8,
               child: Container(
                 height: 9,
                 width: 9,
-                decoration: const BoxDecoration(
+                decoration:
+                    const BoxDecoration(
                   color: Colors.red,
                   shape: BoxShape.circle,
                 ),
@@ -209,37 +295,50 @@ class _rentalrequestsState extends State<rentalrequests> {
             height: 48,
             decoration: BoxDecoration(
               color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius:
+                  BorderRadius.circular(12),
             ),
             child: TextField(
-              controller: _searchController,
+              controller:
+                  _searchController,
               onChanged: (value) {
                 setState(() {});
               },
-              decoration: const InputDecoration(
-                hintText: 'Search applicants',
-                prefixIcon: Icon(Icons.search),
+              decoration:
+                  const InputDecoration(
+                hintText:
+                    'Search applicants',
+                prefixIcon:
+                    Icon(Icons.search),
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
+                contentPadding:
+                    EdgeInsets.symmetric(
                   vertical: 13,
                 ),
               ),
             ),
           ),
         ),
+
         const SizedBox(width: 10),
+
         Container(
           height: 48,
           width: 48,
           decoration: BoxDecoration(
             color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius:
+                BorderRadius.circular(12),
           ),
           child: IconButton(
             onPressed: () {
-              _showMessage('Filter options');
+              _showMessage(
+                'Filter options',
+              );
             },
-            icon: const Icon(Icons.tune),
+            icon: const Icon(
+              Icons.tune,
+            ),
           ),
         ),
       ],
@@ -255,13 +354,15 @@ class _rentalrequestsState extends State<rentalrequests> {
       height: 45,
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius:
+            BorderRadius.circular(12),
       ),
       child: Row(
         children: List.generate(
           _tabs.length,
           (index) {
-            final bool isSelected = _selectedTab == index;
+            final bool isSelected =
+                _selectedTab == index;
 
             return Expanded(
               child: GestureDetector(
@@ -271,16 +372,22 @@ class _rentalrequestsState extends State<rentalrequests> {
                   });
                 },
                 child: Container(
-                  margin: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
+                  margin:
+                      const EdgeInsets.all(4),
+                  decoration:
+                      BoxDecoration(
                     color: isSelected
                         ? Colors.white
                         : Colors.transparent,
-                    borderRadius: BorderRadius.circular(9),
+                    borderRadius:
+                        BorderRadius.circular(9),
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.06),
+                              color: Colors.black
+                                  .withOpacity(
+                                0.06,
+                              ),
                               blurRadius: 4,
                             ),
                           ]
@@ -296,7 +403,9 @@ class _rentalrequestsState extends State<rentalrequests> {
                             : FontWeight.normal,
                         color: isSelected
                             ? Colors.black
-                            : Colors.grey.shade600,
+                            : Colors
+                                .grey
+                                .shade600,
                       ),
                     ),
                   ),
@@ -313,34 +422,44 @@ class _rentalrequestsState extends State<rentalrequests> {
   // STATUS BADGE
   // ============================================================
 
-  Widget _buildStatusBadge(String status) {
+  Widget _buildStatusBadge(
+    String status,
+  ) {
     Color backgroundColor;
     Color textColor;
 
     switch (status.toLowerCase()) {
       case 'approved':
-        backgroundColor = Colors.green.shade50;
-        textColor = Colors.green.shade700;
+        backgroundColor =
+            Colors.green.shade50;
+        textColor =
+            Colors.green.shade700;
         break;
 
       case 'rejected':
-        backgroundColor = Colors.red.shade50;
-        textColor = Colors.red.shade700;
+        backgroundColor =
+            Colors.red.shade50;
+        textColor =
+            Colors.red.shade700;
         break;
 
       default:
-        backgroundColor = Colors.orange.shade50;
-        textColor = Colors.orange.shade800;
+        backgroundColor =
+            Colors.orange.shade50;
+        textColor =
+            Colors.orange.shade800;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(
+      padding:
+          const EdgeInsets.symmetric(
         horizontal: 10,
         vertical: 5,
       ),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius:
+            BorderRadius.circular(20),
       ),
       child: Text(
         status,
@@ -367,7 +486,8 @@ class _rentalrequestsState extends State<rentalrequests> {
     return Row(
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius:
+              BorderRadius.circular(14),
           child: Image.asset(
             imagePath,
             height: 50,
@@ -375,37 +495,49 @@ class _rentalrequestsState extends State<rentalrequests> {
             fit: BoxFit.cover,
           ),
         ),
+
         const SizedBox(width: 12),
+
         Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               Text(
                 name,
-                style: const TextStyle(
+                style:
+                    const TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight:
+                      FontWeight.bold,
                 ),
               ),
+
               const SizedBox(height: 4),
+
               Text(
                 profession,
                 style: TextStyle(
-                  color: Colors.grey.shade600,
+                  color:
+                      Colors.grey.shade600,
                   fontSize: 13,
                 ),
               ),
+
               const SizedBox(height: 3),
+
               Text(
                 phone,
                 style: TextStyle(
-                  color: Colors.grey.shade600,
+                  color:
+                      Colors.grey.shade600,
                   fontSize: 12,
                 ),
               ),
             ],
           ),
         ),
+
         _buildStatusBadge(status),
       ],
     );
@@ -422,11 +554,14 @@ class _rentalrequestsState extends State<rentalrequests> {
     required String imagePath,
   }) {
     return Container(
-      margin: const EdgeInsets.only(top: 18),
-      padding: const EdgeInsets.all(12),
+      margin:
+          const EdgeInsets.only(top: 18),
+      padding:
+          const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius:
+            BorderRadius.circular(12),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
@@ -434,7 +569,8 @@ class _rentalrequestsState extends State<rentalrequests> {
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius:
+                BorderRadius.circular(10),
             child: Image.asset(
               imagePath,
               height: 55,
@@ -442,43 +578,60 @@ class _rentalrequestsState extends State<rentalrequests> {
               fit: BoxFit.cover,
             ),
           ),
+
           const SizedBox(width: 12),
+
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   propertyName,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
+                  style:
+                      const TextStyle(
+                    fontWeight:
+                        FontWeight.bold,
                     fontSize: 14,
                   ),
                 ),
+
                 const SizedBox(height: 4),
+
                 Row(
                   children: [
                     Icon(
-                      Icons.location_on_outlined,
+                      Icons
+                          .location_on_outlined,
                       size: 14,
-                      color: Colors.grey.shade600,
+                      color:
+                          Colors.grey.shade600,
                     ),
+
                     const SizedBox(width: 3),
+
                     Expanded(
                       child: Text(
                         location,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade600,
+                          color:
+                              Colors.grey
+                                  .shade600,
                         ),
                       ),
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 4),
+
                 Text(
                   price,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
+                  style:
+                      const TextStyle(
+                    fontWeight:
+                        FontWeight.bold,
                     fontSize: 13,
                   ),
                 ),
@@ -501,18 +654,21 @@ class _rentalrequestsState extends State<rentalrequests> {
     required String budget,
   }) {
     return Container(
-      margin: const EdgeInsets.only(top: 16),
+      margin:
+          const EdgeInsets.only(top: 16),
       child: Column(
         children: [
           Row(
             children: [
               Expanded(
                 child: _detailItem(
-                  Icons.calendar_today_outlined,
+                  Icons
+                      .calendar_today_outlined,
                   'Move-in',
                   moveIn,
                 ),
               ),
+
               Expanded(
                 child: _detailItem(
                   Icons.access_time,
@@ -522,7 +678,9 @@ class _rentalrequestsState extends State<rentalrequests> {
               ),
             ],
           ),
+
           const SizedBox(height: 14),
+
           Row(
             children: [
               Expanded(
@@ -532,9 +690,11 @@ class _rentalrequestsState extends State<rentalrequests> {
                   occupants,
                 ),
               ),
+
               Expanded(
                 child: _detailItem(
-                  Icons.account_balance_wallet_outlined,
+                  Icons
+                      .account_balance_wallet_outlined,
                   'Budget',
                   budget,
                 ),
@@ -558,24 +718,32 @@ class _rentalrequestsState extends State<rentalrequests> {
           size: 17,
           color: Colors.grey.shade600,
         ),
+
         const SizedBox(width: 7),
+
         Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               Text(
                 title,
                 style: TextStyle(
                   fontSize: 11,
-                  color: Colors.grey.shade500,
+                  color:
+                      Colors.grey.shade500,
                 ),
               ),
+
               const SizedBox(height: 2),
+
               Text(
                 value,
-                style: const TextStyle(
+                style:
+                    const TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                  fontWeight:
+                      FontWeight.w600,
                 ),
               ),
             ],
@@ -597,31 +765,47 @@ class _rentalrequestsState extends State<rentalrequests> {
         _actionIcon(
           Icons.person_outline,
           () {
-            _showMessage('Opening applicant profile');
+            _showMessage(
+              'Opening applicant profile',
+            );
           },
         ),
+
         const SizedBox(width: 8),
+
         _actionIcon(
           Icons.description_outlined,
           () {
-            _showMessage('Opening documents');
+            _showMessage(
+              'Opening documents',
+            );
           },
         ),
+
         const SizedBox(width: 8),
+
         _actionIcon(
           Icons.chat_bubble_outline,
           () {
-            _showMessage('Opening chat');
+            _showMessage(
+              'Opening chat',
+            );
           },
         ),
+
         const SizedBox(width: 8),
+
         _actionIcon(
           Icons.call_outlined,
           () {
             if (phone.isEmpty) {
-              _showMessage('Phone number not available');
+              _showMessage(
+                'Phone number not available',
+              );
             } else {
-              _showMessage('Calling $phone');
+              _showMessage(
+                'Calling $phone',
+              );
             }
           },
         ),
@@ -635,13 +819,15 @@ class _rentalrequestsState extends State<rentalrequests> {
   ) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(9),
+      borderRadius:
+          BorderRadius.circular(9),
       child: Container(
         height: 34,
         width: 34,
         decoration: BoxDecoration(
           color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(9),
+          borderRadius:
+              BorderRadius.circular(9),
         ),
         child: Icon(
           icon,
@@ -660,7 +846,8 @@ class _rentalrequestsState extends State<rentalrequests> {
     required String requestId,
     required String status,
   }) {
-    final bool isPending = status.toLowerCase() == 'pending';
+    final bool isPending =
+        status.toLowerCase() == 'pending';
 
     return Row(
       children: [
@@ -674,27 +861,36 @@ class _rentalrequestsState extends State<rentalrequests> {
                     );
                   }
                 : null,
-            style: OutlinedButton.styleFrom(
+            style:
+                OutlinedButton.styleFrom(
               foregroundColor: Colors.red,
               side: const BorderSide(
                 color: Colors.red,
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+              shape:
+                  RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(
+                  10,
+                ),
               ),
-              padding: const EdgeInsets.symmetric(
+              padding:
+                  const EdgeInsets.symmetric(
                 vertical: 12,
               ),
             ),
             child: const Text(
               'Reject',
               style: TextStyle(
-                fontWeight: FontWeight.w600,
+                fontWeight:
+                    FontWeight.w600,
               ),
             ),
           ),
         ),
+
         const SizedBox(width: 10),
+
         Expanded(
           child: ElevatedButton(
             onPressed: isPending
@@ -705,23 +901,33 @@ class _rentalrequestsState extends State<rentalrequests> {
                     );
                   }
                 : null,
-            style: ElevatedButton.styleFrom(
+            style:
+                ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: Colors.grey.shade300,
-              disabledForegroundColor: Colors.grey.shade600,
+              foregroundColor:
+                  Colors.white,
+              disabledBackgroundColor:
+                  Colors.grey.shade300,
+              disabledForegroundColor:
+                  Colors.grey.shade600,
               elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+              shape:
+                  RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(
+                  10,
+                ),
               ),
-              padding: const EdgeInsets.symmetric(
+              padding:
+                  const EdgeInsets.symmetric(
                 vertical: 12,
               ),
             ),
             child: const Text(
               'Approve',
               style: TextStyle(
-                fontWeight: FontWeight.w600,
+                fontWeight:
+                    FontWeight.w600,
               ),
             ),
           ),
@@ -735,188 +941,164 @@ class _rentalrequestsState extends State<rentalrequests> {
   // ============================================================
 
   Widget _buildRequestCard(
-    DocumentSnapshot requestDocument,
+    Map<String, dynamic> data,
   ) {
-    final Map<String, dynamic> data =
-        requestDocument.data() as Map<String, dynamic>;
-
     final String requestId =
-        requestDocument.id;
+        _getString(
+      data['requestId'],
+    );
 
     final String tenantName =
-        _getString(data['tenantName'], 'Applicant');
+        _getString(
+      data['tenantName'],
+      'Applicant',
+    );
 
     final String profession =
         _getString(
-          data['profession'],
-          'Tenant',
-        );
+      data['profession'],
+      'Tenant',
+    );
 
     final String phone =
         _getString(
-          data['tenantPhone'] ?? data['phone'],
-          '(Phone not available)',
-        );
+      data['phone'],
+      '(Phone not available)',
+    );
 
     final String status =
         _getStatus(data);
 
-    final String propertyId =
-        _getString(data['propertyId']);
+    final String propertyName =
+        _getString(
+      data['propertyName'],
+      'Property',
+    );
+
+    final String location =
+        _getString(
+      data['location'],
+      'Location not available',
+    );
+
+    final String price =
+        _getString(
+      data['rent'],
+      '₹0/mo',
+    );
+
+    final String imageName =
+        _getString(
+      data['image'],
+      'property1',
+    );
 
     final String requestDate =
         _getString(
-          data['requestDate'],
-          'Not specified',
-        );
+      data['requestDate'],
+      'Not specified',
+    );
 
     final String duration =
         _getString(
-          data['duration'],
-          '12 months',
-        );
+      data['duration'],
+      '12 months',
+    );
 
     final String occupants =
         _getString(
-          data['occupants'],
-          '2 Adults',
-        );
+      data['occupants'],
+      '2 Adults',
+    );
 
     final String budget =
         _getString(
-          data['budget'],
-          '₹4,500',
-        );
+      data['budget'],
+      '₹4,500',
+    );
 
-    return FutureBuilder<DocumentSnapshot>(
-      future: propertyId.isEmpty
-          ? null
-          : _firestore
-              .collection('properties')
-              .doc(propertyId)
-              .get(),
-      builder: (context, propertySnapshot) {
-        String propertyName = _getString(
-          data['propertyName'],
-          'Property',
-        );
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius:
+            BorderRadius.circular(18),
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black
+                .withOpacity(0.04),
+            blurRadius: 10,
+            offset:
+                const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+        children: [
 
-        String location = _getString(
-          data['propertyLocation'] ??
-              data['location'],
-          'Location not available',
-        );
+          _buildApplicantHeader(
+            name: tenantName,
+            profession: profession,
+            phone: phone,
+            imagePath: rentalProfile,
+            status: status,
+          ),
 
-        String price = _getString(
-          data['rent'],
-          '₹0/mo',
-        );
-
-        String imageName = _getString(
-          data['image'],
-          'property1',
-        );
-
-        if (propertySnapshot.hasData &&
-            propertySnapshot.data!.exists) {
-          final propertyData =
-              propertySnapshot.data!.data()
-                  as Map<String, dynamic>;
-
-          propertyName = _getString(
-            propertyData['propertyName'],
-            propertyName,
-          );
-
-          location = _getString(
-            propertyData['location'],
-            location,
-          );
-
-          price = _getString(
-            propertyData['rent'],
-            price,
-          );
-
-          imageName = _getString(
-            propertyData['image'],
-            imageName,
-          );
-        }
-
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: Colors.grey.shade200,
+          _buildPropertyInfo(
+            propertyName: propertyName,
+            location: location,
+            price: price,
+            imagePath:
+                _getPropertyImage(
+              imageName,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+
+          _buildStayDetails(
+            moveIn: requestDate,
+            duration: duration,
+            occupants: occupants,
+            budget: budget,
+          ),
+
+          const SizedBox(height: 18),
+
+          const Divider(),
+
+          const SizedBox(height: 8),
+
+          Row(
             children: [
-              _buildApplicantHeader(
-                name: tenantName,
-                profession: profession,
+              const Text(
+                'Applicant Actions',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight:
+                      FontWeight.w600,
+                ),
+              ),
+
+              const Spacer(),
+
+              _buildActionIcons(
                 phone: phone,
-                imagePath: rentalProfile,
-                status: status,
-              ),
-
-              _buildPropertyInfo(
-                propertyName: propertyName,
-                location: location,
-                price: price,
-                imagePath: _getPropertyImage(imageName),
-              ),
-
-              _buildStayDetails(
-                moveIn: requestDate,
-                duration: duration,
-                occupants: occupants,
-                budget: budget,
-              ),
-
-              const SizedBox(height: 18),
-
-              const Divider(),
-
-              const SizedBox(height: 8),
-
-              Row(
-                children: [
-                  const Text(
-                    'Applicant Actions',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const Spacer(),
-                  _buildActionIcons(
-                    phone: phone,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              _buildDecisionButtons(
-                requestId: requestId,
-                status: status,
               ),
             ],
           ),
-        );
-      },
+
+          const SizedBox(height: 16),
+
+          _buildDecisionButtons(
+            requestId: requestId,
+            status: status,
+          ),
+        ],
+      ),
     );
   }
 
@@ -927,27 +1109,36 @@ class _rentalrequestsState extends State<rentalrequests> {
   Widget _buildEmptyState() {
     String message;
 
-    if (_searchController.text.trim().isNotEmpty) {
-      message = 'No requests found for your search.';
+    if (_searchController.text
+        .trim()
+        .isNotEmpty) {
+      message =
+          'No requests found for your search.';
     } else if (_selectedTab == 1) {
-      message = 'No pending rental requests.';
+      message =
+          'No pending rental requests.';
     } else if (_selectedTab == 2) {
-      message = 'No approved rental requests.';
+      message =
+          'No approved rental requests.';
     } else if (_selectedTab == 3) {
-      message = 'No rejected rental requests.';
+      message =
+          'No rejected rental requests.';
     } else {
-      message = 'No rental requests available.';
+      message =
+          'No rental requests available.';
     }
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
+      padding:
+          const EdgeInsets.symmetric(
         vertical: 45,
         horizontal: 20,
       ),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius:
+            BorderRadius.circular(18),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
@@ -959,7 +1150,9 @@ class _rentalrequestsState extends State<rentalrequests> {
             size: 50,
             color: Colors.grey.shade400,
           ),
+
           const SizedBox(height: 12),
+
           Text(
             message,
             textAlign: TextAlign.center,
@@ -974,86 +1167,37 @@ class _rentalrequestsState extends State<rentalrequests> {
   }
 
   // ============================================================
-  // REQUEST LIST
+  // REQUEST LIST - STATIC
   // ============================================================
 
   Widget _buildRequestList() {
-    final User? user = _auth.currentUser;
+    final List<Map<String, dynamic>>
+        filteredRequests =
+        _requests.where((request) {
+      return _matchesTab(request) &&
+          _matchesSearch(request);
+    }).toList();
 
-    if (user == null) {
+    if (filteredRequests.isEmpty) {
       return _buildEmptyState();
     }
 
-    return StreamBuilder<QuerySnapshot>(
-      stream: _firestore
-          .collection('rental_requests')
-          .where(
-            'ownerId',
-            isEqualTo: user.uid,
-          )
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState ==
-            ConnectionState.waiting) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(35),
-              child: CircularProgressIndicator(
-                color: Color(0xFF2563EB),
-              ),
-            ),
-          );
-        }
+    return Column(
+      children: [
+        for (
+          int i = 0;
+          i < filteredRequests.length;
+          i++
+        ) ...[
+          _buildRequestCard(
+            filteredRequests[i],
+          ),
 
-        if (snapshot.hasError) {
-          return Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(25),
-            decoration: BoxDecoration(
-              color: Colors.red.shade50,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: const Text(
-              'Unable to load rental requests.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          );
-        }
-
-        if (!snapshot.hasData ||
-            snapshot.data!.docs.isEmpty) {
-          return _buildEmptyState();
-        }
-
-        final List<DocumentSnapshot> filteredRequests =
-            snapshot.data!.docs.where((document) {
-          final Map<String, dynamic> data =
-              document.data() as Map<String, dynamic>;
-
-          return _matchesTab(data) &&
-              _matchesSearch(data);
-        }).toList();
-
-        if (filteredRequests.isEmpty) {
-          return _buildEmptyState();
-        }
-
-        return Column(
-          children: [
-            for (int i = 0; i < filteredRequests.length; i++) ...[
-              _buildRequestCard(
-                filteredRequests[i],
-              ),
-              if (i != filteredRequests.length - 1)
-                const SizedBox(height: 16),
-            ],
-          ],
-        );
-      },
+          if (i !=
+              filteredRequests.length - 1)
+            const SizedBox(height: 16),
+        ],
+      ],
     );
   }
 
@@ -1061,7 +1205,9 @@ class _rentalrequestsState extends State<rentalrequests> {
   // BOTTOM NAVIGATION
   // ============================================================
 
-  void _onBottomNavTap(int index) {
+  void _onBottomNavTap(
+    int index,
+  ) {
     setState(() {
       _selectedIndex = index;
     });
@@ -1070,35 +1216,40 @@ class _rentalrequestsState extends State<rentalrequests> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const ownerdashboard(),
+          builder: (context) =>
+              const ownerdashboard(),
         ),
       );
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const properties(),
+          builder: (context) =>
+              const properties(),
         ),
       );
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const managebookings(),
+          builder: (context) =>
+              const managebookings(),
         ),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const propertyanalytics(),
+          builder: (context) =>
+              const propertyanalytics(),
         ),
       );
     } else if (index == 4) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const ownerprofile(),
+          builder: (context) =>
+              const ownerprofile(),
         ),
       );
     }
@@ -1107,34 +1258,60 @@ class _rentalrequestsState extends State<rentalrequests> {
   Widget _buildBottomNavigation() {
     return BottomNavigationBar(
       currentIndex: _selectedIndex,
-      type: BottomNavigationBarType.fixed,
+      type:
+          BottomNavigationBarType.fixed,
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.grey,
       onTap: _onBottomNavTap,
       items: const [
+
         BottomNavigationBarItem(
-          icon: Icon(Icons.dashboard_outlined),
-          activeIcon: Icon(Icons.dashboard),
+          icon: Icon(
+            Icons.dashboard_outlined,
+          ),
+          activeIcon: Icon(
+            Icons.dashboard,
+          ),
           label: 'Dashboard',
         ),
+
         BottomNavigationBarItem(
-          icon: Icon(Icons.home_work_outlined),
-          activeIcon: Icon(Icons.home_work),
+          icon: Icon(
+            Icons.home_work_outlined,
+          ),
+          activeIcon: Icon(
+            Icons.home_work,
+          ),
           label: 'Properties',
         ),
+
         BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_month_outlined),
-          activeIcon: Icon(Icons.calendar_month),
+          icon: Icon(
+            Icons.calendar_month_outlined,
+          ),
+          activeIcon: Icon(
+            Icons.calendar_month,
+          ),
           label: 'Bookings',
         ),
+
         BottomNavigationBarItem(
-          icon: Icon(Icons.analytics_outlined),
-          activeIcon: Icon(Icons.analytics),
+          icon: Icon(
+            Icons.analytics_outlined,
+          ),
+          activeIcon: Icon(
+            Icons.analytics,
+          ),
           label: 'Analytics',
         ),
+
         BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline),
-          activeIcon: Icon(Icons.person),
+          icon: Icon(
+            Icons.person_outline,
+          ),
+          activeIcon: Icon(
+            Icons.person,
+          ),
           label: 'Profile',
         ),
       ],
@@ -1146,21 +1323,29 @@ class _rentalrequestsState extends State<rentalrequests> {
   // ============================================================
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return Scaffold(
       backgroundColor: Colors.white,
-      bottomNavigationBar: _buildBottomNavigation(),
+
+      bottomNavigationBar:
+          _buildBottomNavigation(),
+
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
+          padding:
+              const EdgeInsets.fromLTRB(
             20,
             10,
             20,
             25,
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
+
               _buildHeader(),
 
               const SizedBox(height: 22),
@@ -1177,7 +1362,8 @@ class _rentalrequestsState extends State<rentalrequests> {
                 'Rental Requests',
                 style: TextStyle(
                   fontSize: 19,
-                  fontWeight: FontWeight.bold,
+                  fontWeight:
+                      FontWeight.bold,
                 ),
               ),
 

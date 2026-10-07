@@ -1,8 +1,7 @@
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'owner_login.dart';
 
@@ -27,9 +26,6 @@ class _ownerregisterState extends State<ownerregister> {
   final TextEditingController _propertiesController =
       TextEditingController();
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   String _ownerType = 'Individual';
   bool _termsAccepted = false;
   bool _isLoading = false;
@@ -50,6 +46,7 @@ class _ownerregisterState extends State<ownerregister> {
     super.dispose();
   }
 
+  // Static Owner Registration
   Future<void> _createOwnerAccount() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -69,129 +66,32 @@ class _ownerregisterState extends State<ownerregister> {
       _isLoading = true;
     });
 
-    try {
-      // 1. Create Firebase Authentication account
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+    // Static loading effect
+    await Future.delayed(const Duration(milliseconds: 700));
 
-      User? user = userCredential.user;
+    if (!mounted) return;
 
-      if (user == null) {
-        throw Exception('Firebase user could not be created.');
-      }
+    setState(() {
+      _isLoading = false;
+    });
 
-      String uid = user.uid;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Owner account created successfully'),
+        backgroundColor: Colors.green,
+      ),
+    );
 
-      // 2. Save owner details in Firestore
-      await _firestore.collection('owners').doc(uid).set({
-        'uid': uid,
-        'fullName': _nameController.text.trim(),
-        'email': _emailController.text.trim(),
-        'mobile': _mobileController.text.trim(),
-        'ownerType': _ownerType,
-        'businessName': _businessController.text.trim(),
-        'city': _cityController.text.trim(),
-        'numberOfProperties':
-            int.tryParse(_propertiesController.text.trim()) ?? 0,
-        'isVerified': false,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+    await Future.delayed(const Duration(seconds: 1));
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Owner account created successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      await Future.delayed(const Duration(seconds: 1));
-
-      if (!mounted) return;
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const ownerlogin(),
-        ),
-      );
-    } on FirebaseAuthException catch (e) {
-      String message;
-
-      switch (e.code) {
-        case 'email-already-in-use':
-          message = 'This email is already registered.';
-          break;
-
-        case 'invalid-email':
-          message = 'Invalid email address.';
-          break;
-
-        case 'weak-password':
-          message = 'Password is too weak.';
-          break;
-
-        case 'operation-not-allowed':
-          message =
-              'Email/Password authentication is not enabled in Firebase.';
-          break;
-
-        case 'network-request-failed':
-          message = 'Please check your internet connection.';
-          break;
-
-        case 'too-many-requests':
-          message = 'Too many attempts. Please try again later.';
-          break;
-
-        default:
-          message = 'Firebase Auth Error: ${e.code}\n${e.message}';
-      }
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 5),
-        ),
-      );
-    } on FirebaseException catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Firebase Error:\n${e.code}\n${e.message}',
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 6),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Something went wrong:\n$e',
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 6),
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ownerlogin(),
+      ),
+    );
   }
 
   InputDecoration _inputDecoration({
@@ -434,7 +334,8 @@ class _ownerregisterState extends State<ownerregister> {
                           ),
                           onPressed: () {
                             setState(() {
-                              _obscurePassword = !_obscurePassword;
+                              _obscurePassword =
+                                  !_obscurePassword;
                             });
                           },
                         ),
@@ -650,7 +551,8 @@ class _ownerregisterState extends State<ownerregister> {
                                 ),
                                 decoration: BoxDecoration(
                                   color: Colors.orange.shade50,
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius:
+                                      BorderRadius.circular(20),
                                 ),
                                 child: const Text(
                                   'NOT VERIFIED',
@@ -670,7 +572,8 @@ class _ownerregisterState extends State<ownerregister> {
                             width: double.infinity,
                             child: OutlinedButton.icon(
                               onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(
                                   const SnackBar(
                                     content: Text(
                                       'ID Proof upload will be added later',
@@ -689,11 +592,14 @@ class _ownerregisterState extends State<ownerregister> {
                                 side: const BorderSide(
                                   color: primaryBlue,
                                 ),
-                                padding: const EdgeInsets.symmetric(
+                                padding:
+                                    const EdgeInsets.symmetric(
                                   vertical: 14,
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                                shape:
+                                    RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(10),
                                 ),
                               ),
                             ),
@@ -705,7 +611,8 @@ class _ownerregisterState extends State<ownerregister> {
                             width: double.infinity,
                             child: OutlinedButton.icon(
                               onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(
                                   const SnackBar(
                                     content: Text(
                                       'Ownership document upload will be added later',
@@ -724,11 +631,14 @@ class _ownerregisterState extends State<ownerregister> {
                                 side: const BorderSide(
                                   color: primaryBlue,
                                 ),
-                                padding: const EdgeInsets.symmetric(
+                                padding:
+                                    const EdgeInsets.symmetric(
                                   vertical: 14,
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                                shape:
+                                    RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(10),
                                 ),
                               ),
                             ),
@@ -740,7 +650,8 @@ class _ownerregisterState extends State<ownerregister> {
                     const SizedBox(height: 15),
 
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
                       children: [
                         Checkbox(
                           value: _termsAccepted,
@@ -753,7 +664,8 @@ class _ownerregisterState extends State<ownerregister> {
                         ),
                         const Expanded(
                           child: Padding(
-                            padding: EdgeInsets.only(top: 12),
+                            padding:
+                                EdgeInsets.only(top: 12),
                             child: Text(
                               'I agree to the Terms & Conditions and Privacy Policy.',
                               style: TextStyle(
@@ -773,20 +685,25 @@ class _ownerregisterState extends State<ownerregister> {
                       height: 52,
                       child: ElevatedButton(
                         onPressed:
-                            _isLoading ? null : _createOwnerAccount,
+                            _isLoading
+                                ? null
+                                : _createOwnerAccount,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryBlue,
                           disabledBackgroundColor:
                               primaryBlue.withOpacity(0.6),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                          shape:
+                              RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(12),
                           ),
                         ),
                         child: _isLoading
                             ? const SizedBox(
                                 width: 24,
                                 height: 24,
-                                child: CircularProgressIndicator(
+                                child:
+                                    CircularProgressIndicator(
                                   strokeWidth: 2.5,
                                   color: Colors.white,
                                 ),
@@ -805,7 +722,8 @@ class _ownerregisterState extends State<ownerregister> {
                     const SizedBox(height: 20),
 
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment:
+                          MainAxisAlignment.center,
                       children: [
                         Text(
                           'Already have an account? ',
@@ -818,7 +736,8 @@ class _ownerregisterState extends State<ownerregister> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const ownerlogin(),
+                                builder: (context) =>
+                                    const ownerlogin(),
                               ),
                             );
                           },

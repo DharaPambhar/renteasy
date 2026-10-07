@@ -1,6 +1,5 @@
+
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'manage_bookings.dart';
 import 'property_analytics.dart';
@@ -20,38 +19,11 @@ class ownerdashboard extends StatefulWidget {
 class _ownerdashboardState extends State<ownerdashboard> {
   int _selectedIndex = 0;
 
-  // ================= FIREBASE =================
-
-  final String? ownerId = FirebaseAuth.instance.currentUser?.uid;
-
   // ================= HEADER =================
 
   Widget _buildHeader() {
-    if (ownerId == null) {
-      return _buildHeaderData('Owner');
-    }
+    const String ownerName = 'Owner';
 
-    return StreamBuilder<DocumentSnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('owners')
-          .doc(ownerId)
-          .snapshots(),
-      builder: (context, snapshot) {
-        String ownerName = 'Owner';
-
-        if (snapshot.hasData && snapshot.data!.exists) {
-          final data =
-              snapshot.data!.data() as Map<String, dynamic>?;
-
-          ownerName = data?['fullName']?.toString() ?? 'Owner';
-        }
-
-        return _buildHeaderData(ownerName);
-      },
-    );
-  }
-
-  Widget _buildHeaderData(String ownerName) {
     return Row(
       children: [
         ClipOval(
@@ -69,9 +41,9 @@ class _ownerdashboardState extends State<ownerdashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Hello, $ownerName',
-                style: const TextStyle(
+              const Text(
+                'Hello, Owner',
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF111827),
@@ -211,7 +183,6 @@ class _ownerdashboardState extends State<ownerdashboard> {
     return Expanded(
       child: GestureDetector(
         onTap: () {
-
           // ================= ADD PROPERTY =================
 
           if (title == 'Add Property') {
@@ -334,76 +305,13 @@ class _ownerdashboardState extends State<ownerdashboard> {
   // ================= TOP PROPERTY =================
 
   Widget _buildPropertyCard() {
-    if (ownerId == null) {
-      return _emptyPropertyCard();
-    }
-
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('properties')
-          .where('ownerId', isEqualTo: ownerId)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState ==
-            ConnectionState.waiting) {
-          return _loadingCard();
-        }
-
-        if (snapshot.hasError ||
-            !snapshot.hasData ||
-            snapshot.data!.docs.isEmpty) {
-          return _emptyPropertyCard();
-        }
-
-        final docs = snapshot.data!.docs;
-
-        docs.sort((a, b) {
-          final aData =
-              a.data() as Map<String, dynamic>;
-
-          final bData =
-              b.data() as Map<String, dynamic>;
-
-          final aRating =
-              (aData['rating'] as num?)?.toDouble() ?? 0;
-
-          final bRating =
-              (bData['rating'] as num?)?.toDouble() ?? 0;
-
-          return bRating.compareTo(aRating);
-        });
-
-        final data =
-            docs.first.data() as Map<String, dynamic>;
-
-        final propertyName =
-            data['propertyName']?.toString() ??
-                'Property';
-
-        final location =
-            data['location']?.toString() ?? '';
-
-        final rent =
-            data['rent']?.toString() ?? '';
-
-        final status =
-            data['status']?.toString() ?? '';
-
-        final rating =
-            (data['rating'] as num?)?.toDouble() ?? 0;
-
-        final imageName =
-            data['image']?.toString() ?? '';
-
-        return _propertyCardData(
-          propertyName,
-          location,
-          rent,
-          status,
-          rating,
-          imageName,
-        );
-      },
+    return _propertyCardData(
+      'The Aura - Luxury Loft',
+      'Downtown NYC',
+      '₹4,250',
+      'Occupied',
+      4.9,
+      'property1',
     );
   }
 
@@ -423,7 +331,8 @@ class _ownerdashboardState extends State<ownerdashboard> {
                 : AssetImage(skyline);
 
     final bool occupied =
-        status.toLowerCase() == 'rented';
+        status.toLowerCase() == 'rented' ||
+        status.toLowerCase() == 'occupied';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -560,92 +469,13 @@ class _ownerdashboardState extends State<ownerdashboard> {
     );
   }
 
-  Widget _emptyPropertyCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
-      ),
-      child: const Text(
-        'No properties found',
-        style: TextStyle(
-          color: Color(0xFF6B7280),
-        ),
-      ),
-    );
-  }
-
-  Widget _loadingCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Color(0xFFE5E7EB),
-        ),
-      ),
-      child: const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
-
   // ================= PENDING REQUEST =================
 
   Widget _buildPendingRequest() {
-    if (ownerId == null) {
-      return _emptyRequest();
-    }
-
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('rental_requests')
-          .where(
-            'ownerId',
-            isEqualTo: ownerId,
-          )
-          .where(
-            'status',
-            isEqualTo: 'Pending',
-          )
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState ==
-            ConnectionState.waiting) {
-          return _loadingCard();
-        }
-
-        if (snapshot.hasError ||
-            !snapshot.hasData ||
-            snapshot.data!.docs.isEmpty) {
-          return _emptyRequest();
-        }
-
-        final data =
-            snapshot.data!.docs.first.data()
-                as Map<String, dynamic>;
-
-        final tenantName =
-            data['tenantName']?.toString() ??
-                'Tenant';
-
-        final requestDate =
-            data['requestDate']?.toString() ?? '';
-
-        final message =
-            data['message']?.toString() ?? '';
-
-        return _pendingRequestData(
-          tenantName,
-          requestDate,
-          message,
-        );
-      },
+    return _pendingRequestData(
+      'Sarah Jenkins',
+      'October 24, 2026',
+      'Interested in The Aura - Luxury Loft for a 12-month lease.',
     );
   }
 
@@ -776,25 +606,6 @@ class _ownerdashboardState extends State<ownerdashboard> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _emptyRequest() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
-      ),
-      child: const Text(
-        'No pending requests',
-        style: TextStyle(
-          color: Color(0xFF6B7280),
-        ),
       ),
     );
   }
@@ -1034,81 +845,29 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
           const SizedBox(height: 12),
 
-          // ================= TOTAL PROPERTIES =================
+          // TOTAL PROPERTIES
 
-          if (ownerId == null)
-            _buildStatCard(
-              'Total Properties',
-              '0',
-              Icons.home_work_outlined,
-              null,
-            )
-          else
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('properties')
-                  .where(
-                    'ownerId',
-                    isEqualTo: ownerId,
-                  )
-                  .snapshots(),
-              builder: (context, snapshot) {
-                final count =
-                    snapshot.hasData
-                        ? snapshot.data!.docs.length
-                        : 0;
-
-                return _buildStatCard(
-                  'Total Properties',
-                  '$count',
-                  Icons.home_work_outlined,
-                  null,
-                );
-              },
-            ),
+          _buildStatCard(
+            'Total Properties',
+            '12',
+            Icons.home_work_outlined,
+            null,
+          ),
 
           const SizedBox(height: 10),
 
-          // ================= ACTIVE LISTINGS =================
+          // ACTIVE LISTINGS
 
-          if (ownerId == null)
-            _buildStatCard(
-              'Active Listings',
-              '0',
-              Icons.list_alt_outlined,
-              null,
-            )
-          else
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('properties')
-                  .where(
-                    'ownerId',
-                    isEqualTo: ownerId,
-                  )
-                  .where(
-                    'status',
-                    isEqualTo: 'Active',
-                  )
-                  .snapshots(),
-              builder: (context, snapshot) {
-                final count =
-                    snapshot.hasData
-                        ? snapshot.data!.docs.length
-                        : 0;
-
-                return _buildStatCard(
-                  'Active Listings',
-                  '$count',
-                  Icons.list_alt_outlined,
-                  null,
-                );
-              },
-            ),
+          _buildStatCard(
+            'Active Listings',
+            '8',
+            Icons.list_alt_outlined,
+            null,
+          ),
 
           const SizedBox(height: 10),
 
-          // MONTHLY EARNINGS - unchanged
+          // MONTHLY EARNINGS
 
           _buildStatCard(
             'Monthly Earnings',
@@ -1119,42 +878,18 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
           const SizedBox(height: 10),
 
-          // ================= BOOKINGS =================
+          // BOOKINGS
 
-          if (ownerId == null)
-            _buildStatCard(
-              'Bookings',
-              '0',
-              Icons.calendar_month_outlined,
-              null,
-            )
-          else
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('bookings')
-                  .where(
-                    'ownerId',
-                    isEqualTo: ownerId,
-                  )
-                  .snapshots(),
-              builder: (context, snapshot) {
-                final count =
-                    snapshot.hasData
-                        ? snapshot.data!.docs.length
-                        : 0;
-
-                return _buildStatCard(
-                  'Bookings',
-                  '$count',
-                  Icons.calendar_month_outlined,
-                  null,
-                );
-              },
-            ),
+          _buildStatCard(
+            'Bookings',
+            '45',
+            Icons.calendar_month_outlined,
+            null,
+          ),
 
           const SizedBox(height: 10),
 
-          // VIEWS - unchanged
+          // VIEWS
 
           _buildStatCard(
             'Views',
@@ -1177,8 +912,6 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
           Row(
             children: [
-              // ================= ADD PROPERTY =================
-
               _buildQuickAction(
                 'Add Property',
                 Icons.add_home_work_outlined,
@@ -1186,8 +919,6 @@ class _ownerdashboardState extends State<ownerdashboard> {
               ),
 
               const SizedBox(width: 8),
-
-              // ================= MANAGE =================
 
               _buildQuickAction(
                 'Manage',
@@ -1197,44 +928,13 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
               const SizedBox(width: 8),
 
-              // ================= REQUESTS =================
-
-              if (ownerId == null)
-                _buildQuickAction(
-                  'Requests',
-                  Icons.assignment_outlined,
-                  0,
-                )
-              else
-                StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('rental_requests')
-                      .where(
-                        'ownerId',
-                        isEqualTo: ownerId,
-                      )
-                      .where(
-                        'status',
-                        isEqualTo: 'Pending',
-                      )
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    final count =
-                        snapshot.hasData
-                            ? snapshot.data!.docs.length
-                            : 0;
-
-                    return _buildQuickAction(
-                      'Requests',
-                      Icons.assignment_outlined,
-                      count,
-                    );
-                  },
-                ),
+              _buildQuickAction(
+                'Requests',
+                Icons.assignment_outlined,
+                5,
+              ),
 
               const SizedBox(width: 8),
-
-              // ================= ANALYTICS =================
 
               _buildQuickAction(
                 'Analytics',

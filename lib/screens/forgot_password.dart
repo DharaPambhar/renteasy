@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'owner_login.dart';
 
@@ -13,8 +12,6 @@ class ForgotPassword extends StatefulWidget {
 class _ForgotPasswordState extends State<ForgotPassword> {
   final _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   bool _isLoading = false;
 
@@ -33,105 +30,55 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       _isLoading = true;
     });
 
-    try {
-      await _auth.sendPasswordResetEmail(
-        email: _emailController.text.trim(),
-      );
+    // Static simulation - no Firebase/backend
+    await Future.delayed(const Duration(milliseconds: 800));
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: const Text(
-              'Reset Link Sent',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            content: const Text(
-              'A password reset link has been sent to your registered email address. Please check your inbox.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
+    setState(() {
+      _isLoading = false;
+    });
 
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const ownerlogin(),
-                    ),
-                  );
-                },
-                child: const Text(
-                  'Back to Login',
-                  style: TextStyle(
-                    color: Color(0xFF2563EB),
-                    fontWeight: FontWeight.w600,
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Reset Link Sent',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: const Text(
+            'A password reset link has been sent to your registered email address. Please check your inbox.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ownerlogin(),
                   ),
+                );
+              },
+              child: const Text(
+                'Back to Login',
+                style: TextStyle(
+                  color: Color(0xFF2563EB),
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            ],
-          );
-        },
-      );
-    } on FirebaseAuthException catch (e) {
-      String message = 'Unable to send reset link';
-
-      switch (e.code) {
-        case 'invalid-email':
-          message = 'Please enter a valid email address';
-          break;
-
-        case 'user-not-found':
-          message = 'No owner account found with this email';
-          break;
-
-        case 'too-many-requests':
-          message =
-              'Too many requests. Please try again later';
-          break;
-
-        case 'network-request-failed':
-          message =
-              'Please check your internet connection';
-          break;
-
-        default:
-          message =
-              'Something went wrong: ${e.message ?? e.code}';
-      }
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Something went wrong: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -152,8 +99,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   vertical: 20,
                 ),
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
                     // Header
@@ -234,13 +180,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         width: 240,
                         decoration: BoxDecoration(
                           color: const Color(0xFFEFF6FF),
-                          borderRadius:
-                              BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(24),
                         ),
                         child: const Center(
                           child: Icon(
-                            Icons
-                                .lock_reset_rounded,
+                            Icons.lock_reset_rounded,
                             size: 90,
                             color: Color(0xFF2563EB),
                           ),
@@ -284,16 +228,14 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     Form(
                       key: _formKey,
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
 
                           const Text(
                             'Email Address / Mobile Number',
                             style: TextStyle(
                               fontSize: 14,
-                              fontWeight:
-                                  FontWeight.w600,
+                              fontWeight: FontWeight.w600,
                               color: Color(0xFF111827),
                             ),
                           ),
@@ -301,35 +243,20 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           const SizedBox(height: 8),
 
                           TextFormField(
-                            controller:
-                                _emailController,
-                            keyboardType:
-                                TextInputType.emailAddress,
-                            decoration:
-                                InputDecoration(
-                              hintText:
-                                  'owner@example.com',
-                              prefixIcon:
-                                  const Icon(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(
+                              hintText: 'owner@example.com',
+                              prefixIcon: const Icon(
                                 Icons.email_outlined,
                               ),
-                              border:
-                                  OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.circular(
-                                  10,
-                                ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              focusedBorder:
-                                  OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.circular(
-                                  10,
-                                ),
-                                borderSide:
-                                    const BorderSide(
-                                  color:
-                                      Color(0xFF2563EB),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF2563EB),
                                   width: 2,
                                 ),
                               ),
@@ -340,13 +267,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 return 'Email cannot be blank';
                               }
 
-                              final emailRegex =
-                                  RegExp(
+                              final emailRegex = RegExp(
                                 r'^[^@]+@[^@]+\.[^@]+',
                               );
 
-                              if (!emailRegex
-                                  .hasMatch(
+                              if (!emailRegex.hasMatch(
                                 value.trim(),
                               )) {
                                 return 'Please enter a valid email address';
@@ -366,25 +291,16 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               onPressed: _isLoading
                                   ? null
                                   : _sendResetLink,
-                              style:
-                                  ElevatedButton.styleFrom(
+                              style: ElevatedButton.styleFrom(
                                 backgroundColor:
-                                    const Color(
-                                  0xFF2563EB,
-                                ),
-                                foregroundColor:
-                                    Colors.white,
+                                    const Color(0xFF2563EB),
+                                foregroundColor: Colors.white,
                                 disabledBackgroundColor:
-                                    const Color(
-                                  0xFF93B4F4,
-                                ),
+                                    const Color(0xFF93B4F4),
                                 elevation: 0,
-                                shape:
-                                    RoundedRectangleBorder(
+                                shape: RoundedRectangleBorder(
                                   borderRadius:
-                                      BorderRadius.circular(
-                                    10,
-                                  ),
+                                      BorderRadius.circular(10),
                                 ),
                               ),
                               child: _isLoading
@@ -403,23 +319,19 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                     )
                                   : const Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment
-                                              .center,
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           'Send Reset Link',
-                                          style:
-                                              TextStyle(
+                                          style: TextStyle(
                                             fontSize: 16,
                                             fontWeight:
-                                                FontWeight
-                                                    .w600,
+                                                FontWeight.w600,
                                           ),
                                         ),
                                         SizedBox(width: 8),
                                         Icon(
-                                          Icons
-                                              .arrow_forward,
+                                          Icons.arrow_forward,
                                           size: 20,
                                         ),
                                       ],
@@ -442,8 +354,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           ),
                           children: [
                             const TextSpan(
-                              text:
-                                  'Remember your password? ',
+                              text: 'Remember your password? ',
                             ),
                             WidgetSpan(
                               child: GestureDetector(
@@ -459,10 +370,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 child: const Text(
                                   'Login Now',
                                   style: TextStyle(
-                                    color:
-                                        Color(0xFF2563EB),
-                                    fontWeight:
-                                        FontWeight.w600,
+                                    color: Color(0xFF2563EB),
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),

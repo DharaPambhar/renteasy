@@ -1,6 +1,5 @@
+
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class addproperty extends StatefulWidget {
   const addproperty({super.key});
@@ -53,19 +52,10 @@ class _addpropertyState extends State<addproperty> {
     return '₹$formatted';
   }
 
+  // ================= ADD PROPERTY =================
+
   Future<void> addProperty() async {
     if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    final User? user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please login first'),
-        ),
-      );
       return;
     }
 
@@ -73,64 +63,28 @@ class _addpropertyState extends State<addproperty> {
       isLoading = true;
     });
 
-    try {
-      final String propertyName =
-          propertyNameController.text.trim();
+    // Local/static processing only.
+    // No Firebase or database is used.
 
-      final String location =
-          locationController.text.trim();
+    await Future.delayed(const Duration(milliseconds: 500));
 
-      final String rent =
-          formatRent(rentController.text.trim());
+    if (!mounted) return;
 
-      final String bedrooms =
-          bedroomsController.text.trim();
+    setState(() {
+      isLoading = false;
+    });
 
-      final String bathrooms =
-          bathroomsController.text.trim();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Property added successfully'),
+      ),
+    );
 
-      final String area =
-          areaController.text.trim();
+    await Future.delayed(const Duration(milliseconds: 700));
 
-      final double rating =
-          double.tryParse(ratingController.text.trim()) ?? 0.0;
+    if (!mounted) return;
 
-      final String specs =
-          '$bedrooms Bed • $bathrooms Bath • $area sq.ft.';
-
-      await FirebaseFirestore.instance
-          .collection('properties')
-          .add({
-        'ownerId': user.uid,
-        'propertyName': propertyName,
-        'rent': rent,
-        'location': location,
-        'specs': specs,
-        'status': selectedStatus,
-        'rating': rating,
-        'furnished': furnished,
-        'image': selectedImage,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      if (!mounted) return;
-
-      Navigator.pop(context);
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to add property: $e'),
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    }
+    Navigator.pop(context);
   }
 
   @override
@@ -390,7 +344,8 @@ class _addpropertyState extends State<addproperty> {
                       controller: ratingController,
                       label: 'Rating (0 - 5)',
                       icon: Icons.star_outline,
-                      keyboardType: const TextInputType.numberWithOptions(
+                      keyboardType:
+                          const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
                       validator: (value) {
