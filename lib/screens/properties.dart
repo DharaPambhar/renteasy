@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 import 'owner_dashboard.dart';
@@ -20,6 +21,18 @@ class _propertiesState extends State<properties> {
   final TextEditingController _searchController =
       TextEditingController();
 
+
+// Color palette
+static const Color primaryColor = Color(0xFF2563EB);
+static const Color lightPurple = Color(0xFFDBEAFE);
+static const Color backgroundColor = Color(0xFFF8FAFC);
+static const Color textColor = Color(0xFF111827);
+static const Color secondaryColor = Color(0xFF6B7280);
+static const Color borderColor = Color(0xFFE5E7EB);
+static const Color activeColor = Color(0xFF2563EB);
+static const Color rentedColor = Color(0xFFB45309);
+static const Color pendingColor = Color(0xFF991B1B);
+
   final List<String> _tabs = [
     'All',
     'Active',
@@ -27,7 +40,6 @@ class _propertiesState extends State<properties> {
     'Rented',
   ];
 
-  // Only 2 properties remain
   final List<Map<String, dynamic>> _propertyList = [
     {
       'title': 'The Aura – Luxury Loft',
@@ -68,13 +80,13 @@ class _propertiesState extends State<properties> {
   Color _statusColor(String status) {
     switch (status) {
       case 'Active':
-        return const Color(0xFF16A34A);
+        return activeColor;
       case 'Rented':
-        return const Color(0xFF2563EB);
+        return rentedColor;
       case 'Pending':
-        return const Color(0xFFF59E0B);
+        return pendingColor;
       default:
-        return const Color(0xFF7354AD);
+        return secondaryColor;
     }
   }
 
@@ -86,10 +98,22 @@ class _propertiesState extends State<properties> {
           property['status'] == _tabs[_selectedTab];
 
       final matchesSearch = query.isEmpty ||
-          property['title'].toString().toLowerCase().contains(query) ||
-          property['location'].toString().toLowerCase().contains(query) ||
-          property['id'].toString().toLowerCase().contains(query) ||
-          property['status'].toString().toLowerCase().contains(query);
+          property['title']
+              .toString()
+              .toLowerCase()
+              .contains(query) ||
+          property['location']
+              .toString()
+              .toLowerCase()
+              .contains(query) ||
+          property['id']
+              .toString()
+              .toLowerCase()
+              .contains(query) ||
+          property['status']
+              .toString()
+              .toLowerCase()
+              .contains(query);
 
       return matchesTab && matchesSearch;
     }).toList();
@@ -104,6 +128,71 @@ class _propertiesState extends State<properties> {
     );
   }
 
+  // ================= HEADER =================
+
+  Widget _buildHeader() {
+    return Row(
+      children: [
+        IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ownerdashboard(),
+              ),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: primaryColor,
+            size: 21,
+          ),
+        ),
+        const Expanded(
+          child: Center(
+            child: Text(
+              'My Properties',
+              style: TextStyle(
+                fontSize: 21,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
+            ),
+          ),
+        ),
+        Stack(
+          children: [
+            IconButton(
+              onPressed: () {
+                _showMessage('No new notifications.');
+              },
+              icon: const Icon(
+                Icons.notifications_none,
+                color: primaryColor,
+                size: 27,
+              ),
+            ),
+            Positioned(
+              right: 11,
+              top: 9,
+              child: Container(
+                width: 9,
+                height: 9,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEF4444),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ================= SUMMARY CARD =================
+  // Fixed: reduced padding and spacing to prevent overflow.
+
   Widget _summaryCard(
     String title,
     String value,
@@ -111,38 +200,45 @@ class _propertiesState extends State<properties> {
     Color color,
   ) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEAEAF0)),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(9),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(11),
             ),
-            child: Icon(icon, color: color, size: 21),
+            child: Icon(
+              icon,
+              color: color,
+              size: 22,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 7),
           Text(
             value,
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF242238),
+              color: textColor,
             ),
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 2),
           Text(
             title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontSize: 12,
-              color: Color(0xFF777789),
+              color: secondaryColor,
             ),
           ),
         ],
@@ -157,45 +253,161 @@ class _propertiesState extends State<properties> {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.65,
+
+      // Fixed: increased card height to prevent bottom overflow.
+      childAspectRatio: 1.25,
+
       children: [
         _summaryCard(
           'Total Properties',
           '24',
           Icons.apartment,
-          const Color(0xFF2563EB),
+          primaryColor,
         ),
         _summaryCard(
           'Active',
           '18',
           Icons.verified_outlined,
-          const Color(0xFF16A34A),
+          primaryColor,
         ),
         _summaryCard(
           'Rented',
           '12',
           Icons.key_outlined,
-          const Color(0xFF7354AD),
+          rentedColor,
         ),
         _summaryCard(
           'Pending',
           '06',
           Icons.hourglass_empty,
-          const Color(0xFFF59E0B),
+          pendingColor,
         ),
       ],
     );
   }
 
+  // ================= SEARCH AND FILTER =================
+
+  Widget _buildSearchBar() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _searchController,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              hintText: 'Search properties...',
+              hintStyle: const TextStyle(
+                color: secondaryColor,
+                fontSize: 14,
+              ),
+              prefixIcon: const Icon(
+                Icons.search,
+                color: secondaryColor,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: const EdgeInsets.symmetric(
+                vertical: 13,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(
+                  color: borderColor,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(
+                  color: borderColor,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(
+                  color: primaryColor,
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Container(
+          height: 50,
+          width: 50,
+          decoration: BoxDecoration(
+            color: primaryColor,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: IconButton(
+            onPressed: _showFilterOptions,
+            icon: const Icon(
+              Icons.tune,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilterChips() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: List.generate(_tabs.length, (index) {
+          final selected = _selectedTab == index;
+
+          return Padding(
+            padding: const EdgeInsets.only(right: 9),
+            child: ChoiceChip(
+              label: Text(_tabs[index]),
+              selected: selected,
+              showCheckmark: false,
+              selectedColor: primaryColor,
+              backgroundColor: lightPurple,
+              side: BorderSide(
+                color: selected ? primaryColor : lightPurple,
+              ),
+              labelStyle: TextStyle(
+                color: selected ? Colors.white : secondaryColor,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22),
+              ),
+              onSelected: (_) {
+                setState(() {
+                  _selectedTab = index;
+                });
+              },
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  // ================= PROPERTY CARD =================
+
   Widget _buildPropertyCard(Map<String, dynamic> property) {
     final status = property['status'] as String;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 18),
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFEAEAF0)),
+        borderRadius: BorderRadius.circular(19),
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +416,7 @@ class _propertiesState extends State<properties> {
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(18),
+                  top: Radius.circular(19),
                 ),
                 child: Image.asset(
                   property['image'],
@@ -215,22 +427,59 @@ class _propertiesState extends State<properties> {
                     return Container(
                       width: double.infinity,
                       height: 205,
-                      color: const Color(0xFFF0ECFA),
+                      color: lightPurple,
                       child: const Icon(
                         Icons.apartment,
                         size: 60,
-                        color: Color(0xFF7354AD),
+                        color: primaryColor,
                       ),
                     );
                   },
                 ),
               ),
+
+              // Rating badge
               Positioned(
                 top: 12,
-                left: 12,
+                right: 12,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 11,
+                    vertical: 7,
+                  ),
+                  decoration: BoxDecoration(
+                    color: primaryColor,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.star,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        property['rating'],
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Property status
+              Positioned(
+                bottom: 12,
+                left: 12,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
@@ -247,82 +496,58 @@ class _propertiesState extends State<properties> {
                   ),
                 ),
               ),
-              Positioned(
-                top: 12,
-                right: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 7,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.star,
-                        color: Color(0xFFF59E0B),
-                        size: 16,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        property['rating'],
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ],
           ),
+
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Property title
                 Text(
                   property['title'],
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF242238),
+                    color: textColor,
                   ),
                 ),
-                const SizedBox(height: 9),
+
+                const SizedBox(height: 8),
+
+                // Price
                 RichText(
                   text: TextSpan(
                     style: const TextStyle(
-                      color: Color(0xFF7354AD),
+                      color: primaryColor,
                     ),
                     children: [
                       TextSpan(
                         text: property['price'],
                         style: const TextStyle(
-                          fontSize: 20,
+                          fontSize: 21,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const TextSpan(
-                        text: ' / month',
+                        text: ' per month',
                         style: TextStyle(fontSize: 12),
                       ),
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 10),
+
+                // Location
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Icon(
                       Icons.location_on_outlined,
-                      size: 17,
-                      color: Colors.grey,
+                      size: 18,
+                      color: secondaryColor,
                     ),
                     const SizedBox(width: 5),
                     Expanded(
@@ -330,34 +555,40 @@ class _propertiesState extends State<properties> {
                         property['location'],
                         style: const TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF777789),
+                          color: secondaryColor,
                         ),
                       ),
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 16),
+
+                // Property specifications
                 Container(
                   padding: const EdgeInsets.symmetric(
                     vertical: 12,
                     horizontal: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8F7FC),
-                    borderRadius: BorderRadius.circular(10),
+                    color: backgroundColor,
+                    borderRadius: BorderRadius.circular(11),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _specification(
-                        Icons.bed_outlined,
-                        property['beds'],
+                      Expanded(
+                        child: _specification(
+                          Icons.bed_outlined,
+                          property['beds'],
+                        ),
                       ),
-                      _specification(
-                        Icons.bathtub_outlined,
-                        property['baths'],
+                      Expanded(
+                        child: _specification(
+                          Icons.bathtub_outlined,
+                          property['baths'],
+                        ),
                       ),
-                      Flexible(
+                      Expanded(
                         child: _specification(
                           Icons.square_foot,
                           property['area'],
@@ -366,13 +597,16 @@ class _propertiesState extends State<properties> {
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 14),
+
+                // Property ID and posting date
                 Row(
                   children: [
                     const Icon(
                       Icons.tag,
                       size: 15,
-                      color: Colors.grey,
+                      color: secondaryColor,
                     ),
                     const SizedBox(width: 4),
                     Expanded(
@@ -380,7 +614,7 @@ class _propertiesState extends State<properties> {
                         'ID: #${property['id']}',
                         style: const TextStyle(
                           fontSize: 11,
-                          color: Colors.grey,
+                          color: secondaryColor,
                         ),
                       ),
                     ),
@@ -388,46 +622,49 @@ class _propertiesState extends State<properties> {
                       'Posted ${property['posted']}',
                       style: const TextStyle(
                         fontSize: 11,
-                        color: Colors.grey,
+                        color: secondaryColor,
                       ),
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEDE7F6),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.chair_outlined,
-                          size: 15,
-                          color: Color(0xFF7354AD),
+
+                // Furnished / Premium tag
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: lightPurple,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.chair_outlined,
+                        size: 15,
+                        color: primaryColor,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        property['tag'],
+                        style: const TextStyle(
+                          color: primaryColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                         ),
-                        const SizedBox(width: 5),
-                        Text(
-                          property['tag'],
-                          style: const TextStyle(
-                            color: Color(0xFF7354AD),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
+
                 const SizedBox(height: 16),
-                if (status == 'Active') ...[
+
+                // Active property actions
+                if (status == 'Active')
                   Row(
                     children: [
                       Expanded(
@@ -438,20 +675,26 @@ class _propertiesState extends State<properties> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2563EB),
+                            backgroundColor: primaryColor,
                             foregroundColor: Colors.white,
+                            elevation: 0,
                             padding: const EdgeInsets.symmetric(
                               vertical: 13,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(11),
                             ),
                           ),
                           icon: const Icon(
                             Icons.edit_outlined,
                             size: 17,
                           ),
-                          label: const Text('Edit Listing'),
+                          label: const Text(
+                            'Edit Listing',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -469,8 +712,8 @@ class _propertiesState extends State<properties> {
                         () => _showPropertyOptions(property),
                       ),
                     ],
-                  ),
-                ] else ...[
+                  )
+                else
                   Row(
                     children: [
                       Expanded(
@@ -478,18 +721,23 @@ class _propertiesState extends State<properties> {
                           onPressed: () =>
                               _showPropertyDetails(property),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF7354AD),
+                            foregroundColor: primaryColor,
                             padding: const EdgeInsets.symmetric(
                               vertical: 13,
                             ),
                             side: const BorderSide(
-                              color: Color(0xFF7354AD),
+                              color: primaryColor,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(11),
                             ),
                           ),
-                          child: const Text('View Details'),
+                          child: const Text(
+                            'View Details',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -507,7 +755,6 @@ class _propertiesState extends State<properties> {
                       ),
                     ],
                   ),
-                ],
               ],
             ),
           ),
@@ -523,15 +770,16 @@ class _propertiesState extends State<properties> {
         Icon(
           icon,
           size: 16,
-          color: const Color(0xFF7354AD),
+          color: primaryColor,
         ),
         const SizedBox(width: 4),
         Flexible(
           child: Text(
             text,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 11,
-              color: Color(0xFF5F5B70),
+              fontSize: 10,
+              color: secondaryColor,
             ),
           ),
         ),
@@ -547,26 +795,28 @@ class _propertiesState extends State<properties> {
       height: 45,
       width: 45,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE4E1ED)),
+        color: lightPurple,
+        borderRadius: BorderRadius.circular(11),
       ),
       child: IconButton(
         onPressed: onPressed,
         icon: Icon(
           icon,
-          color: const Color(0xFF5F5B70),
+          color: primaryColor,
           size: 20,
         ),
       ),
     );
   }
 
+  // ================= PROPERTY DETAILS =================
+
   void _showPropertyDetails(Map<String, dynamic> property) {
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
+      backgroundColor: Colors.white,
       builder: (sheetContext) => SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -579,6 +829,7 @@ class _propertiesState extends State<properties> {
                 style: const TextStyle(
                   fontSize: 21,
                   fontWeight: FontWeight.bold,
+                  color: textColor,
                 ),
               ),
               const SizedBox(height: 12),
@@ -598,6 +849,10 @@ class _propertiesState extends State<properties> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                  ),
                   onPressed: () => Navigator.pop(sheetContext),
                   child: const Text('Close'),
                 ),
@@ -613,12 +868,16 @@ class _propertiesState extends State<properties> {
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
+      backgroundColor: Colors.white,
       builder: (sheetContext) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.visibility_outlined),
+              leading: const Icon(
+                Icons.visibility_outlined,
+                color: primaryColor,
+              ),
               title: const Text('View Details'),
               onTap: () {
                 Navigator.pop(sheetContext);
@@ -626,7 +885,10 @@ class _propertiesState extends State<properties> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.share_outlined),
+              leading: const Icon(
+                Icons.share_outlined,
+                color: primaryColor,
+              ),
               title: const Text('Share Listing'),
               onTap: () {
                 Navigator.pop(sheetContext);
@@ -634,7 +896,10 @@ class _propertiesState extends State<properties> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.edit_outlined),
+              leading: const Icon(
+                Icons.edit_outlined,
+                color: primaryColor,
+              ),
               title: const Text('Edit Listing'),
               onTap: () {
                 Navigator.pop(sheetContext);
@@ -649,24 +914,76 @@ class _propertiesState extends State<properties> {
     );
   }
 
+  // ================= FILTER BOTTOM SHEET =================
+
+  void _showFilterOptions() {
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: Colors.white,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Filter Properties',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                ),
+              ),
+              const SizedBox(height: 14),
+              ...List.generate(_tabs.length, (index) {
+                return RadioListTile<int>(
+                  value: index,
+                  groupValue: _selectedTab,
+                  title: Text(_tabs[index]),
+                  activeColor: primaryColor,
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() {
+                      _selectedTab = value;
+                    });
+                    Navigator.pop(sheetContext);
+                  },
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ================= BOTTOM NAVIGATION =================
+
   Widget _buildBottomNavigation() {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(
-          top: BorderSide(color: Color(0xFFEAEAF0)),
+          top: BorderSide(color: borderColor),
         ),
       ),
       child: BottomNavigationBar(
         currentIndex: _selectedIndex,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF7354AD),
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: primaryColor,
+        unselectedItemColor: secondaryColor,
         selectedFontSize: 11,
         unselectedFontSize: 11,
         onTap: (index) {
-          setState(() => _selectedIndex = index);
+          if (index == 1) {
+            setState(() {
+              _selectedIndex = 1;
+            });
+            return;
+          }
 
           switch (index) {
             case 0:
@@ -676,8 +993,6 @@ class _propertiesState extends State<properties> {
                   builder: (_) => const ownerdashboard(),
                 ),
               );
-              break;
-            case 1:
               break;
             case 2:
               Navigator.pushReplacement(
@@ -705,62 +1020,28 @@ class _propertiesState extends State<properties> {
               break;
           }
         },
-        items: [
-          const BottomNavigationBarItem(
+        items: const [
+          BottomNavigationBarItem(
             icon: Icon(Icons.dashboard_outlined),
             activeIcon: Icon(Icons.dashboard),
             label: 'Dashboard',
           ),
-          const BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.apartment_outlined),
             activeIcon: Icon(Icons.apartment),
             label: 'Properties',
           ),
           BottomNavigationBarItem(
-            icon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const Icon(Icons.calendar_month_outlined),
-                Positioned(
-                  right: -5,
-                  top: -4,
-                  child: Container(
-                    width: 9,
-                    height: 9,
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            activeIcon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const Icon(Icons.calendar_month),
-                Positioned(
-                  right: -5,
-                  top: -4,
-                  child: Container(
-                    width: 9,
-                    height: 9,
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            icon: Icon(Icons.calendar_month_outlined),
+            activeIcon: Icon(Icons.calendar_month),
             label: 'Bookings',
           ),
-          const BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart_outlined),
             activeIcon: Icon(Icons.bar_chart),
             label: 'Analytics',
           ),
-          const BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),
             label: 'Profile',
@@ -770,240 +1051,80 @@ class _propertiesState extends State<properties> {
     );
   }
 
+  // ================= MAIN SCREEN =================
+
   @override
   Widget build(BuildContext context) {
     final filteredProperties = _filteredProperties;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F7FC),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F7FC),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            size: 19,
-            color: Color(0xFF28263A),
-          ),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ownerdashboard(),
-              ),
-            );
-          },
-        ),
-        title: const Text(
-          'My Properties',
-          style: TextStyle(
-            color: Color(0xFF28263A),
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        actions: [
-          Stack(
-            children: [
-              IconButton(
-                onPressed: () =>
-                    _showMessage('No new notifications.'),
-                icon: const Icon(
-                  Icons.notifications_none,
-                  color: Color(0xFF28263A),
-                ),
-              ),
-              Positioned(
-                right: 11,
-                top: 10,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
+      backgroundColor: backgroundColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildSummary(),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        hintText: 'Search properties...',
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          color: Colors.grey,
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFEAEAF0),
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFEAEAF0),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF7354AD),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF7354AD),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: IconButton(
-                      onPressed: _showFilterOptions,
-                      icon: const Icon(
-                        Icons.tune,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: List.generate(_tabs.length, (index) {
-                    final selected = _selectedTab == index;
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 5, 12, 4),
+              child: _buildHeader(),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSummary(),
+                    const SizedBox(height: 24),
+                    _buildSearchBar(),
+                    const SizedBox(height: 15),
+                    _buildFilterChips(),
+                    const SizedBox(height: 20),
 
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ChoiceChip(
-                        label: Text(_tabs[index]),
-                        selected: selected,
-                        showCheckmark: false,
-                        selectedColor: const Color(0xFF7354AD),
-                        backgroundColor: Colors.white,
-                        side: BorderSide(
-                          color: selected
-                              ? const Color(0xFF7354AD)
-                              : const Color(0xFFEAEAF0),
+                    if (filteredProperties.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(28),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: borderColor),
                         ),
-                        labelStyle: TextStyle(
-                          color: selected ? Colors.white : Colors.black87,
-                          fontWeight: FontWeight.w600,
+                        child: const Column(
+                          children: [
+                            Icon(
+                              Icons.search_off,
+                              size: 42,
+                              color: secondaryColor,
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'No properties found',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: textColor,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Try another search or status filter.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: secondaryColor,
+                              ),
+                            ),
+                          ],
                         ),
-                        onSelected: (_) {
-                          setState(() => _selectedTab = index);
-                        },
-                      ),
-                    );
-                  }),
+                      )
+                    else
+                      ...filteredProperties.map(_buildPropertyCard),
+                  ],
                 ),
               ),
-              const SizedBox(height: 18),
-              if (filteredProperties.isEmpty)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(28),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Column(
-                    children: [
-                      Icon(
-                        Icons.search_off,
-                        size: 42,
-                        color: Colors.grey,
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'No properties found',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Try another search or status filter.',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                )
-              else
-                ...filteredProperties.map(_buildPropertyCard),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: _buildBottomNavigation(),
-    );
-  }
-
-  void _showFilterOptions() {
-    showModalBottomSheet(
-      context: context,
-      showDragHandle: true,
-      builder: (sheetContext) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Filter Properties',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 14),
-              ...List.generate(_tabs.length, (index) {
-                return RadioListTile<int>(
-                  value: index,
-                  groupValue: _selectedTab,
-                  title: Text(_tabs[index]),
-                  activeColor: const Color(0xFF7354AD),
-                  onChanged: (value) {
-                    if (value == null) return;
-                    setState(() => _selectedTab = value);
-                    Navigator.pop(sheetContext);
-                  },
-                );
-              }),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

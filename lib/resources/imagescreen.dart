@@ -15,3 +15,7 @@ const String property1 = 'assets/images/property1.png';
 const String property2 = 'assets/images/property2.png';
 
 const String aura = 'assets/images/aura.png';
+
+const String alex = 'assets/images/alex.png';
+
+const String sarah = 'assets/images/sarah_profile.png';

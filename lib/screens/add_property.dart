@@ -108,10 +108,10 @@ class _addpropertyState extends State<addproperty> {
       labelText: label,
       prefixIcon: Icon(
         icon,
-        color: const Color(0xFF7354AD),
+        color: const Color(0xFF2563EB),
       ),
       filled: true,
-      fillColor: const Color(0xFFF8F7FC),
+      fillColor: const Color(0xFFEFF6FF),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide.none,
@@ -123,7 +123,7 @@ class _addpropertyState extends State<addproperty> {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(
-          color: Color(0xFF7354AD),
+          color: Color(0xFF2563EB),
           width: 1.5,
         ),
       ),
@@ -148,7 +148,7 @@ class _addpropertyState extends State<addproperty> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F4F8),
+      backgroundColor: const Color(0xFFF8FAFC),
 
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -473,7 +473,7 @@ class _addpropertyState extends State<addproperty> {
                       ),
                       value: furnished,
                       activeThumbColor:
-                          const Color(0xFF7354AD),
+                          const Color(0xFF2563EB),
                       onChanged: (value) {
                         setState(() {
                           furnished = value;
@@ -492,7 +492,7 @@ class _addpropertyState extends State<addproperty> {
                 child: ElevatedButton(
                   onPressed: isLoading ? null : addProperty,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7354AD),
+                    backgroundColor: const Color(0xFF2563EB),
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(

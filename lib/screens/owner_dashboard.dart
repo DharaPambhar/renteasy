@@ -19,9 +19,11 @@ class ownerdashboard extends StatefulWidget {
 class _ownerdashboardState extends State<ownerdashboard> {
   int _selectedIndex = 0;
 
-  final Color primaryColor = const Color(0xFF4541DD);
-  final Color borderColor = const Color(0xFFC9C9E0);
-  final Color textColor = const Color(0xFF192033);
+  final Color primaryColor = const Color(0xFF2563EB);
+  final Color borderColor = const Color(0xFF6B7280);
+  final Color textColor = const Color(0xFF111827);
+  final Color secondaryColor = const Color(0xFF6B7280);
+  final Color lightBlueColor = const Color(0xFFDBEAFE);
 
   // ================= HEADER =================
 
@@ -48,7 +50,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF192033),
+                    color: Color(0xFF111827),
                   ),
                 ),
                 SizedBox(height: 3),
@@ -56,7 +58,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                   'Manage your properties easily',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF4B4B60),
+                    color: Color(0xFF6B7280),
                   ),
                 ),
               ],
@@ -76,7 +78,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                   width: 10,
                   height: 10,
                   decoration: const BoxDecoration(
-                    color: Colors.red,
+                    color: Color(0xFFEF4444),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -123,7 +125,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
             title,
             style: const TextStyle(
               fontSize: 14,
-              color: Color(0xFF4B4B60),
+              color: Color(0xFF6B7280),
             ),
           ),
           const SizedBox(height: 4),
@@ -161,7 +163,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                   'Monthly Earnings',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF4B4B60),
+                    color: Color(0xFF6B7280),
                   ),
                 ),
                 SizedBox(height: 4),
@@ -170,7 +172,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                   style: TextStyle(
                     fontSize: 27,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF4541DD),
+                    color: Color(0xFF2563EB),
                   ),
                 ),
               ],
@@ -182,13 +184,13 @@ class _ownerdashboardState extends State<ownerdashboard> {
               vertical: 9,
             ),
             decoration: BoxDecoration(
-              color: const Color(0xFFE1E2FF),
+              color: const Color(0xFFDBEAFE),
               borderRadius: BorderRadius.circular(25),
             ),
             child: const Text(
               '+12.5%',
               style: TextStyle(
-                color: Color(0xFF4541DD),
+                color: Color(0xFF2563EB),
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -250,7 +252,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                   decoration: BoxDecoration(
                     color: title == 'Add Property'
                         ? primaryColor
-                        : const Color(0xFFE0E4FA),
+                        : lightBlueColor,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Icon(
@@ -270,7 +272,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                       height: 23,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFC81720),
+                        color: const Color(0xFFEF4444),
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: Colors.white,
@@ -297,7 +299,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF192033),
+                color: Color(0xFF111827),
               ),
             ),
           ],
@@ -364,7 +366,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                         style: TextStyle(
                           fontSize: 19,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF192033),
+                          color: Color(0xFF111827),
                         ),
                       ),
                     ),
@@ -375,7 +377,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                           TextSpan(
                             text: '₹4,250',
                             style: TextStyle(
-                              color: Color(0xFF4541DD),
+                              color: Color(0xFF2563EB),
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
                             ),
@@ -383,7 +385,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                           TextSpan(
                             text: '/mo',
                             style: TextStyle(
-                              color: Color(0xFF4B4B60),
+                              color: Color(0xFF6B7280),
                               fontSize: 13,
                             ),
                           ),
@@ -398,14 +400,14 @@ class _ownerdashboardState extends State<ownerdashboard> {
                     Icon(
                       Icons.location_on_outlined,
                       size: 17,
-                      color: Color(0xFF4B4B60),
+                      color: Color(0xFF6B7280),
                     ),
                     SizedBox(width: 3),
                     Text(
                       'Downtown, NYC',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF4B4B60),
+                        color: Color(0xFF6B7280),
                       ),
                     ),
                   ],
@@ -418,28 +420,28 @@ class _ownerdashboardState extends State<ownerdashboard> {
                     Icon(
                       Icons.visibility_outlined,
                       size: 17,
-                      color: Color(0xFF4B4B60),
+                      color: Color(0xFF6B7280),
                     ),
                     SizedBox(width: 5),
                     Text(
                       '1.2k views',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF4B4B60),
+                        color: Color(0xFF6B7280),
                       ),
                     ),
                     SizedBox(width: 20),
                     Icon(
                       Icons.star_border,
                       size: 18,
-                      color: Color(0xFF4B4B60),
+                      color: Color(0xFF6B7280),
                     ),
                     SizedBox(width: 4),
                     Text(
                       '4.9 rating',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF4B4B60),
+                        color: Color(0xFF6B7280),
                       ),
                     ),
                   ],
@@ -503,14 +505,14 @@ class _ownerdashboardState extends State<ownerdashboard> {
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF192033),
+                              color: Color(0xFF111827),
                             ),
                           ),
                         ),
                         SizedBox(width: 4),
                         Icon(
                           Icons.verified,
-                          color: Color(0xFF4541DD),
+                          color: Color(0xFF2563EB),
                           size: 17,
                         ),
                       ],
@@ -520,7 +522,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                       'Oct 24, 2023',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF4B4B60),
+                        color: Color(0xFF6B7280),
                       ),
                     ),
                   ],
@@ -533,13 +535,13 @@ class _ownerdashboardState extends State<ownerdashboard> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF0E3CE),
+                  color: const Color(0xFFFEF3C7),
                   borderRadius: BorderRadius.circular(22),
                 ),
                 child: const Text(
                   'PENDING',
                   style: TextStyle(
-                    color: Color(0xFF895900),
+                    color: Color(0xFF92400E),
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                   ),
@@ -553,7 +555,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
             style: TextStyle(
               fontSize: 15,
               height: 1.5,
-              color: Color(0xFF4B4B60),
+              color: Color(0xFF6B7280),
             ),
           ),
           const SizedBox(height: 18),
@@ -598,7 +600,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF292F40),
+        color: const Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -617,7 +619,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                 child: Text(
                   'Revenue Growth',
                   style: TextStyle(
-                    color: Color(0xFFF3F3FF),
+                    color: Color(0xFFFFFFFF),
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -625,7 +627,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
               ),
               Icon(
                 Icons.trending_up,
-                color: Color(0xFFE1D6FF),
+                color: Color(0xFFDBEAFE),
                 size: 26,
               ),
             ],
@@ -650,7 +652,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
             'Your revenue has increased by 12% since last month.',
             style: TextStyle(
               fontSize: 13,
-              color: Color(0xFFCED0DD),
+              color: Color(0xFF6B7280),
             ),
           ),
         ],
@@ -696,13 +698,13 @@ class _ownerdashboardState extends State<ownerdashboard> {
           Container(
             width: 50,
             height: 50,
-            decoration: const BoxDecoration(
-              color: Color(0xFFF1EBFF),
+            decoration: BoxDecoration(
+              color: lightBlueColor,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.payments_outlined,
-              color: Color(0xFF8146E8),
+              color: primaryColor,
               size: 28,
             ),
           ),
@@ -716,7 +718,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF192033),
+                    color: Color(0xFF111827),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -726,7 +728,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 11,
-                    color: Color(0xFF4B4B60),
+                    color: Color(0xFF6B7280),
                   ),
                 ),
               ],
@@ -741,7 +743,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF192033),
+                  color: Color(0xFF111827),
                 ),
               ),
               const SizedBox(height: 4),
@@ -750,7 +752,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF8146E8),
+                  color: Color(0xFF2563EB),
                 ),
               ),
             ],
@@ -772,7 +774,6 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
           const SizedBox(height: 20),
 
-          // Two cards in the first row
           Row(
             children: [
               Expanded(
@@ -795,12 +796,10 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
           const SizedBox(height: 16),
 
-          // Full-width monthly earnings
           _buildEarningsCard(),
 
           const SizedBox(height: 16),
 
-          // Two cards in the second row
           Row(
             children: [
               Expanded(
@@ -932,7 +931,7 @@ class _ownerdashboardState extends State<ownerdashboard> {
       type: BottomNavigationBarType.fixed,
       backgroundColor: Colors.white,
       selectedItemColor: primaryColor,
-      unselectedItemColor: const Color(0xFF555568),
+      unselectedItemColor: const Color(0xFF6B7280),
       selectedFontSize: 12,
       unselectedFontSize: 12,
       onTap: (index) {
