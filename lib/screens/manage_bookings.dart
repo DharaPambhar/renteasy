@@ -21,6 +21,14 @@ class _managebookingsState extends State<managebookings> {
   final TextEditingController _searchController =
       TextEditingController();
 
+  final Color primaryPurple = const Color(0xFF7354AD);
+  final Color lightPurple = const Color(0xFFF0ECFA);
+  final Color screenBackground = const Color(0xFFF8F9FD);
+  final Color primaryText = const Color(0xFF28263A);
+  final Color secondaryText = const Color(0xFF777789);
+  final Color borderColor = const Color(0xFFEAEAF0);
+  final Color cancelRed = const Color(0xFFDC2626);
+
   final List<String> _tabs = [
     'All',
     'Pending',
@@ -40,8 +48,9 @@ class _managebookingsState extends State<managebookings> {
       'guests': '2 Adults',
       'status': 'Pending',
       'image': property1,
-      'phone': '+1 555 010 9284',
+      'phone': '+1 (555) 0123',
       'verified': true,
+      'depositPaid': false,
     },
     {
       'name': 'Sarah Jenkins',
@@ -54,8 +63,9 @@ class _managebookingsState extends State<managebookings> {
       'guests': '2 Adults',
       'status': 'Confirmed',
       'image': property2,
-      'phone': '+1 555 010 4281',
+      'phone': '+1 (555) 9876',
       'verified': true,
+      'depositPaid': true,
     },
   ];
 
@@ -70,7 +80,8 @@ class _managebookingsState extends State<managebookings> {
           booking['name'].toString().toLowerCase().contains(query) ||
           booking['property'].toString().toLowerCase().contains(query) ||
           booking['id'].toString().toLowerCase().contains(query) ||
-          booking['status'].toString().toLowerCase().contains(query);
+          booking['status'].toString().toLowerCase().contains(query) ||
+          booking['phone'].toString().toLowerCase().contains(query);
 
       return matchesTab && matchesSearch;
     }).toList();
@@ -85,15 +96,30 @@ class _managebookingsState extends State<managebookings> {
   Color _statusColor(String status) {
     switch (status) {
       case 'Pending':
-        return const Color(0xFFFFA726);
+        return const Color(0xFFC77720);
       case 'Confirmed':
-        return const Color(0xFF16A34A);
+        return primaryPurple;
       case 'Upcoming':
         return const Color(0xFF2563EB);
       case 'Cancelled':
-        return const Color(0xFFDC2626);
+        return cancelRed;
       default:
-        return Colors.grey;
+        return secondaryText;
+    }
+  }
+
+  Color _statusBackground(String status) {
+    switch (status) {
+      case 'Pending':
+        return const Color(0xFFFFF0E0);
+      case 'Confirmed':
+        return lightPurple;
+      case 'Upcoming':
+        return const Color(0xFFEFF6FF);
+      case 'Cancelled':
+        return const Color(0xFFFEF2F2);
+      default:
+        return const Color(0xFFF3F4F6);
     }
   }
 
@@ -120,6 +146,10 @@ class _managebookingsState extends State<managebookings> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryPurple,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () {
               setState(() {
                 booking['status'] = 'Confirmed';
@@ -147,10 +177,10 @@ class _managebookingsState extends State<managebookings> {
             onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Keep Booking'),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: cancelRed,
+              side: BorderSide(color: cancelRed),
             ),
             onPressed: () {
               setState(() {
@@ -171,13 +201,20 @@ class _managebookingsState extends State<managebookings> {
   ) async {
     final selectedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().add(
-        const Duration(days: 1),
-      ),
+      initialDate: DateTime.now().add(const Duration(days: 1)),
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(
-        const Duration(days: 365),
-      ),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: primaryPurple,
+              surface: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (selectedDate != null && mounted) {
@@ -204,31 +241,64 @@ class _managebookingsState extends State<managebookings> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(booking['name']),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        title: Row(
+          children: [
+            Expanded(child: Text(booking['name'])),
+            if (booking['verified'] == true)
+              const Icon(
+                Icons.verified,
+                color: Color(0xFF2563EB),
+                size: 20,
+              ),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Contact Information'),
-            const SizedBox(height: 12),
+            const Text(
+              'Contact Information',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF28263A),
+              ),
+            ),
+            const SizedBox(height: 14),
             Row(
               children: [
-                const Icon(Icons.phone_outlined),
+                Icon(Icons.phone_outlined, color: primaryPurple),
                 const SizedBox(width: 10),
                 Expanded(child: Text(booking['phone'])),
               ],
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'This is sample contact information for the static UI.',
-              style: TextStyle(color: Colors.grey, fontSize: 12),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(Icons.calendar_month_outlined, color: primaryPurple),
+                const SizedBox(width: 10),
+                Expanded(child: Text('Booking ID: #${booking['id']}')),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Sample contact information. Calling and messaging are not connected to a phone service.',
+              style: TextStyle(
+                color: secondaryText,
+                fontSize: 12,
+              ),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Close'),
+            child: Text(
+              'Close',
+              style: TextStyle(color: primaryPurple),
+            ),
           ),
         ],
       ),
@@ -239,18 +309,34 @@ class _managebookingsState extends State<managebookings> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Lease Agreement'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.description_outlined, color: primaryPurple),
+            const SizedBox(width: 10),
+            const Expanded(child: Text('Lease Agreement')),
+          ],
+        ),
         content: Text(
-          'Booking ID: ${booking['id']}\n\n'
+          'Booking ID: #${booking['id']}\n\n'
           'Tenant: ${booking['name']}\n'
+          'Phone: ${booking['phone']}\n'
           'Property: ${booking['property']}\n'
-          'Monthly Rent: ${booking['price']}\n\n'
-          'This is a static preview. No lease document is attached.',
+          'Location: ${booking['location']}\n'
+          'Monthly Rent: ${booking['price']}\n'
+          'Move-in Date: ${booking['date']}\n'
+          'Lease Duration: ${booking['duration']}\n\n'
+          'This is a static preview. No actual lease document is attached.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Close'),
+            child: Text(
+              'Close',
+              style: TextStyle(color: primaryPurple),
+            ),
           ),
         ],
       ),
@@ -261,6 +347,12 @@ class _managebookingsState extends State<managebookings> {
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(22),
+        ),
+      ),
       builder: (sheetContext) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -273,11 +365,15 @@ class _managebookingsState extends State<managebookings> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
+                  color: Color(0xFF28263A),
                 ),
               ),
               const SizedBox(height: 12),
               ListTile(
-                leading: const Icon(Icons.info_outline),
+                leading: Icon(
+                  Icons.info_outline,
+                  color: primaryPurple,
+                ),
                 title: const Text('Booking Details'),
                 onTap: () {
                   Navigator.pop(sheetContext);
@@ -285,8 +381,9 @@ class _managebookingsState extends State<managebookings> {
                 },
               ),
               ListTile(
-                leading: const Icon(
+                leading: Icon(
                   Icons.calendar_month_outlined,
+                  color: primaryPurple,
                 ),
                 title: const Text('Reschedule Visit'),
                 onTap: () {
@@ -295,13 +392,13 @@ class _managebookingsState extends State<managebookings> {
                 },
               ),
               ListTile(
-                leading: const Icon(
+                leading: Icon(
                   Icons.cancel_outlined,
-                  color: Colors.red,
+                  color: cancelRed,
                 ),
-                title: const Text(
+                title: Text(
                   'Cancel Booking',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(color: cancelRed),
                 ),
                 onTap: () {
                   Navigator.pop(sheetContext);
@@ -326,7 +423,14 @@ class _managebookingsState extends State<managebookings> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEAEAF0)),
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.035),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,18 +446,18 @@ class _managebookingsState extends State<managebookings> {
           const SizedBox(height: 12),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 23,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF202033),
+              color: primaryText,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: Color(0xFF777789),
+              color: secondaryText,
             ),
           ),
         ],
@@ -374,7 +478,7 @@ class _managebookingsState extends State<managebookings> {
           'Total Bookings',
           '128',
           Icons.calendar_month_outlined,
-          const Color(0xFF7354AD),
+          primaryPurple,
         ),
         _overviewCard(
           'Upcoming Visits',
@@ -398,6 +502,43 @@ class _managebookingsState extends State<managebookings> {
     );
   }
 
+  Widget _buildStatusBadge(String status) {
+    final color = _statusColor(status);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: _statusBackground(status),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            status,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildBookingCard(Map<String, dynamic> booking) {
     final status = booking['status'] as String;
     final isPending = status == 'Pending';
@@ -409,152 +550,143 @@ class _managebookingsState extends State<managebookings> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE9E8F0)),
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.035),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: _statusColor(status).withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        color: _statusColor(status),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      status,
-                      style: TextStyle(
-                        color: _statusColor(status),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _buildStatusBadge(status),
               const Spacer(),
               IconButton(
                 onPressed: () => _showMoreOptions(booking),
-                icon: const Icon(Icons.more_horiz),
+                icon: Icon(
+                  Icons.more_horiz,
+                  color: secondaryText,
+                ),
+                tooltip: 'More options',
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  booking['image'],
-                  width: 76,
-                  height: 76,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: 76,
-                      height: 76,
-                      color: const Color(0xFFF0ECFA),
-                      child: const Icon(
-                        Icons.apartment,
-                        size: 34,
-                        color: Color(0xFF7354AD),
-                      ),
-                    );
-                  },
+
+          // Property information
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFAF8FE),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset(
+                    booking['image'],
+                    width: 82,
+                    height: 88,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: 82,
+                        height: 88,
+                        color: lightPurple,
+                        child: Icon(
+                          Icons.apartment,
+                          size: 34,
+                          color: primaryPurple,
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      booking['property'],
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF242238),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        booking['property'],
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: primaryText,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.location_on_outlined,
-                          size: 14,
-                          color: Colors.grey,
-                        ),
-                        const SizedBox(width: 3),
-                        Expanded(
-                          child: Text(
-                            booking['location'],
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 7),
-                    RichText(
-                      text: TextSpan(
-                        style: const TextStyle(
-                          color: Color(0xFF7354AD),
-                        ),
+                      const SizedBox(height: 6),
+                      Row(
                         children: [
-                          TextSpan(
-                            text: booking['price'],
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 15,
+                            color: secondaryText,
                           ),
-                          const TextSpan(
-                            text: ' / month',
-                            style: TextStyle(fontSize: 11),
+                          const SizedBox(width: 3),
+                          Expanded(
+                            child: Text(
+                              booking['location'],
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: secondaryText,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      RichText(
+                        text: TextSpan(
+                          style: TextStyle(color: primaryPurple),
+                          children: [
+                            TextSpan(
+                              text: booking['price'],
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const TextSpan(
+                              text: ' /mo',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const Divider(height: 28),
+
+          const SizedBox(height: 16),
+
+          // Tenant information
           Row(
             children: [
               ClipOval(
                 child: Image.asset(
                   rentalProfile,
-                  width: 42,
-                  height: 42,
+                  width: 44,
+                  height: 44,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
-                      width: 42,
-                      height: 42,
-                      color: const Color(0xFFEDE7F6),
-                      child: const Icon(
+                      width: 44,
+                      height: 44,
+                      color: lightPurple,
+                      child: Icon(
                         Icons.person,
-                        color: Color(0xFF7354AD),
+                        color: primaryPurple,
                       ),
                     );
                   },
@@ -571,9 +703,10 @@ class _managebookingsState extends State<managebookings> {
                           child: Text(
                             booking['name'],
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
+                              color: primaryText,
                             ),
                           ),
                         ),
@@ -581,7 +714,7 @@ class _managebookingsState extends State<managebookings> {
                           const SizedBox(width: 4),
                           const Icon(
                             Icons.verified,
-                            size: 15,
+                            size: 16,
                             color: Color(0xFF2563EB),
                           ),
                         ],
@@ -589,10 +722,19 @@ class _managebookingsState extends State<managebookings> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Booking ID: #${booking['id']}',
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 11,
+                      booking['phone'],
+                      style: TextStyle(
+                        color: secondaryText,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'BOOKING ID  #${booking['id']}',
+                      style: TextStyle(
+                        color: secondaryText,
+                        fontSize: 10,
+                        letterSpacing: 0.3,
                       ),
                     ),
                   ],
@@ -600,67 +742,110 @@ class _managebookingsState extends State<managebookings> {
               ),
             ],
           ),
+
           const SizedBox(height: 16),
+          Divider(height: 1, color: borderColor),
+          const SizedBox(height: 16),
+
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: _detailItem(
                   Icons.calendar_today_outlined,
-                  isConfirmed ? 'Move-in Date' : 'Visit Date',
+                  isConfirmed ? 'MOVE-IN DATE' : 'VISIT DATE',
                   booking['date'],
                 ),
               ),
+              const SizedBox(width: 12),
               Expanded(
                 child: _detailItem(
                   Icons.schedule_outlined,
-                  'Duration',
+                  'LEASE DURATION',
                   booking['duration'],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           _detailItem(
             Icons.people_outline,
-            'Tenants',
+            'OCCUPANTS',
             booking['guests'],
           ),
+
           const SizedBox(height: 18),
+
           if (isPending) ...[
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: primaryPurple,
+                      backgroundColor: lightPurple.withValues(alpha: 0.45),
+                      side: BorderSide(
+                        color: primaryPurple.withValues(alpha: 0.25),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                     onPressed: () => _showContactDialog(booking),
-                    icon: const Icon(Icons.chat_bubble_outline),
+                    icon: const Icon(
+                      Icons.chat_bubble_outline,
+                      size: 18,
+                    ),
                     label: const Text('Chat'),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
                 Expanded(
                   child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: primaryPurple,
+                      backgroundColor: lightPurple.withValues(alpha: 0.45),
+                      side: BorderSide(
+                        color: primaryPurple.withValues(alpha: 0.25),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                     onPressed: () => _showContactDialog(booking),
-                    icon: const Icon(Icons.call_outlined),
+                    icon: const Icon(
+                      Icons.call_outlined,
+                      size: 18,
+                    ),
                     label: const Text('Call'),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7354AD),
+                  backgroundColor: primaryPurple,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 13),
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(11),
                   ),
                 ),
                 onPressed: () => _confirmBooking(booking),
-                icon: const Icon(Icons.check_circle_outline),
-                label: const Text('Confirm Booking'),
+                icon: const Icon(Icons.check_circle_outline, size: 19),
+                label: const Text(
+                  'Confirm Booking',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 8),
@@ -669,16 +854,29 @@ class _managebookingsState extends State<managebookings> {
                 Expanded(
                   child: TextButton(
                     onPressed: () => _rescheduleBooking(booking),
-                    child: const Text('Reschedule'),
+                    child: Text(
+                      'Reschedule',
+                      style: TextStyle(
+                        color: primaryPurple,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
                 Expanded(
-                  child: TextButton(
-                    onPressed: () => _cancelBooking(booking),
-                    child: const Text(
-                      'Cancel Booking',
-                      style: TextStyle(color: Colors.red),
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: cancelRed,
+                      backgroundColor: const Color(0xFFFFF8F8),
+                      side: BorderSide(
+                        color: cancelRed.withValues(alpha: 0.65),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
+                    onPressed: () => _cancelBooking(booking),
+                    child: const Text('Cancel'),
                   ),
                 ),
               ],
@@ -688,22 +886,27 @@ class _managebookingsState extends State<managebookings> {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
+                color: lightPurple,
                 borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: primaryPurple.withValues(alpha: 0.12),
+                ),
               ),
-              child: const Row(
+              child: Row(
                 children: [
                   Icon(
                     Icons.check_circle,
-                    color: Color(0xFF16A34A),
+                    color: primaryPurple,
                     size: 19,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Deposit Paid',
+                      booking['depositPaid'] == true
+                          ? 'Deposit Paid'
+                          : 'Deposit Pending',
                       style: TextStyle(
-                        color: Color(0xFF15803D),
+                        color: primaryPurple,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -715,8 +918,19 @@ class _managebookingsState extends State<managebookings> {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: primaryPurple,
+                  backgroundColor: lightPurple.withValues(alpha: 0.35),
+                  side: BorderSide(
+                    color: primaryPurple.withValues(alpha: 0.3),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
                 onPressed: () => _showLeaseDialog(booking),
-                icon: const Icon(Icons.description_outlined),
+                icon: const Icon(Icons.description_outlined, size: 18),
                 label: const Text('View Lease Agreement'),
               ),
             ),
@@ -725,15 +939,29 @@ class _managebookingsState extends State<managebookings> {
                 Expanded(
                   child: TextButton.icon(
                     onPressed: () => _showContactDialog(booking),
-                    icon: const Icon(Icons.chat_bubble_outline),
-                    label: const Text('Chat'),
+                    icon: Icon(
+                      Icons.chat_bubble_outline,
+                      color: primaryPurple,
+                      size: 18,
+                    ),
+                    label: Text(
+                      'Chat',
+                      style: TextStyle(color: primaryPurple),
+                    ),
                   ),
                 ),
                 Expanded(
                   child: TextButton.icon(
                     onPressed: () => _showLeaseDialog(booking),
-                    icon: const Icon(Icons.info_outline),
-                    label: const Text('Details'),
+                    icon: Icon(
+                      Icons.info_outline,
+                      color: primaryPurple,
+                      size: 18,
+                    ),
+                    label: Text(
+                      'Details',
+                      style: TextStyle(color: primaryPurple),
+                    ),
                   ),
                 ),
               ],
@@ -742,6 +970,10 @@ class _managebookingsState extends State<managebookings> {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: primaryPurple,
+                  side: BorderSide(color: primaryPurple),
+                ),
                 onPressed: () => _showLeaseDialog(booking),
                 child: const Text('View Booking Details'),
               ),
@@ -763,7 +995,7 @@ class _managebookingsState extends State<managebookings> {
         Icon(
           icon,
           size: 17,
-          color: const Color(0xFF7354AD),
+          color: primaryPurple,
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -772,18 +1004,19 @@ class _managebookingsState extends State<managebookings> {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey,
+                style: TextStyle(
+                  fontSize: 10,
+                  letterSpacing: 0.35,
+                  color: secondaryText,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 5),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF28263A),
+                  color: primaryText,
                 ),
               ),
             ],
@@ -797,6 +1030,12 @@ class _managebookingsState extends State<managebookings> {
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(22),
+        ),
+      ),
       builder: (sheetContext) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -804,11 +1043,12 @@ class _managebookingsState extends State<managebookings> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Filter Bookings',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
+                  color: primaryText,
                 ),
               ),
               const SizedBox(height: 14),
@@ -817,9 +1057,11 @@ class _managebookingsState extends State<managebookings> {
                   value: index,
                   groupValue: _selectedTab,
                   title: Text(_tabs[index]),
-                  activeColor: const Color(0xFF7354AD),
+                  activeColor: primaryPurple,
+                  contentPadding: EdgeInsets.zero,
                   onChanged: (value) {
                     if (value == null) return;
+
                     setState(() => _selectedTab = value);
                     Navigator.pop(sheetContext);
                   },
@@ -834,20 +1076,28 @@ class _managebookingsState extends State<managebookings> {
 
   Widget _buildBottomNavigation() {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.035),
+            blurRadius: 10,
+            offset: const Offset(0, -3),
+          ),
+        ],
         border: Border(
-          top: BorderSide(color: Color(0xFFEAEAF0)),
+          top: BorderSide(color: borderColor),
         ),
       ),
       child: BottomNavigationBar(
         currentIndex: _selectedIndex,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF7354AD),
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: primaryPurple,
+        unselectedItemColor: const Color(0xFF9292A0),
         selectedFontSize: 11,
         unselectedFontSize: 11,
+        elevation: 0,
         onTap: (index) {
           setState(() => _selectedIndex = index);
 
@@ -924,15 +1174,16 @@ class _managebookingsState extends State<managebookings> {
     final bookings = _filteredBookings;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F7FC),
+      backgroundColor: screenBackground,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F7FC),
+        backgroundColor: screenBackground,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
             size: 19,
-            color: Color(0xFF28263A),
+            color: primaryText,
           ),
           onPressed: () {
             Navigator.pushReplacement(
@@ -943,10 +1194,10 @@ class _managebookingsState extends State<managebookings> {
             );
           },
         ),
-        title: const Text(
+        title: Text(
           'Manage Bookings',
           style: TextStyle(
-            color: Color(0xFF28263A),
+            color: primaryText,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
@@ -954,9 +1205,27 @@ class _managebookingsState extends State<managebookings> {
         actions: [
           IconButton(
             onPressed: () => _showMessage('No new notifications.'),
-            icon: const Icon(
-              Icons.notifications_none,
-              color: Color(0xFF28263A),
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  Icons.notifications_none,
+                  color: primaryText,
+                  size: 25,
+                ),
+                Positioned(
+                  right: 1,
+                  top: 1,
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFEF4444),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 8),
@@ -968,37 +1237,49 @@ class _managebookingsState extends State<managebookings> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Booking Overview',
                 style: TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF28263A),
+                  color: primaryText,
                 ),
               ),
               const SizedBox(height: 14),
               _buildOverview(),
+
               const SizedBox(height: 24),
-              const Text(
+
+              Text(
                 'All Bookings',
                 style: TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF28263A),
+                  color: primaryText,
                 ),
               ),
               const SizedBox(height: 14),
+
+              // Search and filter
               Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _searchController,
                       onChanged: (_) => setState(() {}),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: primaryText,
+                      ),
                       decoration: InputDecoration(
-                        hintText: 'Search bookings...',
-                        prefixIcon: const Icon(
+                        hintText: 'Search bookings',
+                        hintStyle: TextStyle(
+                          color: secondaryText,
+                          fontSize: 13,
+                        ),
+                        prefixIcon: Icon(
                           Icons.search,
-                          color: Colors.grey,
+                          color: secondaryText,
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -1007,20 +1288,17 @@ class _managebookingsState extends State<managebookings> {
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFEAEAF0),
-                          ),
+                          borderSide: BorderSide(color: borderColor),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFEAEAF0),
-                          ),
+                          borderSide: BorderSide(color: borderColor),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF7354AD),
+                          borderSide: BorderSide(
+                            color: primaryPurple,
+                            width: 1.4,
                           ),
                         ),
                       ),
@@ -1033,21 +1311,23 @@ class _managebookingsState extends State<managebookings> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: const Color(0xFFEAEAF0),
-                      ),
+                      border: Border.all(color: borderColor),
                     ),
                     child: IconButton(
                       onPressed: _showFilterOptions,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.tune,
-                        color: Color(0xFF7354AD),
+                        color: primaryPurple,
                       ),
+                      tooltip: 'Filter bookings',
                     ),
                   ),
                 ],
               ),
+
               const SizedBox(height: 16),
+
+              // Category tabs
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -1060,18 +1340,22 @@ class _managebookingsState extends State<managebookings> {
                         label: Text(_tabs[index]),
                         selected: selected,
                         showCheckmark: false,
-                        selectedColor: const Color(0xFF7354AD),
+                        selectedColor: primaryPurple,
                         backgroundColor: Colors.white,
                         side: BorderSide(
                           color: selected
-                              ? const Color(0xFF7354AD)
-                              : const Color(0xFFEAEAF0),
+                              ? primaryPurple
+                              : borderColor,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         labelStyle: TextStyle(
                           color: selected
                               ? Colors.white
-                              : const Color(0xFF5E5B70),
+                              : const Color(0xFF666477),
                           fontWeight: FontWeight.w600,
+                          fontSize: 12,
                         ),
                         onSelected: (_) {
                           setState(() => _selectedTab = index);
@@ -1081,7 +1365,9 @@ class _managebookingsState extends State<managebookings> {
                   }),
                 ),
               ),
+
               const SizedBox(height: 18),
+
               if (bookings.isEmpty)
                 Container(
                   width: double.infinity,
@@ -1089,26 +1375,28 @@ class _managebookingsState extends State<managebookings> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: borderColor),
                   ),
-                  child: const Column(
+                  child: Column(
                     children: [
                       Icon(
                         Icons.search_off,
                         size: 42,
-                        color: Colors.grey,
+                        color: secondaryText,
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text(
                         'No bookings found',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
+                          color: primaryText,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         'Try another search or filter.',
-                        style: TextStyle(color: Colors.grey),
+                        style: TextStyle(color: secondaryText),
                       ),
                     ],
                   ),
