@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 import 'manage_bookings.dart';
@@ -18,79 +19,72 @@ class ownerdashboard extends StatefulWidget {
 class _ownerdashboardState extends State<ownerdashboard> {
   int _selectedIndex = 0;
 
+  final Color primaryColor = const Color(0xFF4541DD);
+  final Color borderColor = const Color(0xFFC9C9E0);
+  final Color textColor = const Color(0xFF192033);
+
   // ================= HEADER =================
 
   Widget _buildHeader() {
-    return Row(
-      children: [
-        ClipOval(
-          child: Image.asset(
-            owner,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Row(
+        children: [
+          ClipOval(
+            child: Image.asset(
+              owner,
+              width: 48,
+              height: 48,
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-
-        const SizedBox(width: 12),
-
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                'Hello, Owner',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF111827),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Hello, Owner',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF192033),
+                  ),
                 ),
+                SizedBox(height: 3),
+                Text(
+                  'Manage your properties easily',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF4B4B60),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Stack(
+            children: [
+              Icon(
+                Icons.notifications_none,
+                color: primaryColor,
+                size: 29,
               ),
-              SizedBox(height: 5),
-              Text(
-                'Manage your properties easily',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF6B7280),
+              Positioned(
+                right: 2,
+                top: 1,
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
             ],
           ),
-        ),
-
-        Stack(
-          children: [
-            Container(
-              height: 45,
-              width: 45,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFE5E7EB),
-                ),
-              ),
-              child: const Icon(
-                Icons.notifications_none,
-                color: Color(0xFF374151),
-              ),
-            ),
-
-            Positioned(
-              right: 7,
-              top: 6,
-              child: Container(
-                height: 9,
-                width: 9,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -100,67 +94,104 @@ class _ownerdashboardState extends State<ownerdashboard> {
     String title,
     String value,
     IconData icon,
-    String? extraText,
   ) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 3,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            icon,
+            color: primaryColor,
+            size: 25,
+          ),
+          const SizedBox(height: 9),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Color(0xFF4B4B60),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 23,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ================= MONTHLY EARNINGS =================
+
+  Widget _buildEarningsCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor),
       ),
       child: Row(
         children: [
-          Container(
-            height: 45,
-            width: 45,
-            decoration: BoxDecoration(
-              color: const Color(0xFFEFF6FF),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              icon,
-              color: const Color(0xFF2563EB),
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF6B7280),
+                  'Monthly Earnings',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF4B4B60),
                   ),
                 ),
-
-                const SizedBox(height: 5),
-
+                SizedBox(height: 4),
                 Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 20,
+                  '₹12,450',
+                  style: TextStyle(
+                    fontSize: 27,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF111827),
+                    color: Color(0xFF4541DD),
                   ),
                 ),
-
-                if (extraText != null)
-                  Text(
-                    extraText,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.green,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
               ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 15,
+              vertical: 9,
+            ),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE1E2FF),
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: const Text(
+              '+12.5%',
+              style: TextStyle(
+                color: Color(0xFF4541DD),
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
             ),
           ),
         ],
@@ -178,8 +209,6 @@ class _ownerdashboardState extends State<ownerdashboard> {
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          // ================= ADD PROPERTY =================
-
           if (title == 'Add Property') {
             Navigator.push(
               context,
@@ -187,33 +216,21 @@ class _ownerdashboardState extends State<ownerdashboard> {
                 builder: (context) => const addproperty(),
               ),
             );
-          }
-
-          // ================= MANAGE =================
-
-          else if (title == 'Manage') {
+          } else if (title == 'Manage') {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const properties(),
               ),
             );
-          }
-
-          // ================= REQUESTS =================
-
-          else if (title == 'Requests') {
+          } else if (title == 'Requests') {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const rentalrequests(),
               ),
             );
-          }
-
-          // ================= ANALYTICS =================
-
-          else if (title == 'Analytics') {
+          } else if (title == 'Analytics') {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -222,76 +239,68 @@ class _ownerdashboardState extends State<ownerdashboard> {
             );
           }
         },
-
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            vertical: 15,
-            horizontal: 8,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: const Color(0xFFE5E7EB),
-            ),
-          ),
-          child: Column(
-            children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    height: 45,
-                    width: 45,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      icon,
-                      color: const Color(0xFF2563EB),
-                    ),
+        child: Column(
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 65,
+                  height: 65,
+                  decoration: BoxDecoration(
+                    color: title == 'Add Property'
+                        ? primaryColor
+                        : const Color(0xFFE0E4FA),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-
-                  if (badge > 0)
-                    Positioned(
-                      right: -5,
-                      top: -6,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 5,
-                          vertical: 2,
+                  child: Icon(
+                    icon,
+                    size: 27,
+                    color: title == 'Add Property'
+                        ? Colors.white
+                        : primaryColor,
+                  ),
+                ),
+                if (badge > 0)
+                  Positioned(
+                    right: -3,
+                    top: -4,
+                    child: Container(
+                      width: 23,
+                      height: 23,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFC81720),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 2,
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          '$badge',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      ),
+                      child: Text(
+                        '$badge',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                ],
+                  ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              maxLines: 1,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF192033),
               ),
-
-              const SizedBox(height: 8),
-
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF374151),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -300,161 +309,158 @@ class _ownerdashboardState extends State<ownerdashboard> {
   // ================= TOP PROPERTY =================
 
   Widget _buildPropertyCard() {
-    return _propertyCardData(
-      'The Aura - Luxury Loft',
-      'Downtown, NYC',
-      '₹4,250',
-      'Occupied',
-      4.9,
-      'property1',
-    );
-  }
-
-  Widget _propertyCardData(
-    String propertyName,
-    String location,
-    String rent,
-    String status,
-    double rating,
-    String imageName,
-  ) {
-    final ImageProvider propertyImage =
-        imageName == 'property1'
-            ? AssetImage(property1)
-            : imageName == 'property2'
-                ? AssetImage(property2)
-                : AssetImage(skyline);
-
     return Container(
-      padding: const EdgeInsets.all(16),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Stack(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image(
-                  image: propertyImage,
-                  height: 85,
-                  width: 85,
-                  fit: BoxFit.cover,
-                ),
+              Image(
+                image: AssetImage(property1),
+                width: double.infinity,
+                height: 235,
+                fit: BoxFit.cover,
               ),
-
-              const SizedBox(width: 14),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      propertyName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF111827),
-                      ),
+              Positioned(
+                right: 15,
+                top: 20,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 15,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: primaryColor,
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: const Text(
+                    'Occupied',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
                     ),
-
-                    const SizedBox(height: 5),
-
-                    Text(
-                      location,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF6B7280),
-                      ),
-                    ),
-
-                    const SizedBox(height: 6),
-
-                    Text(
-                      '$rent / mo',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF2563EB),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // PURPLE OCCUPIED BADGE
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3E8FF),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  status,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Color(0xFF7C3AED),
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ],
           ),
-
-          const SizedBox(height: 15),
-
-          const Divider(),
-
-          const SizedBox(height: 8),
-
-          Row(
-            children: [
-              const Icon(
-                Icons.visibility_outlined,
-                size: 18,
-                color: Color(0xFF6B7280),
-              ),
-
-              const SizedBox(width: 5),
-
-              const Text(
-                '1.2k views',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF6B7280),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'The Aura - Luxury Loft',
+                        style: TextStyle(
+                          fontSize: 19,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF192033),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '₹4,250',
+                            style: TextStyle(
+                              color: Color(0xFF4541DD),
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextSpan(
+                            text: '/mo',
+                            style: TextStyle(
+                              color: Color(0xFF4B4B60),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-
-              const Spacer(),
-
-              const Icon(
-                Icons.star,
-                size: 18,
-                color: Colors.amber,
-              ),
-
-              const SizedBox(width: 5),
-
-              Text(
-                '${rating.toStringAsFixed(1)} rating',
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF374151),
+                const SizedBox(height: 5),
+                const Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_outlined,
+                      size: 17,
+                      color: Color(0xFF4B4B60),
+                    ),
+                    SizedBox(width: 3),
+                    Text(
+                      'Downtown, NYC',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF4B4B60),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 12),
+                Divider(color: borderColor),
+                const SizedBox(height: 8),
+                const Row(
+                  children: [
+                    Icon(
+                      Icons.visibility_outlined,
+                      size: 17,
+                      color: Color(0xFF4B4B60),
+                    ),
+                    SizedBox(width: 5),
+                    Text(
+                      '1.2k views',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF4B4B60),
+                      ),
+                    ),
+                    SizedBox(width: 20),
+                    Icon(
+                      Icons.star_border,
+                      size: 18,
+                      color: Color(0xFF4B4B60),
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      '4.9 rating',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF4B4B60),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  // ================= SECTION HEADING =================
+
+  Widget _buildSectionHeading(String title) {
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: 21,
+        fontWeight: FontWeight.bold,
+        color: textColor,
       ),
     );
   }
@@ -462,45 +468,29 @@ class _ownerdashboardState extends State<ownerdashboard> {
   // ================= PENDING REQUEST =================
 
   Widget _buildPendingRequest() {
-    return _pendingRequestData(
-      'Sarah Jenkins',
-      'Oct 24, 2023',
-      'Interested in The Aura - Luxury Loft for a 12-month lease.',
-    );
-  }
-
-  Widget _pendingRequestData(
-    String tenantName,
-    String requestDate,
-    String message,
-  ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipOval(
                 child: Image.asset(
                   rentalProfile,
-                  width: 46,
-                  height: 46,
+                  width: 48,
+                  height: 48,
                   fit: BoxFit.cover,
                 ),
               ),
-
               const SizedBox(width: 12),
-
-              Expanded(
+              const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -508,97 +498,89 @@ class _ownerdashboardState extends State<ownerdashboard> {
                       children: [
                         Flexible(
                           child: Text(
-                            tenantName,
+                            'Sarah Jenkins',
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
+                            style: TextStyle(
                               fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF192033),
                             ),
                           ),
                         ),
-
-                        const SizedBox(width: 5),
-
-                        const Icon(
+                        SizedBox(width: 4),
+                        Icon(
                           Icons.verified,
+                          color: Color(0xFF4541DD),
                           size: 17,
-                          color: Color(0xFF2563EB),
                         ),
                       ],
                     ),
-
-                    const SizedBox(height: 4),
-
+                    SizedBox(height: 4),
                     Text(
-                      requestDate,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF6B7280),
+                      'Oct 24, 2023',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF4B4B60),
                       ),
                     ),
                   ],
                 ),
               ),
-
+              const SizedBox(width: 5),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 5,
+                  horizontal: 13,
+                  vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(8),
+                  color: const Color(0xFFF0E3CE),
+                  borderRadius: BorderRadius.circular(22),
                 ),
                 child: const Text(
                   'PENDING',
                   style: TextStyle(
+                    color: Color(0xFF895900),
                     fontSize: 10,
-                    color: Color(0xFFD97706),
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ],
           ),
-
-          const SizedBox(height: 12),
-
-          Text(
-            message,
-            style: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF4B5563),
-              height: 1.4,
+          const SizedBox(height: 20),
+          const Text(
+            'Interested in The Aura - Luxury Loft for a 12-month lease.',
+            style: TextStyle(
+              fontSize: 15,
+              height: 1.5,
+              color: Color(0xFF4B4B60),
             ),
           ),
-
-          const SizedBox(height: 14),
-
+          const SizedBox(height: 18),
           SizedBox(
             width: double.infinity,
-            height: 42,
-            child: OutlinedButton(
+            height: 52,
+            child: ElevatedButton(
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Request details selected',
-                    ),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const rentalrequests(),
                   ),
                 );
               },
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(
-                  color: Color(0xFF2563EB),
-                ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: Colors.white,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
               child: const Text(
                 'View Details',
                 style: TextStyle(
-                  color: Color(0xFF2563EB),
+                  fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -609,92 +591,66 @@ class _ownerdashboardState extends State<ownerdashboard> {
     );
   }
 
-  // ================= REVENUE =================
+  // ================= REVENUE GROWTH =================
 
   Widget _buildRevenueCard() {
     return Container(
-      padding: const EdgeInsets.all(18),
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF172554),
-        borderRadius: BorderRadius.circular(18),
+        color: const Color(0xFF292F40),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.10),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Revenue Growth',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-
-                    SizedBox(height: 5),
-
-                    Text(
-                      'Monthly revenue performance',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFFBFDBFE),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 9,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDCFCE7),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  '+12%',
+              Expanded(
+                child: Text(
+                  'Revenue Growth',
                   style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF15803D),
-                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFF3F3FF),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
+              Icon(
+                Icons.trending_up,
+                color: Color(0xFFE1D6FF),
+                size: 26,
+              ),
             ],
           ),
-
-          const SizedBox(height: 22),
-
+          const SizedBox(height: 20),
           SizedBox(
-            height: 145,
+            height: 105,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildChartBar('Jan', 45),
-                _buildChartBar('Feb', 60),
-                _buildChartBar('Mar', 50),
-                _buildChartBar('Apr', 72),
-                _buildChartBar('May', 65),
-                _buildChartBar('Jun', 90),
+                _buildChartBar(33),
+                _buildChartBar(49),
+                _buildChartBar(42),
+                _buildChartBar(65),
+                _buildChartBar(57),
+                _buildChartBar(81),
               ],
             ),
           ),
-
-          const SizedBox(height: 14),
-
+          const SizedBox(height: 12),
           const Text(
             'Your revenue has increased by 12% since last month.',
             style: TextStyle(
-              fontSize: 12,
-              color: Color(0xFFBFDBFE),
+              fontSize: 13,
+              color: Color(0xFFCED0DD),
             ),
           ),
         ],
@@ -702,36 +658,22 @@ class _ownerdashboardState extends State<ownerdashboard> {
     );
   }
 
-  Widget _buildChartBar(
-    String month,
-    double height,
-  ) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Container(
-          height: height,
-          width: 25,
-          decoration: BoxDecoration(
-            color: const Color(0xFF60A5FA),
-            borderRadius: BorderRadius.circular(6),
+  Widget _buildChartBar(double height) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        height: height,
+        decoration: BoxDecoration(
+          color: primaryColor,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(3),
           ),
         ),
-
-        const SizedBox(height: 6),
-
-        Text(
-          month,
-          style: const TextStyle(
-            fontSize: 10,
-            color: Color(0xFFBFDBFE),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
-  // ================= PAYMENT =================
+  // ================= RECENT PAYMENTS =================
 
   Widget _buildPayment(
     String name,
@@ -741,21 +683,30 @@ class _ownerdashboardState extends State<ownerdashboard> {
   ) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        vertical: 13,
+        horizontal: 15,
+        vertical: 17,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor),
       ),
       child: Row(
         children: [
-          const CircleAvatar(
-            radius: 22,
-            backgroundColor: Color(0xFFEFF6FF),
-            child: Icon(
-              Icons.person_outline,
-              color: Color(0xFF2563EB),
+          Container(
+            width: 50,
+            height: 50,
+            decoration: const BoxDecoration(
+              color: Color(0xFFF1EBFF),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.payments_outlined,
+              color: Color(0xFF8146E8),
+              size: 28,
             ),
           ),
-
-          const SizedBox(width: 12),
-
+          const SizedBox(width: 13),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -763,41 +714,46 @@ class _ownerdashboardState extends State<ownerdashboard> {
                 Text(
                   name,
                   style: const TextStyle(
+                    fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    color: Color(0xFF192033),
                   ),
                 ),
-
                 const SizedBox(height: 4),
-
                 Text(
                   property,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 11,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-
-                const SizedBox(height: 3),
-
-                Text(
-                  'Paid • $date',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Colors.green,
+                    color: Color(0xFF4B4B60),
                   ),
                 ),
               ],
             ),
           ),
-
-          Text(
-            amount,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF111827),
-            ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                amount,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF192033),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Paid • $date',
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF8146E8),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -808,105 +764,86 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
   Widget _buildDashboard() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 25),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
 
-          const SizedBox(height: 25),
+          const SizedBox(height: 20),
 
-          const Text(
-            'Overview',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          // Two cards in the first row
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  'Total Properties',
+                  '12',
+                  Icons.home_work_outlined,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildStatCard(
+                  'Active Listings',
+                  '8',
+                  Icons.list_alt,
+                ),
+              ),
+            ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
-          _buildStatCard(
-            'Total Properties',
-            '12',
-            Icons.home_work_outlined,
-            null,
+          // Full-width monthly earnings
+          _buildEarningsCard(),
+
+          const SizedBox(height: 16),
+
+          // Two cards in the second row
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  'Bookings',
+                  '45',
+                  Icons.calendar_month_outlined,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildStatCard(
+                  'Views',
+                  '2.8k',
+                  Icons.visibility_outlined,
+                ),
+              ),
+            ],
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 24),
 
-          _buildStatCard(
-            'Active Listings',
-            '8',
-            Icons.list_alt_outlined,
-            null,
-          ),
+          _buildSectionHeading('Quick Actions'),
 
-          const SizedBox(height: 10),
-
-          _buildStatCard(
-            'Monthly Earnings',
-            '₹12,450',
-            Icons.currency_rupee,
-            '+12.5% growth',
-          ),
-
-          const SizedBox(height: 10),
-
-          _buildStatCard(
-            'Bookings',
-            '45',
-            Icons.calendar_month_outlined,
-            null,
-          ),
-
-          const SizedBox(height: 10),
-
-          _buildStatCard(
-            'Views',
-            '2.8k',
-            Icons.visibility_outlined,
-            null,
-          ),
-
-          const SizedBox(height: 25),
-
-          const Text(
-            'Quick Actions',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
           Row(
             children: [
               _buildQuickAction(
                 'Add Property',
-                Icons.add_home_work_outlined,
+                Icons.add_circle_outline,
                 0,
               ),
-
-              const SizedBox(width: 8),
-
               _buildQuickAction(
                 'Manage',
                 Icons.settings_outlined,
                 0,
               ),
-
-              const SizedBox(width: 8),
-
               _buildQuickAction(
                 'Requests',
-                Icons.assignment_outlined,
+                Icons.assignment_ind_outlined,
                 5,
               ),
-
-              const SizedBox(width: 8),
-
               _buildQuickAction(
                 'Analytics',
                 Icons.analytics_outlined,
@@ -915,17 +852,11 @@ class _ownerdashboardState extends State<ownerdashboard> {
             ],
           ),
 
-          const SizedBox(height: 25),
+          const SizedBox(height: 30),
 
-          const Text(
-            'Top Performing Property',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          _buildSectionHeading('Top Performing Property'),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 15),
 
           _buildPropertyCard(),
 
@@ -933,101 +864,61 @@ class _ownerdashboardState extends State<ownerdashboard> {
 
           Row(
             children: [
-              const Expanded(
-                child: Text(
-                  'Pending Requests',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+              Expanded(
+                child: _buildSectionHeading('Pending Requests'),
               ),
-
               GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const rentalrequests(),
+                      builder: (context) => const rentalrequests(),
                     ),
                   );
                 },
-                child: const Text(
+                child: Text(
                   'View All',
                   style: TextStyle(
-                    fontSize: 13,
+                    color: primaryColor,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF2563EB),
+                    fontSize: 14,
                   ),
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 15),
 
           _buildPendingRequest(),
 
-          const SizedBox(height: 25),
-
-          const Text(
-            'Revenue Growth',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-
-          const SizedBox(height: 12),
+          const SizedBox(height: 22),
 
           _buildRevenueCard(),
 
-          const SizedBox(height: 25),
+          const SizedBox(height: 24),
 
-          const Text(
-            'Recent Payments',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          _buildSectionHeading('Recent Payments'),
+
+          const SizedBox(height: 15),
+
+          _buildPayment(
+            'Mark Thompson',
+            '₹6,100',
+            'Oct 22',
+            'The Aura - Penthouse B',
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
 
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFFE5E7EB),
-              ),
-            ),
-            child: Column(
-              children: [
-                _buildPayment(
-                  'Mark Thompson',
-                  '₹6,100',
-                  'Oct 22',
-                  'The Aura - Penthouse B',
-                ),
-
-                const Divider(),
-
-                _buildPayment(
-                  'Elena Rodriguez',
-                  '₹2,850',
-                  'Oct 20',
-                  'Sunset Studio 402',
-                ),
-              ],
-            ),
+          _buildPayment(
+            'Elena Rodriguez',
+            '₹2,850',
+            'Oct 20',
+            'Sunset Studio 402',
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 15),
         ],
       ),
     );
@@ -1039,9 +930,11 @@ class _ownerdashboardState extends State<ownerdashboard> {
     return BottomNavigationBar(
       currentIndex: _selectedIndex,
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: const Color(0xFF2563EB),
-      unselectedItemColor: const Color(0xFF6B7280),
-
+      backgroundColor: Colors.white,
+      selectedItemColor: primaryColor,
+      unselectedItemColor: const Color(0xFF555568),
+      selectedFontSize: 12,
+      unselectedFontSize: 12,
       onTap: (index) {
         if (index == 0) {
           setState(() {
@@ -1077,32 +970,27 @@ class _ownerdashboardState extends State<ownerdashboard> {
           );
         }
       },
-
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.dashboard_outlined),
           activeIcon: Icon(Icons.dashboard),
           label: 'Dashboard',
         ),
-
         BottomNavigationBarItem(
           icon: Icon(Icons.home_work_outlined),
           activeIcon: Icon(Icons.home_work),
           label: 'Properties',
         ),
-
         BottomNavigationBarItem(
           icon: Icon(Icons.calendar_month_outlined),
           activeIcon: Icon(Icons.calendar_month),
           label: 'Bookings',
         ),
-
         BottomNavigationBarItem(
           icon: Icon(Icons.analytics_outlined),
           activeIcon: Icon(Icons.analytics),
           label: 'Analytics',
         ),
-
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outline),
           activeIcon: Icon(Icons.person),
@@ -1117,12 +1005,10 @@ class _ownerdashboardState extends State<ownerdashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: _buildDashboard(),
       ),
-
       bottomNavigationBar: _buildBottomNavigation(),
     );
   }
