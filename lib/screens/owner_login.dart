@@ -217,8 +217,7 @@ class _ownerloginState extends State<ownerlogin> {
                           CircularProgressIndicator(
                         strokeWidth: 2.5,
                         valueColor:
-                            AlwaysStoppedAnimation<
-                                Color>(
+                            AlwaysStoppedAnimation<Color>(
                           Colors.white,
                         ),
                       ),
@@ -227,88 +226,13 @@ class _ownerloginState extends State<ownerlogin> {
                       'Login as Owner',
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight:
-                            FontWeight.w600,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSocialLogin() {
-    return Column(
-      children: [
-        const SizedBox(height: 25),
-
-        Row(
-          children: [
-            const Expanded(
-              child: Divider(),
-            ),
-
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 12,
-              ),
-              child: Text(
-                'Or continue with',
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-
-            const Expanded(
-              child: Divider(),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 20),
-
-        SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: OutlinedButton.icon(
-            onPressed: () {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Google login selected',
-                  ),
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.g_mobiledata,
-              size: 28,
-              color: Colors.red,
-            ),
-            label: const Text(
-              'Continue with Google',
-              style: TextStyle(
-                color: Color(0xFF374151),
-              ),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(
-                color: Color(0xFFD1D5DB),
-              ),
-              shape:
-                  RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(10),
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -352,10 +276,8 @@ class _ownerloginState extends State<ownerlogin> {
                         'RentEasy',
                         style: TextStyle(
                           fontSize: 30,
-                          fontWeight:
-                              FontWeight.bold,
-                          color:
-                              Color(0xFF2563EB),
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF2563EB),
                         ),
                       ),
                     ),
@@ -367,19 +289,14 @@ class _ownerloginState extends State<ownerlogin> {
                       child: Container(
                         height: 160,
                         width: 220,
-                        decoration:
-                            BoxDecoration(
-                          color:
-                              const Color(
-                                  0xFFEFF6FF),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEFF6FF),
                           borderRadius:
-                              BorderRadius
-                                  .circular(24),
+                              BorderRadius.circular(24),
                         ),
                         child: ClipRRect(
                           borderRadius:
-                              BorderRadius
-                                  .circular(24),
+                              BorderRadius.circular(24),
                           child: Image.asset(
                             ownerLogin,
                             width: 220,
@@ -395,14 +312,11 @@ class _ownerloginState extends State<ownerlogin> {
                     const Center(
                       child: Text(
                         'Welcome, Property Owner',
-                        textAlign:
-                            TextAlign.center,
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 25,
-                          fontWeight:
-                              FontWeight.bold,
-                          color:
-                              Color(0xFF111827),
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF111827),
                         ),
                       ),
                     ),
@@ -412,13 +326,11 @@ class _ownerloginState extends State<ownerlogin> {
                     const Center(
                       child: Text(
                         'Manage your properties, tenants, and rental income effortlessly.',
-                        textAlign:
-                            TextAlign.center,
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 15,
                           height: 1.5,
-                          color:
-                              Color(0xFF6B7280),
+                          color: Color(0xFF6B7280),
                         ),
                       ),
                     ),
@@ -427,41 +339,27 @@ class _ownerloginState extends State<ownerlogin> {
 
                     Container(
                       height: 50,
-                      padding:
-                          const EdgeInsets.all(4),
-                      decoration:
-                          BoxDecoration(
-                        color:
-                            const Color(
-                                0xFFF3F4F6),
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3F4F6),
                         borderRadius:
-                            BorderRadius.circular(
-                                12),
+                            BorderRadius.circular(12),
                       ),
                       child: Row(
                         children: [
                           Expanded(
                             child: Container(
-                              decoration:
-                                  BoxDecoration(
-                                color:
-                                    Colors.white,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
                                 borderRadius:
-                                    BorderRadius
-                                        .circular(
-                                            9),
+                                    BorderRadius.circular(9),
                               ),
-                              child:
-                                  const Center(
+                              child: const Center(
                                 child: Text(
                                   'Login',
-                                  style:
-                                      TextStyle(
-                                    color: Color(
-                                        0xFF2563EB),
-                                    fontWeight:
-                                        FontWeight
-                                            .w600,
+                                  style: TextStyle(
+                                    color: Color(0xFF2563EB),
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
@@ -469,17 +367,12 @@ class _ownerloginState extends State<ownerlogin> {
                           ),
 
                           Expanded(
-                            child:
-                                TextButton(
-                              onPressed:
-                                  _openRegisterPage,
-                              child:
-                                  const Text(
+                            child: TextButton(
+                              onPressed: _openRegisterPage,
+                              child: const Text(
                                 'Register',
-                                style:
-                                    TextStyle(
-                                  color: Color(
-                                      0xFF6B7280),
+                                style: TextStyle(
+                                  color: Color(0xFF6B7280),
                                 ),
                               ),
                             ),
@@ -492,17 +385,13 @@ class _ownerloginState extends State<ownerlogin> {
 
                     _buildLoginForm(),
 
-                    _buildSocialLogin(),
-
                     const SizedBox(height: 25),
 
                     Center(
                       child: RichText(
                         text: TextSpan(
-                          style:
-                              const TextStyle(
-                            color:
-                                Color(0xFF6B7280),
+                          style: const TextStyle(
+                            color: Color(0xFF6B7280),
                             fontSize: 14,
                           ),
                           children: [
@@ -512,20 +401,13 @@ class _ownerloginState extends State<ownerlogin> {
                             ),
 
                             WidgetSpan(
-                              child:
-                                  GestureDetector(
-                                onTap:
-                                    _openRegisterPage,
-                                child:
-                                    const Text(
+                              child: GestureDetector(
+                                onTap: _openRegisterPage,
+                                child: const Text(
                                   'Register',
-                                  style:
-                                      TextStyle(
-                                    color: Color(
-                                        0xFF2563EB),
-                                    fontWeight:
-                                        FontWeight
-                                            .w600,
+                                  style: TextStyle(
+                                    color: Color(0xFF2563EB),
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
