@@ -670,9 +670,7 @@ static const Color pendingColor = Color(0xFF991B1B);
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            _showMessage(
-                              'Edit Listing: ${property['title']}',
-                            );
+                            
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryColor,

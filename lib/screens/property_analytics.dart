@@ -557,13 +557,7 @@ class _propertyanalyticsState extends State<propertyanalytics> {
               height: 52,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Full report export selected',
-                      ),
-                    ),
-                  );
+                  
                 },
                 icon: const Icon(
                   Icons.file_download_outlined,
@@ -593,13 +587,7 @@ class _propertyanalyticsState extends State<propertyanalytics> {
               height: 52,
               child: OutlinedButton.icon(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Monthly PDF selected',
-                      ),
-                    ),
-                  );
+                  
                 },
                 icon: const Icon(
                   Icons.picture_as_pdf_outlined,

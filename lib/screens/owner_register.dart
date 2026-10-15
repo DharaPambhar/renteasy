@@ -572,14 +572,7 @@ class _ownerregisterState extends State<ownerregister> {
                             width: double.infinity,
                             child: OutlinedButton.icon(
                               onPressed: () {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'ID Proof upload will be added later',
-                                    ),
-                                  ),
-                                );
+                                
                               },
                               icon: const Icon(
                                 Icons.upload_file_outlined,
@@ -611,14 +604,7 @@ class _ownerregisterState extends State<ownerregister> {
                             width: double.infinity,
                             child: OutlinedButton.icon(
                               onPressed: () {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Ownership document upload will be added later',
-                                    ),
-                                  ),
-                                );
+                                
                               },
                               icon: const Icon(
                                 Icons.description_outlined,

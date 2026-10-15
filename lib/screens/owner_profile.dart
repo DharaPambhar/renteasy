@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 import 'owner_dashboard.dart';
@@ -17,9 +18,7 @@ class ownerprofile extends StatefulWidget {
 class _ownerprofileState extends State<ownerprofile> {
   int _selectedIndex = 4;
 
-  // =========================================================
   // STATIC OWNER DATA
-  // =========================================================
 
   final String fullName = 'Dhara';
   final String email = 'dh@gmail.com';
@@ -54,9 +53,7 @@ class _ownerprofileState extends State<ownerprofile> {
       'The property was exactly as described and '
       'the overall rental experience was excellent.';
 
-  // =========================================================
   // STATIC PROPERTY DATA
-  // =========================================================
 
   final List<Map<String, dynamic>> propertyList = [
     {
@@ -82,9 +79,7 @@ class _ownerprofileState extends State<ownerprofile> {
     },
   ];
 
-  // =========================================================
   // GET PROPERTY IMAGE
-  // =========================================================
 
   String _getPropertyImage(String imageName) {
     if (imageName == 'property1') {
@@ -100,19 +95,13 @@ class _ownerprofileState extends State<ownerprofile> {
 
   @override
   Widget build(BuildContext context) {
-    // =======================================================
-    // STATIC PROPERTY STATISTICS
-    // =======================================================
+    // PROPERTY STATISTICS
 
     final int totalProperties = propertyList.length;
-
     final int activeProperties = 2;
-
     final int rentedProperties = 1;
 
-    // =======================================================
     // AVERAGE RATING
-    // =======================================================
 
     double totalRating = 0;
 
@@ -130,10 +119,7 @@ class _ownerprofileState extends State<ownerprofile> {
       body: SafeArea(
         child: Column(
           children: [
-
-            // =================================================
             // HEADER
-            // =================================================
 
             Padding(
               padding: const EdgeInsets.symmetric(
@@ -142,7 +128,6 @@ class _ownerprofileState extends State<ownerprofile> {
               ),
               child: Row(
                 children: [
-
                   GestureDetector(
                     onTap: () {
                       Navigator.pop(context);
@@ -185,18 +170,13 @@ class _ownerprofileState extends State<ownerprofile> {
               ),
             ),
 
-            // =================================================
             // PROFILE CONTENT
-            // =================================================
 
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-
-                    // =================================================
                     // PROFILE OVERVIEW
-                    // =================================================
 
                     Container(
                       width: double.infinity,
@@ -211,10 +191,8 @@ class _ownerprofileState extends State<ownerprofile> {
                       ),
                       child: Column(
                         children: [
-
                           Stack(
                             children: [
-
                               Container(
                                 width: 90,
                                 height: 90,
@@ -230,7 +208,6 @@ class _ownerprofileState extends State<ownerprofile> {
                                 ),
                               ),
 
-                              // Verification badge
                               if (isVerified)
                                 Positioned(
                                   right: 0,
@@ -256,7 +233,8 @@ class _ownerprofileState extends State<ownerprofile> {
 
                           const SizedBox(height: 12),
 
-                          // Name
+                          // NAME
+
                           Text(
                             fullName,
                             style: const TextStyle(
@@ -267,7 +245,8 @@ class _ownerprofileState extends State<ownerprofile> {
 
                           const SizedBox(height: 5),
 
-                          // Member Since
+                          // MEMBER SINCE
+
                           Text(
                             "Member since $memberSince",
                             style: const TextStyle(
@@ -278,12 +257,12 @@ class _ownerprofileState extends State<ownerprofile> {
 
                           const SizedBox(height: 8),
 
-                          // Average Rating
+                          // AVERAGE RATING
+
                           Row(
                             mainAxisAlignment:
                                 MainAxisAlignment.center,
                             children: [
-
                               const Icon(
                                 Icons.star,
                                 size: 18,
@@ -293,8 +272,7 @@ class _ownerprofileState extends State<ownerprofile> {
                               const SizedBox(width: 4),
 
                               Text(
-                                averageRating
-                                    .toStringAsFixed(1),
+                                averageRating.toStringAsFixed(1),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -311,81 +289,14 @@ class _ownerprofileState extends State<ownerprofile> {
                             ],
                           ),
 
-                          const SizedBox(height: 18),
-
-                          Row(
-                            children: [
-
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: () {
-                                    ScaffoldMessenger.of(
-                                            context)
-                                        .showSnackBar(
-                                      const SnackBar(
-                                        content:
-                                            Text("Chat opened"),
-                                      ),
-                                    );
-                                  },
-                                  style:
-                                      OutlinedButton.styleFrom(
-                                    foregroundColor:
-                                        const Color(
-                                      0xff2563EB,
-                                    ),
-                                    side:
-                                        const BorderSide(
-                                      color:
-                                          Color(0xff2563EB),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    "Chat Now",
-                                  ),
-                                ),
-                              ),
-
-                              const SizedBox(width: 12),
-
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    ScaffoldMessenger.of(
-                                            context)
-                                        .showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          "Calling owner...",
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  style:
-                                      ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color(
-                                      0xff2563EB,
-                                    ),
-                                    foregroundColor:
-                                        Colors.white,
-                                  ),
-                                  child: const Text(
-                                    "Call Owner",
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          // CHAT NOW AND CALL OWNER REMOVED
                         ],
                       ),
                     ),
 
                     const SizedBox(height: 20),
 
-                    // =================================================
                     // STATISTICS
-                    // =================================================
 
                     Container(
                       width: double.infinity,
@@ -404,22 +315,18 @@ class _ownerprofileState extends State<ownerprofile> {
                         mainAxisAlignment:
                             MainAxisAlignment.spaceAround,
                         children: [
-
                           _StatItem(
-                            value:
-                                totalProperties.toString(),
+                            value: totalProperties.toString(),
                             title: "Total Properties",
                           ),
 
                           _StatItem(
-                            value:
-                                activeProperties.toString(),
+                            value: activeProperties.toString(),
                             title: "Active Listings",
                           ),
 
                           _StatItem(
-                            value:
-                                rentedProperties.toString(),
+                            value: rentedProperties.toString(),
                             title: "Properties Rented",
                           ),
                         ],
@@ -428,9 +335,7 @@ class _ownerprofileState extends State<ownerprofile> {
 
                     const SizedBox(height: 20),
 
-                    // =================================================
                     // ABOUT
-                    // =================================================
 
                     Container(
                       width: double.infinity,
@@ -447,7 +352,6 @@ class _ownerprofileState extends State<ownerprofile> {
                         crossAxisAlignment:
                             CrossAxisAlignment.start,
                         children: [
-
                           Text(
                             "About $fullName",
                             style: const TextStyle(
@@ -472,9 +376,7 @@ class _ownerprofileState extends State<ownerprofile> {
 
                     const SizedBox(height: 20),
 
-                    // =================================================
                     // CONTACT INFORMATION
-                    // =================================================
 
                     Container(
                       width: double.infinity,
@@ -491,7 +393,6 @@ class _ownerprofileState extends State<ownerprofile> {
                         crossAxisAlignment:
                             CrossAxisAlignment.start,
                         children: [
-
                           const Text(
                             "Contact Information",
                             style: TextStyle(
@@ -519,8 +420,7 @@ class _ownerprofileState extends State<ownerprofile> {
                           const SizedBox(height: 15),
 
                           _ContactItem(
-                            icon:
-                                Icons.location_on_outlined,
+                            icon: Icons.location_on_outlined,
                             title: "City",
                             value: city,
                           ),
@@ -536,8 +436,7 @@ class _ownerprofileState extends State<ownerprofile> {
                           const SizedBox(height: 15),
 
                           _ContactItem(
-                            icon:
-                                Icons.verified_outlined,
+                            icon: Icons.verified_outlined,
                             title: "Verification",
                             value: isVerified
                                 ? "Verified Owner"
@@ -547,12 +446,9 @@ class _ownerprofileState extends State<ownerprofile> {
                           const SizedBox(height: 15),
 
                           _ContactItem(
-                            icon:
-                                Icons.language_outlined,
-                            title:
-                                "Preferred Languages",
-                            value:
-                                preferredLanguages,
+                            icon: Icons.language_outlined,
+                            title: "Preferred Languages",
+                            value: preferredLanguages,
                           ),
 
                           const SizedBox(height: 15),
@@ -560,8 +456,7 @@ class _ownerprofileState extends State<ownerprofile> {
                           _ContactItem(
                             icon: Icons.speed_outlined,
                             title: "Response Rate",
-                            value:
-                                "$responseRate% Rate",
+                            value: "$responseRate% Rate",
                           ),
 
                           const SizedBox(height: 15),
@@ -578,9 +473,7 @@ class _ownerprofileState extends State<ownerprofile> {
 
                     const SizedBox(height: 20),
 
-                    // =================================================
                     // LISTED PROPERTIES
-                    // =================================================
 
                     Container(
                       width: double.infinity,
@@ -597,12 +490,10 @@ class _ownerprofileState extends State<ownerprofile> {
                         crossAxisAlignment:
                             CrossAxisAlignment.start,
                         children: [
-
                           Row(
                             mainAxisAlignment:
                                 MainAxisAlignment.spaceBetween,
                             children: [
-
                               const Text(
                                 "Listed Properties",
                                 style: TextStyle(
@@ -624,10 +515,8 @@ class _ownerprofileState extends State<ownerprofile> {
                                 child: const Text(
                                   "View all",
                                   style: TextStyle(
-                                    color:
-                                        Color(0xff2563EB),
-                                    fontWeight:
-                                        FontWeight.w600,
+                                    color: Color(0xff2563EB),
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
@@ -636,7 +525,6 @@ class _ownerprofileState extends State<ownerprofile> {
 
                           const SizedBox(height: 16),
 
-                          // Static property list
                           propertyList.isEmpty
                               ? const SizedBox(
                                   height: 100,
@@ -664,52 +552,40 @@ class _ownerprofileState extends State<ownerprofile> {
                                     },
                                     itemBuilder:
                                         (context, index) {
-
                                       final propertyData =
                                           propertyList[index];
 
-                                      final String
-                                          propertyName =
+                                      final String propertyName =
                                           propertyData[
                                                   'propertyName']
                                               .toString();
 
-                                      final String
-                                          location =
-                                          propertyData[
-                                                  'location']
+                                      final String location =
+                                          propertyData['location']
                                               .toString();
 
                                       final String rent =
-                                          propertyData[
-                                                  'rent']
+                                          propertyData['rent']
                                               .toString();
 
                                       final double rating =
-                                          (propertyData[
-                                                      'rating']
+                                          (propertyData['rating']
                                                   as num)
                                               .toDouble();
 
                                       final String imageName =
-                                          propertyData[
-                                                  'image']
+                                          propertyData['image']
                                               .toString();
 
                                       return _PropertyCard(
-                                        image:
-                                            _getPropertyImage(
+                                        image: _getPropertyImage(
                                           imageName,
                                         ),
-                                        title:
-                                            propertyName,
-                                        location:
-                                            location,
+                                        title: propertyName,
+                                        location: location,
                                         price: rent,
                                         rating: rating
-                                            .toStringAsFixed(
-                                          1,
-                                        ),
+                                            .toStringAsFixed(1),
                                       );
                                     },
                                   ),
@@ -720,9 +596,7 @@ class _ownerprofileState extends State<ownerprofile> {
 
                     const SizedBox(height: 20),
 
-                    // =================================================
                     // TENANT REVIEW
-                    // =================================================
 
                     Container(
                       width: double.infinity,
@@ -739,7 +613,6 @@ class _ownerprofileState extends State<ownerprofile> {
                         crossAxisAlignment:
                             CrossAxisAlignment.start,
                         children: [
-
                           const Text(
                             "Tenant Review",
                             style: TextStyle(
@@ -752,12 +625,9 @@ class _ownerprofileState extends State<ownerprofile> {
 
                           Row(
                             children: [
-
                               const CircleAvatar(
                                 radius: 23,
-                                child: Icon(
-                                  Icons.person,
-                                ),
+                                child: Icon(Icons.person),
                               ),
 
                               const SizedBox(width: 12),
@@ -766,30 +636,25 @@ class _ownerprofileState extends State<ownerprofile> {
                                 crossAxisAlignment:
                                     CrossAxisAlignment.start,
                                 children: [
-
                                   Text(
                                     reviewerName,
                                     style: const TextStyle(
-                                      fontWeight:
-                                          FontWeight.bold,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
 
                                   const SizedBox(height: 4),
 
                                   Row(
-                                    children:
-                                        List.generate(
+                                    children: List.generate(
                                       5,
                                       (index) {
                                         return Icon(
-                                          index <
-                                                  reviewRating
+                                          index < reviewRating
                                               ? Icons.star
                                               : Icons.star_border,
                                           size: 16,
-                                          color:
-                                              Colors.orange,
+                                          color: Colors.orange,
                                         );
                                       },
                                     ),
@@ -821,9 +686,7 @@ class _ownerprofileState extends State<ownerprofile> {
         ),
       ),
 
-      // =========================================================
       // STICKY BUTTONS
-      // =========================================================
 
       bottomSheet: Container(
         padding: const EdgeInsets.fromLTRB(
@@ -837,7 +700,6 @@ class _ownerprofileState extends State<ownerprofile> {
         ),
         child: Row(
           children: [
-
             Expanded(
               child: OutlinedButton(
                 onPressed: () {
@@ -850,15 +712,12 @@ class _ownerprofileState extends State<ownerprofile> {
                   );
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor:
-                      const Color(0xff2563EB),
+                  foregroundColor: const Color(0xff2563EB),
                   side: const BorderSide(
                     color: Color(0xff2563EB),
                   ),
                 ),
-                child: const Text(
-                  "Book Visit",
-                ),
+                child: const Text("Book Visit"),
               ),
             ),
 
@@ -876,33 +735,23 @@ class _ownerprofileState extends State<ownerprofile> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      const Color(0xff2563EB),
+                  backgroundColor: const Color(0xff2563EB),
                   foregroundColor: Colors.white,
                 ),
-                child: const Text(
-                  "Request Rental",
-                ),
+                child: const Text("Request Rental"),
               ),
             ),
           ],
         ),
       ),
 
-      // =========================================================
       // BOTTOM NAVIGATION
-      // =========================================================
 
-      bottomNavigationBar:
-          BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         type: BottomNavigationBarType.fixed,
-
-        selectedItemColor:
-            const Color(0xff2563EB),
-
-        unselectedItemColor:
-            const Color(0xff64748B),
+        selectedItemColor: const Color(0xff2563EB),
+        unselectedItemColor: const Color(0xff64748B),
 
         onTap: (index) {
           setState(() {
@@ -913,24 +762,21 @@ class _ownerprofileState extends State<ownerprofile> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    const ownerdashboard(),
+                builder: (context) => const ownerdashboard(),
               ),
             );
           } else if (index == 1) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    const properties(),
+                builder: (context) => const properties(),
               ),
             );
           } else if (index == 2) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    const managebookings(),
+                builder: (context) => const managebookings(),
               ),
             );
           } else if (index == 3) {
@@ -945,54 +791,33 @@ class _ownerprofileState extends State<ownerprofile> {
         },
 
         items: const [
-
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.dashboard_outlined,
-            ),
-            activeIcon: Icon(
-              Icons.dashboard,
-            ),
+            icon: Icon(Icons.dashboard_outlined),
+            activeIcon: Icon(Icons.dashboard),
             label: "Dashboard",
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.home_work_outlined,
-            ),
-            activeIcon: Icon(
-              Icons.home_work,
-            ),
+            icon: Icon(Icons.home_work_outlined),
+            activeIcon: Icon(Icons.home_work),
             label: "Properties",
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.calendar_month_outlined,
-            ),
-            activeIcon: Icon(
-              Icons.calendar_month,
-            ),
+            icon: Icon(Icons.calendar_month_outlined),
+            activeIcon: Icon(Icons.calendar_month),
             label: "Bookings",
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.analytics_outlined,
-            ),
-            activeIcon: Icon(
-              Icons.analytics,
-            ),
+            icon: Icon(Icons.analytics_outlined),
+            activeIcon: Icon(Icons.analytics),
             label: "Analytics",
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.person_outline,
-            ),
-            activeIcon: Icon(
-              Icons.person,
-            ),
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
             label: "Profile",
           ),
         ],
@@ -1001,9 +826,7 @@ class _ownerprofileState extends State<ownerprofile> {
   }
 }
 
-// =============================================================
 // STAT ITEM
-// =============================================================
 
 class _StatItem extends StatelessWidget {
   final String value;
@@ -1018,7 +841,6 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-
         Text(
           value,
           style: const TextStyle(
@@ -1042,9 +864,7 @@ class _StatItem extends StatelessWidget {
   }
 }
 
-// =============================================================
 // CONTACT ITEM
-// =============================================================
 
 class _ContactItem extends StatelessWidget {
   final IconData icon;
@@ -1061,14 +881,12 @@ class _ContactItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-
         Container(
           width: 40,
           height: 40,
           decoration: BoxDecoration(
             color: const Color(0xffF1F3F8),
-            borderRadius:
-                BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(
             icon,
@@ -1081,10 +899,8 @@ class _ContactItem extends StatelessWidget {
 
         Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               Text(
                 title,
                 style: const TextStyle(
@@ -1096,9 +912,7 @@ class _ContactItem extends StatelessWidget {
               const SizedBox(height: 3),
 
               Text(
-                value.isEmpty
-                    ? "Not available"
-                    : value,
+                value.isEmpty ? "Not available" : value,
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -1112,9 +926,7 @@ class _ContactItem extends StatelessWidget {
   }
 }
 
-// =============================================================
 // PROPERTY CARD
-// =============================================================
 
 class _PropertyCard extends StatelessWidget {
   final String image;
@@ -1137,20 +949,16 @@ class _PropertyCard extends StatelessWidget {
       width: 210,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(15),
         border: Border.all(
           color: const Color(0xffE6E8EF),
         ),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           ClipRRect(
-            borderRadius:
-                const BorderRadius.vertical(
+            borderRadius: const BorderRadius.vertical(
               top: Radius.circular(15),
             ),
             child: Image.asset(
@@ -1164,18 +972,14 @@ class _PropertyCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Text(
                   title,
                   maxLines: 1,
-                  overflow:
-                      TextOverflow.ellipsis,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontWeight:
-                        FontWeight.bold,
+                    fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
                 ),
@@ -1185,8 +989,7 @@ class _PropertyCard extends StatelessWidget {
                 Text(
                   location,
                   maxLines: 1,
-                  overflow:
-                      TextOverflow.ellipsis,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Colors.grey,
                     fontSize: 12,
@@ -1197,19 +1000,15 @@ class _PropertyCard extends StatelessWidget {
 
                 Row(
                   mainAxisAlignment:
-                      MainAxisAlignment
-                          .spaceBetween,
+                      MainAxisAlignment.spaceBetween,
                   children: [
-
                     Expanded(
                       child: Text(
                         price,
                         maxLines: 1,
-                        overflow:
-                            TextOverflow.ellipsis,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontWeight:
-                              FontWeight.bold,
+                          fontWeight: FontWeight.bold,
                           fontSize: 13,
                         ),
                       ),
@@ -1217,7 +1016,6 @@ class _PropertyCard extends StatelessWidget {
 
                     Row(
                       children: [
-
                         const Icon(
                           Icons.star,
                           size: 15,
@@ -1230,8 +1028,7 @@ class _PropertyCard extends StatelessWidget {
                           rating,
                           style: const TextStyle(
                             fontSize: 12,
-                            fontWeight:
-                                FontWeight.w500,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
